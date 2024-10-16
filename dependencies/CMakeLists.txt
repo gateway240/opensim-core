@@ -219,8 +219,8 @@ AddDependency(NAME       catch2
 
 AddDependency(NAME    fast_float
               DEFAULT ON
-              GIT_URL https://github.com/lemire/fast_float.git
-              GIT_TAG tags/v1.1.2
+              GIT_URL https://github.com/fastfloat/fast_float.git
+              GIT_TAG tags/v6.1.6
               GIT_SHALLOW TRUE)
 
 mark_as_advanced(SUPERBUILD_fast_float)
