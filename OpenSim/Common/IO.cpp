@@ -52,7 +52,7 @@
 #endif
 
 #include "fast_float/fast_float.h"
-#include <sstream>
+// #include <sstream>
 
 // CONSTANTS
 
@@ -470,10 +470,10 @@ double IO::
 stod(const std::string& __str, std::size_t* __idx)
 { 
     double result;
-    std::istringstream iss(__str);
-    iss.imbue(std::locale(_locale));
-    iss >> result;
-    // fast_float::from_chars(__str.data(), __str.data()+__str.size(), result);
+    // std::istringstream iss(__str);
+    // iss.imbue(std::locale(_locale));
+    // iss >> result;
+    fast_float::from_chars(__str.data(), __str.data()+__str.size(), result);
     return result;
 }
 //_____________________________________________________________________________
