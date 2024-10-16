@@ -22,6 +22,7 @@
 
 #include "OpenSim/Common/Adapters.h"
 #include "OpenSim/Common/CommonUtilities.h"
+#include "OpenSim/Common/IO.h"
 #include <cstdio>
 #include <fstream>
 #include <unordered_set>
