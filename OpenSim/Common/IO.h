@@ -102,10 +102,11 @@ public:
     static int ComputeNumberOfSteps(double aTI,double aTF,double aDT);
     static std::string ReadCharacters(std::istream &aIS,int aNChar);
     static bool FileExists(const std::string& filePath);
-#endif
     static std::ifstream* OpenInputFile(const std::string &aFileName,std::ios_base::openmode mode=std::ios_base::in);
     static std::ofstream* OpenOutputFile(const std::string &aFileName,std::ios_base::openmode mode=std::ios_base::out);
     static double stod(const std::string& __str, std::size_t* __idx = 0);
+#endif
+
     // 
     // Directory management
     static int makeDir(const std::string &aDirName);
