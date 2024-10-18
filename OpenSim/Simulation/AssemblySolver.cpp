@@ -302,7 +302,8 @@ void AssemblySolver::setState(SimTK::State &s)
 
 	try{
 		// update the state from the result of the assembler
-		_assembler->updateFromInternalState(s);
+        _assembler->initialize(s);
+		// _assembler->updateFromInternalState(s);
 	}
 	catch (const std::exception& ex)
     {
