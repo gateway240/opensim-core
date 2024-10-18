@@ -294,6 +294,9 @@ void AssemblySolver::setState(SimTK::State &s)
 	// and their type (constrained vs. weighted)
 
 	if(_assembler && _assembler->isInitialized()){
+        if (!_assembler->getMatterSubsystem().getUseEulerAngles(s)) {
+            _assembler->getMatterSubsystem().setUseEulerAngles(s, true);
+        } 
 		updateGoals(s);
 	}
     else{
