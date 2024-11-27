@@ -29,6 +29,7 @@
 #include "PiecewiseLinearFunction.h"
 #include "Signal.h"
 #include "Storage.h"
+#include <vector>
 
 using namespace OpenSim;
 
@@ -119,6 +120,81 @@ int TableUtilities::findStateLabelIndexInternal(const std::string* begin,
     return -1;
 }
 
+template <typename T>
+std::pair<bool, double> isUniform(const std::vector<T>& x) {
+    // Check if the vector is empty or has only one element
+    if (x.size() < 2) {
+        return {false, std::numeric_limits<double>::quiet_NaN()};
+    }
+
+    // Check if the vector is a real number (not complex)
+    if (!std::is_floating_point<T>::value && !std::is_integral<T>::value) {
+        throw std::invalid_argument("Input must be a real numeric vector.");
+    }
+
+    // Initialize step as NaN
+    double step = std::numeric_limits<double>::quiet_NaN();
+    bool tf = false;
+
+    // Handle integer types
+    if (std::is_integral<T>::value) {
+        std::vector<unsigned long long> unsigned_x(x.size());
+        for (size_t i = 0; i < x.size(); ++i) {
+            unsigned_x[i] = static_cast<unsigned long long>(x[i]);
+        }
+
+        // Check if the vector is sorted in descending order
+        bool xWasFlipped = false;
+        if (unsigned_x[1] < unsigned_x[0]) {
+            std::reverse(unsigned_x.begin(), unsigned_x.end());
+            xWasFlipped = true;
+        }
+
+        unsigned long long integerStep = unsigned_x[1] - unsigned_x[0];
+        tf = std::all_of(unsigned_x.begin() + 1, unsigned_x.end(), [&](unsigned long long val) {
+            return val - unsigned_x[&val - &unsigned_x[0] - 1] == integerStep;
+        });
+
+        if (integerStep == 0 && tf) {
+            tf = std::all_of(unsigned_x.begin() + 1, unsigned_x.end(), [&](unsigned long long val) {
+                return val == unsigned_x[0];
+            });
+        }
+
+        if (tf) {
+            step = (xWasFlipped ? -1.0 : 1.0) * static_cast<double>(integerStep);
+        }
+    } else { // Handle floating-point types
+        double maxElement = std::max(std::abs(x.front()), std::abs(x.back()));
+        double tol = 4 * std::numeric_limits<double>::epsilon() * maxElement;
+        size_t numSpaces = x.size() - 1;
+        double span = x.back() - x.front();
+        double mean_step = (std::isfinite(span)) ? span / numSpaces : (x.back() / numSpaces - x.front() / numSpaces);
+
+        double stepAbs = std::abs(mean_step);
+        if (stepAbs < tol) {
+            tol = (stepAbs < std::numeric_limits<double>::epsilon() * maxElement) ? 
+                    std::numeric_limits<double>::epsilon() * maxElement : 
+                    stepAbs;
+        }
+
+        tf = std::all_of(x.begin() + 1, x.end(), [&](T val) {
+            const auto index = &val - &x[0];
+            return std::abs(val - x[index - 1] - mean_step) <= tol;
+        });
+
+        if (!tf && x.size() == 2) {
+            tf = true; // Handle special case for two elements
+        }
+        std::cout << "TF: " << tf << " Mean step: " << mean_step << " Tol: " << tol << std::endl;
+        if (tf) {
+            step = mean_step;
+        }
+    }
+
+    return {tf, step};
+}
+
 void TableUtilities::filterLowpass(
         TimeSeriesTable& table, double cutoffFreq, bool padData) {
     OPENSIM_THROW_IF(cutoffFreq < 0, Exception,
@@ -138,19 +214,24 @@ void TableUtilities::filterLowpass(
     double dtMin = SimTK::Infinity;
     for (int irow = 1; irow < numRows; ++irow) {
         double dt = time[irow] - time[irow - 1];
-        if (dt < dtMin) dtMin = dt;
+        if (dt < dtMin) {
+                std::cout << std::fixed << std::setprecision(32) << "New dtMin at position: " << irow << " Value: " << dt << std::endl;
+                dtMin = dt;
+        } 
     }
     OPENSIM_THROW_IF(
             dtMin < SimTK::Eps, Exception, "Storage cannot be resampled.");
 
     double dtAvg = (time.back() - time.front()) / (numRows - 1);
-    std::cout << "Time Back: " << time.back() << " Time Front: " << time.front() << std::endl;
+    std::cout << std::fixed << std::setprecision(32) << "Time Back: " << time.back() << " Time Front: " << time.front() << std::endl;
 
     // Resample if the sampling interval is not uniform.
-    if (dtAvg - dtMin > SimTK::SqrtEps) {
-        std::cout << "dtAvg: " << dtAvg << " dtMin: " << dtMin << std::endl;
+    auto [tf1, step1] = isUniform(time);
+    std::cout << "TF: " << tf1 << " Step: " << step1 << std::endl;
+    if (!tf1) {
+        std::cout << std::fixed << std::setprecision(32) << "dtAvg: " << dtAvg << " dtMin: " << dtMin << std::endl;
         std::cout << "SimTK::Inf: " << SimTK::Infinity << " Simtk::EPS: " << SimTK::Eps << " RESAMPLING! " << dtAvg - dtMin << std::endl;
-        table = resampleWithInterval(table, dtMin);
+        // table = resampleWithInterval(table, dtMin);
     }
 
     SimTK::Vector filtered(numRows);
