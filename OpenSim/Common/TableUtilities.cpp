@@ -29,6 +29,7 @@
 #include "PiecewiseLinearFunction.h"
 #include "Signal.h"
 #include "Storage.h"
+#include <numeric>
 #include <vector>
 
 using namespace OpenSim;
@@ -169,7 +170,7 @@ std::pair<bool, double> isUniform(const std::vector<T>& x) {
         double tol = 4 * std::numeric_limits<double>::epsilon() * maxElement;
         size_t numSpaces = x.size() - 1;
         double span = x.back() - x.front();
-        double mean_step = (std::isfinite(span)) ? span / numSpaces : (x.back() / numSpaces - x.front() / numSpaces);
+        const double mean_step = (std::isfinite(span)) ? span / numSpaces : (x.back() / numSpaces - x.front() / numSpaces);
 
         double stepAbs = std::abs(mean_step);
         if (stepAbs < tol) {
@@ -177,16 +178,17 @@ std::pair<bool, double> isUniform(const std::vector<T>& x) {
                     std::numeric_limits<double>::epsilon() * maxElement : 
                     stepAbs;
         }
-
-        tf = std::all_of(x.begin() + 1, x.end(), [&](T val) {
-            const auto index = &val - &x[0];
-            return std::abs(val - x[index - 1] - mean_step) <= tol;
+        std::vector<T> results(x.size());
+        std::adjacent_difference(x.begin(), x.end(),results.begin());
+        // The first value from std::adjacent_difference is the first input so it is skipped 
+        tf = std::all_of(results.begin() + 1, results.end(), [&mean_step, &tol](T val) {
+            return std::abs(val - mean_step) <= tol;
         });
 
         if (!tf && x.size() == 2) {
             tf = true; // Handle special case for two elements
         }
-        std::cout << "TF: " << tf << " Mean step: " << mean_step << " Tol: " << tol << std::endl;
+        // std::cout << "TF: " << tf << " Mean step: " << mean_step << " Tol: " << tol << std::endl;
         if (tf) {
             step = mean_step;
         }
@@ -194,6 +196,7 @@ std::pair<bool, double> isUniform(const std::vector<T>& x) {
 
     return {tf, step};
 }
+
 
 void TableUtilities::filterLowpass(
         TimeSeriesTable& table, double cutoffFreq, bool padData) {
