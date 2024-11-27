@@ -123,10 +123,13 @@ void TableUtilities::filterLowpass(
         TimeSeriesTable& table, double cutoffFreq, bool padData) {
     OPENSIM_THROW_IF(cutoffFreq < 0, Exception,
             "Cutoff frequency must be non-negative; got {}.", cutoffFreq);
-
-    if (padData) { pad(table, (int)table.getNumRows() / 2); }
-
-    const int numRows = (int)table.getNumRows();
+              std::cout << "Number of Rows: " << table.getNumRows() << std::endl;
+    if (padData) { 
+        // pad(table, (int)table.getNumRows() / 2 + ((int)table.getNumRows() % 2 != 0)); 
+        // pad(table, (int)table.getNumRows() / 2 ); 
+        }
+        std::cout << "Number of Rows: " << table.getNumRows() << std::endl;
+        const int numRows = (int)table.getNumRows();
     OPENSIM_THROW_IF(numRows < 4, Exception,
             "Expected at least 4 rows to filter, but got {} rows.", numRows);
 
@@ -141,9 +144,12 @@ void TableUtilities::filterLowpass(
             dtMin < SimTK::Eps, Exception, "Storage cannot be resampled.");
 
     double dtAvg = (time.back() - time.front()) / (numRows - 1);
+    std::cout << "Time Back: " << time.back() << " Time Front: " << time.front() << std::endl;
 
     // Resample if the sampling interval is not uniform.
-    if (dtAvg - dtMin > SimTK::Eps) {
+    if (dtAvg - dtMin > SimTK::SqrtEps) {
+        std::cout << "dtAvg: " << dtAvg << " dtMin: " << dtMin << std::endl;
+        std::cout << "SimTK::Inf: " << SimTK::Infinity << " Simtk::EPS: " << SimTK::Eps << " RESAMPLING! " << dtAvg - dtMin << std::endl;
         table = resampleWithInterval(table, dtMin);
     }
 
