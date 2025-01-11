@@ -98,7 +98,7 @@ public:
 #endif
     void copyData(const ScaleTool &aSubject);
 
-    Model* createModel() const;
+    std::unique_ptr<Model> createModel() const;
     /* Query the subject for different parameters */
     const GenericModelMaker& getGenericModelMaker() const
     { return _genericModelMaker; }

@@ -151,9 +151,9 @@ GenericModelMaker& GenericModelMaker::operator=(const GenericModelMaker &aGeneri
  *
  * @return Pointer to the Model that is constructed.
  */
-Model* GenericModelMaker::processModel(const string& aPathToSubject) const
+std::unique_ptr<Model> GenericModelMaker::processModel(const string& aPathToSubject) const
 {
-    Model* model = NULL;
+    std::unique_ptr<Model> model;
 
     log_info("Step 1: Loading generic model");
 
@@ -161,7 +161,8 @@ Model* GenericModelMaker::processModel(const string& aPathToSubject) const
     {
         std::string modelPath = 
             SimTK::Pathname::getAbsolutePathnameUsingSpecifiedWorkingDirectory(aPathToSubject, _fileName);
-        model = new Model(modelPath);
+        std::cout << "modelPath: " << modelPath << std::endl;
+        model = std::make_unique<Model>(Model(modelPath));
         model->initSystem();
 
         if (!_markerSetFileNameProp.getValueIsDefault() && _markerSetFileName !="Unassigned") {

@@ -222,14 +222,14 @@ ScaleTool& ScaleTool::operator=(const ScaleTool &aSubject)
  *
  * @return Pointer to the Model that is created.
  */
-Model* ScaleTool::createModel() const
+std::unique_ptr<Model> ScaleTool::createModel() const
 {
     log_info("Processing subject {}...", getName());
 
     /* Make the generic model. */
     if (!_genericModelMakerProp.getValueIsDefault())
     {
-        Model *model = getGenericModelMaker().processModel(_pathToSubject);
+        std::unique_ptr<Model> model(getGenericModelMaker().processModel(_pathToSubject));
         if (!model)
         {
             // processModel() attempts to load both the model and market set
