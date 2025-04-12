@@ -24,6 +24,7 @@
 // For definition of Exceptions to be used
 #include "Object.h"
 #include "ExperimentalSensor.h"
+#include "Property.h"
 /** @file
  * This file defines class for configuring the reading data files from IMU maker
  * Xsens.
@@ -41,6 +42,20 @@ public:
         "Name of folder containing data files.");
     OpenSim_DECLARE_PROPERTY(trial_prefix, std::string,
         "Name of trial (Common prefix of txt files representing trial).");
+    OpenSim_DECLARE_PROPERTY(trial_extension, std::string, 
+        "File extension for the trial files. Defaults to \".txt\"");
+    OpenSim_DECLARE_PROPERTY(sampling_rate, double,
+        "Sampling Rate (frequency in Hz) for the trials. Defaults to 40Hz if no value provided."
+        "This is used in calculating the time interval (1/frequency) for the resultant tables."
+        "Newer versions of the Xsens software do not specify the recording data rate."
+        "See #3956 for details.");
+    OpenSim_DECLARE_PROPERTY(delimiter, std::string,
+        "The delimiter used within the file to separate columns. Defaults to tab (\t)."
+        "Currently parsable options include: tab,space, and comma (\"\t\",\" \",\",\")");
+    OpenSim_DECLARE_PROPERTY(rotation_representation, std::string,
+        "How the rotation information is represented in the file. Defaults to 'matrix'."
+        "Valid values are: (\"rot_matrix\", \"rot_euler\", and \"rot_quaternion\"). If both values are present in the file,"
+        "the value here will be used.");
     OpenSim_DECLARE_LIST_PROPERTY(ExperimentalSensors, ExperimentalSensor,
         "List of Experimental sensors and desired associated names in resulting tables");
 
@@ -61,6 +76,10 @@ private:
     void constructProperties() {
         constructProperty_data_folder("");
         constructProperty_trial_prefix("");
+        constructProperty_trial_extension(".txt");
+        constructProperty_sampling_rate(40.0);
+        constructProperty_delimiter("\t");
+        constructProperty_rotation_representation("rot_matrix");
         constructProperty_ExperimentalSensors();
     }
 };
