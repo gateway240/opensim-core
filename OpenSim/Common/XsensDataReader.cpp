@@ -9,6 +9,9 @@
 #include <filesystem>
 #include <fstream>
 #include <iterator>
+#include <map>
+#include <set>
+#include <string>
 
 namespace OpenSim {
 
@@ -16,20 +19,23 @@ XsensDataReader* XsensDataReader::clone() const {
     return new XsensDataReader{*this};
 }
 
-const std::map<std::string, std::set<std::string>> XsensDataReader::_accepted_headers = {
-        {"accelerometer", {"Acc_X", "Acc_Y", "Acc_Z"}},
-        {"gyroscope", {"Gyr_X", "Gyr_Y", "Gyr_Z"}},
-        {"magnetometer", {"Mag_X", "Mag_Y", "Mag_Z"}},
-        {"rot_quaternion", {"Quat_q0", "Quat_q1", "Quat_q2", "Quat_q3"}},
-        {"rot_euler", {"Roll", "Pitch", "Yaw"}},
-        {"rot_matrix", {"Mat[1][1]", "Mat[2][1]", "Mat[3][1]", "Mat[1][2]",
-                               "Mat[2][2]", "Mat[3][2]", "Mat[1][3]",
-                               "Mat[2][3]", "Mat[3][3]"}}};
-
 DataAdapter::OutputTables XsensDataReader::extendRead(
         const std::string& folderName) const {
 
-    std::vector<std::ifstream*> imuStreams;
+    // This encapsulates all the accepted headers and their groups
+    const static std::map<std::string, std::set<std::string>>
+            _accepted_headers = {{"accelerometer", {"Acc_X", "Acc_Y", "Acc_Z"}},
+                    {"gyroscope", {"Gyr_X", "Gyr_Y", "Gyr_Z"}},
+                    {"magnetometer", {"Mag_X", "Mag_Y", "Mag_Z"}},
+                    {"rot_quaternion",
+                            {"Quat_q0", "Quat_q1", "Quat_q2", "Quat_q3"}},
+                    {"rot_euler", {"Roll", "Pitch", "Yaw"}},
+                    {"rot_matrix",
+                            {"Mat[1][1]", "Mat[2][1]", "Mat[3][1]", "Mat[1][2]",
+                                    "Mat[2][2]", "Mat[3][2]", "Mat[1][3]",
+                                    "Mat[2][3]", "Mat[3][3]"}}};
+
+    std::vector<std::unique_ptr<std::ifstream>> imuStreams;
     std::vector<std::string> labels;
     // files specified by prefix + file name exist
     double dataRate = _settings.get_sampling_rate();
@@ -44,11 +50,8 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
 
     std::string prefix = _settings.get_trial_prefix();
     std::map<std::string, std::string> headersKeyValuePairs;
-    // Map to store the headers and their column indices by group
-    std::map<std::string, std::set<std::pair<std::string, size_t>>>
-            presentGroupsWithColumnIndices;
-
     std::map<std::string, size_t> h_map;
+
     for (int index = 0; index < n_imus; ++index) {
         std::string prefix = _settings.get_trial_prefix();
         const ExperimentalSensor& nextItem =
@@ -56,13 +59,9 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
         const std::filesystem::path fileName =
                 std::filesystem::path(folderName) /
                 (prefix + nextItem.getName() + extension);
-        auto* nextStream = new std::ifstream{fileName};
+        auto nextStream = std::make_unique<std::ifstream>(fileName);
 
         OPENSIM_THROW_IF(!nextStream->good(), FileDoesNotExist, fileName);
-        // Add imu name to labels
-        labels.push_back(nextItem.get_name_in_model());
-        // Add corresponding stream to imuStreams
-        imuStreams.push_back(nextStream);
 
         // Skip lines to get to data
         std::string line;
@@ -90,58 +89,69 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
         // Find indices for Acc_{X,Y,Z}, Gyr_{X,Y,Z},
         // Mag_{X,Y,Z}, Mat on first non-comment line
         tokens = FileAdapter::tokenize(line, delimiter);
-        // Process each word in the line (separated by spaces)
+        // Process each header in the line
         for (auto& pair : _accepted_headers) {
             const std::string& group = pair.first;
             const std::set<std::string>& headers = pair.second;
             for (const auto& header : headers) {
-                int tokenIndex = find_index(tokens, header);
-                if (tokenIndex != -1) {
-                    // Add the header with its column index to the map
-                    presentGroupsWithColumnIndices[group].insert(
-                            {header, tokenIndex});
-                }
+                int tokenIndex = std::distance(tokens.begin(),
+                        std::find(tokens.begin(), tokens.end(), header));
+                if (tokenIndex != -1) { h_map.insert({header, tokenIndex}); }
             }
         }
-        // Output the present header groups and their column indices
-        // std::cout << "Present header groups with their column indices:"
-        //           << std::endl;
 
-        for (const auto& group : presentGroupsWithColumnIndices) {
-            // std::cout << group.first << ":" << std::endl;
-            for (const auto& header : group.second) {
-                // std::cout << "  " << header.first << " at column "
-                //           << header.second << std::endl;
-                h_map.insert({header.first, header.second});
-            }
-        }
         // Count the total lines in the file
         // TODO: make sure all the sensor files have the same number of lines
-        std::ifstream lineCount{fileName};
-        n_lines = std::count(std::istreambuf_iterator<char>(lineCount),
+        const int fp_pos = nextStream->tellg();
+        // std::cout << "Current pos: " << fp_pos << std::endl;
+        // Count the number of lines
+        n_lines = std::count(std::istreambuf_iterator<char>(*nextStream),
                 std::istreambuf_iterator<char>(), '\n');
+        // Rewind file pointer to after header
+        nextStream->seekg(fp_pos, std::ifstream::beg);
         // std::cout << "Number of Lines: " << n_lines << std::endl;
+
+        // Add imu name to labels
+        labels.push_back(nextItem.get_name_in_model());
+        // Add corresponding stream to imuStreams
+        imuStreams.push_back(std::move(nextStream));
     }
     // Compute data rate based on key/value pair if available
     std::map<std::string, std::string>::iterator it =
             headersKeyValuePairs.find("Update Rate");
     if (it != headersKeyValuePairs.end())
         dataRate = OpenSim::IO::stod(it->second);
+    // Make sure that the specified header group has all required headers
+    auto is_group_complete =
+            [&](const std::string& group,
+                    const std::map<std::string, std::set<std::string>>&
+                            accepted_headers,
+                    const std::map<std::string, size_t>& found_headers)
+            -> bool {
+        const auto& reqIt = accepted_headers.find(group);
+        if (reqIt == accepted_headers.end()) return false;
+        const auto& search_set = reqIt->second;
+        return std::all_of(
+                search_set.begin(), search_set.end(), [&](const auto& p) {
+                    return found_headers.find(p) != found_headers.end();
+                });
+    };
     // internally keep track of what data was found in input files
-    bool foundLinearAccelerationData = is_group_complete(
-            "accelerometer", _accepted_headers, presentGroupsWithColumnIndices);
-    bool foundMagneticHeadingData = is_group_complete(
-            "magnetometer", _accepted_headers, presentGroupsWithColumnIndices);
-    bool foundAngularVelocityData = is_group_complete(
-            "gyroscope", _accepted_headers, presentGroupsWithColumnIndices);
-    bool foundRotationData = is_group_complete(rotation_representation,
-        _accepted_headers, presentGroupsWithColumnIndices);
+    bool foundLinearAccelerationData =
+            is_group_complete("accelerometer", _accepted_headers, h_map);
+    bool foundMagneticHeadingData =
+            is_group_complete("magnetometer", _accepted_headers, h_map);
+    bool foundAngularVelocityData =
+            is_group_complete("gyroscope", _accepted_headers, h_map);
+    bool foundRotationData = is_group_complete(
+            rotation_representation, _accepted_headers, h_map);
     // If no Orientation data is available we'll abort completely
-    OPENSIM_THROW_IF(!foundRotationData,
-        TableMissingHeader,
-        "Rotation Data not found. Please ensure that the XsensDataReaderSettings match the file format being parsed!\n"
-        " Attempted to parse with rotation format: \"" + rotation_representation_str + "\""
-        " and delimiter: \"" + delimiter + "\"");
+    OPENSIM_THROW_IF(!foundRotationData, TableMissingHeader,
+            "Rotation Data not found. Please ensure that the "
+            "XsensDataReaderSettings match the file format being parsed!\n"
+            " Attempted to parse with rotation format: \"" +
+                    rotation_representation_str + "\" and delimiter: \"" +
+                    delimiter + "\"");
 
     // Will read data into pre-allocated Matrices in-memory rather than
     // appendRow on the fly to avoid the overhead of
@@ -166,9 +176,7 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                 n_imus, SimTK::Vec3(SimTK::NaN)};
         // Cycle through the files collating values
         int imu_index = 0;
-        for (std::vector<std::ifstream*>::iterator it = imuStreams.begin();
-                it != imuStreams.end(); ++it, ++imu_index) {
-            std::ifstream* nextStream = *it;
+        for (auto&& nextStream : imuStreams) {
             // parse gyro info from imuStream
             std::vector<std::string> nextRow =
                     FileAdapter::getNextLine(*nextStream, delimiter + "\r");
@@ -240,6 +248,7 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                             imu_rotation.convertRotationToQuaternion();
                 }
             }
+            imu_index++;
         }
         if (end_of_file) { break; }
         // append to the tables
@@ -275,34 +284,4 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
     return tables;
 }
 
-bool XsensDataReader::is_group_complete(const std::string& group,
-        const std::map<std::string, std::set<std::string>>&
-                headers,
-        const std::map<std::string, std::set<std::pair<std::string, size_t>>>&
-                presentGroupsWithColumnIndices) {
-    auto reqIt = headers.find(group);
-    if (reqIt == headers.end()) return false;
-
-    auto presIt = presentGroupsWithColumnIndices.find(group);
-    if (presIt == presentGroupsWithColumnIndices.end()) return false;
-
-    std::set<std::string> present;
-    for (const auto& pair : presIt->second) { present.insert(pair.first); }
-
-    for (const auto& header : reqIt->second) {
-        if (present.find(header) == present.end()) { return false; }
-    }
-
-    return true;
-}
-
-int XsensDataReader::find_index(
-        std::vector<std::string>& tokens, const std::string& keyToMatch) {
-    int returnIndex = -1;
-    std::vector<std::string>::iterator it =
-            std::find(tokens.begin(), tokens.end(), keyToMatch);
-    if (it != tokens.end())
-        returnIndex = static_cast<int>(std::distance(tokens.begin(), it));
-    return returnIndex;
-}
 } // namespace OpenSim

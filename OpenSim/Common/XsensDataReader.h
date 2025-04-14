@@ -29,9 +29,6 @@
 #include "Object.h"
 #include "TimeSeriesTable.h"
 #include "XsensDataReaderSettings.h"
-#include <map>
-#include <set>
-#include <string>
 
 /** @file
  * This file defines class for reading data files from IMU maker Xsens and
@@ -93,26 +90,10 @@ public:
 
 private:
     /**
-     * Find index of searchString in tokens
-     */
-    static int find_index(
-            std::vector<std::string>& tokens, const std::string& searchString);
-
-    static bool is_group_complete(const std::string& group,
-            const std::map<std::string, std::set<std::string>>& headers,
-            const std::map<std::string,
-                    std::set<std::pair<std::string, size_t>>>&
-                    presentGroupsWithColumnIndices);
-    /**
      * This data member encapsulates all the serializable settings for
      * the Reader;
      */
     XsensDataReaderSettings _settings;
-
-    /**
-     * This data member encapsulates all the accepted headers and their groups
-     */
-    static const std::map<std::string, std::set<std::string>> _accepted_headers;
 };
 
 } // namespace OpenSim
