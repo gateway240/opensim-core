@@ -94,6 +94,11 @@ private:
      * the Reader;
      */
     XsensDataReaderSettings _settings;
+
+    /**
+     * This data member encapsulates all the data for a single Xsens IMU
+     */
+    struct XsensIMU;
 };
 
 } // namespace OpenSim

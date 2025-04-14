@@ -53,9 +53,10 @@ public:
         "The delimiter used within the file to separate columns. Defaults to tab (\t)."
         "Currently parsable options include: tab,space, and comma (\"\t\",\" \",\",\")");
     OpenSim_DECLARE_PROPERTY(rotation_representation, std::string,
-        "How the rotation information is represented in the file. Defaults to 'matrix'."
-        "Valid values are: (\"rot_matrix\", \"rot_euler\", and \"rot_quaternion\"). If both values are present in the file,"
-        "the value here will be used.");
+        "How the rotation information is represented in the file. Defaults to \"rot_matrix\"."
+        "Valid values are: (\"rot_matrix\", \"rot_euler\", and \"rot_quaternion\"). "
+        "This value is only used if multiple rotation representations are present in the file."
+        "If only a single rotation format is present, this setting is disregarded.");
     OpenSim_DECLARE_LIST_PROPERTY(ExperimentalSensors, ExperimentalSensor,
         "List of Experimental sensors and desired associated names in resulting tables");
 
