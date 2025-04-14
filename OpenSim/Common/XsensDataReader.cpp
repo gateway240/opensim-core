@@ -55,7 +55,7 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
             _settings.get_rotation_representation();
     const std::string prefix = _settings.get_trial_prefix();
 
-    int n_imus = _settings.getProperty_ExperimentalSensors().size();
+    const int n_imus = _settings.getProperty_ExperimentalSensors().size();
 
     // Prepare all the file handles
     // format: name, filename
@@ -69,7 +69,8 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                 (prefix + nextItem.getName() + extension);
 
         // Add corresponding pair to imuStreams
-        const auto& p = std::make_pair(nextItem.get_name_in_model(), fileName);
+        const auto& p =
+                std::make_pair(nextItem.get_name_in_model(), fileName.string());
         imuFiles.push_back(p);
     }
 
@@ -123,7 +124,6 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                                        found_headers.end();
                             });
                 };
-
 
                 const auto& acc_h = imu_h.at("acc");
                 const auto& gyr_h = imu_h.at("gyr");
