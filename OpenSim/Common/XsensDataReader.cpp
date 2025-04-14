@@ -137,7 +137,11 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
     bool foundRotationData = is_group_complete(rotation_representation,
         _accepted_headers, presentGroupsWithColumnIndices);
     // If no Orientation data is available we'll abort completely
-    OPENSIM_THROW_IF(!foundRotationData, TableMissingHeader);
+    OPENSIM_THROW_IF(!foundRotationData,
+        TableMissingHeader,
+        "Rotation Data not found. Please ensure that the XsensDataReaderSettings match the file format being parsed!\n"
+        " Attempted to parse with rotation format: \"" + rotation_representation_str + "\""
+        " and delimiter: \"" + delimiter + "\"");
 
     // Will read data into pre-allocated Matrices in-memory rather than
     // appendRow on the fly to avoid the overhead of
