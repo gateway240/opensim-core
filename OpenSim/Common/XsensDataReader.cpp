@@ -254,7 +254,7 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
 
     // Ensure all files have the same size, update rate, and rotation
     // format
-    std::vector<size_t> line_lengths(imus.size());
+    std::vector<int> line_lengths(imus.size());
     std::vector<double> update_rates(imus.size());
     std::vector<std::string> rotation_formats(imus.size());
 
@@ -293,30 +293,29 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
             "format!");
 
     // These have all been checked for uniformity
-    const size_t n_lines = line_lengths[0];
+    const int n_lines = line_lengths[0];
     const double sampling_rate = update_rates[0];
     const std::string rotation_format = rotation_formats[0];
 
     // Will read data into pre-allocated Matrices in-memory rather than
     // appendRow on the fly to avoid the overhead of
-    OPENSIM_THROW_IF(n_lines > std::numeric_limits<int>::max(), IOError,
-            "Too many lines in file to fit in SimTK::Matrix_<T> dimensions.");
+    SimTK::Matrix_<SimTK::Quaternion> rotationsData{n_lines, n_imus};
+    SimTK::Matrix_<SimTK::Vec3> linearAccelerationData{n_lines, n_imus};
+    SimTK::Matrix_<SimTK::Vec3> magneticHeadingData{n_lines, n_imus};
+    SimTK::Matrix_<SimTK::Vec3> angularVelocityData{n_lines, n_imus};
 
-    SimTK::Matrix_<SimTK::Quaternion> rotationsData{
-            static_cast<int>(n_lines), n_imus};
-    SimTK::Matrix_<SimTK::Vec3> linearAccelerationData{
-            static_cast<int>(n_lines), n_imus};
-    SimTK::Matrix_<SimTK::Vec3> magneticHeadingData{
-            static_cast<int>(n_lines), n_imus};
-    SimTK::Matrix_<SimTK::Vec3> angularVelocityData{
-            static_cast<int>(n_lines), n_imus};
-
-    const bool has_acc = std::all_of(imus.begin(), imus.end(),
-            [&n_lines](const auto& imu) { return imu.acc.size() == n_lines; });
-    const bool has_gyr = std::all_of(imus.begin(), imus.end(),
-            [&n_lines](const auto& imu) { return imu.gyr.size() == n_lines; });
-    const bool has_mag = std::all_of(imus.begin(), imus.end(),
-            [&n_lines](const auto& imu) { return imu.mag.size() == n_lines; });
+    const bool has_acc =
+            std::all_of(imus.begin(), imus.end(), [&n_lines](const auto& imu) {
+                return imu.acc.size() == static_cast<std::size_t>(n_lines);
+            });
+    const bool has_gyr =
+            std::all_of(imus.begin(), imus.end(), [&n_lines](const auto& imu) {
+                return imu.gyr.size() == static_cast<std::size_t>(n_lines);
+            });
+    const bool has_mag =
+            std::all_of(imus.begin(), imus.end(), [&n_lines](const auto& imu) {
+                return imu.mag.size() == static_cast<std::size_t>(n_lines);
+            });
 
     // We use a vector of row indices to transform over the rows (i.e., the time
     // steps)
@@ -341,15 +340,18 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                         n_imus, SimTK::Vec3(SimTK::NaN));
                 const bool has_quat = std::all_of(
                         imus.begin(), imus.end(), [&n_lines](const auto& imu) {
-                            return imu.quat.size() == n_lines;
+                            return imu.quat.size() ==
+                                   static_cast<std::size_t>(n_lines);
                         });
                 const bool has_euler = std::all_of(
                         imus.begin(), imus.end(), [&n_lines](const auto& imu) {
-                            return imu.euler.size() == n_lines;
+                            return imu.euler.size() ==
+                                   static_cast<std::size_t>(n_lines);
                         });
                 const bool has_rot_mat = std::all_of(
                         imus.begin(), imus.end(), [&n_lines](const auto& imu) {
-                            return imu.rot_mat.size() == n_lines;
+                            return imu.rot_mat.size() ==
+                                   static_cast<std::size_t>(n_lines);
                         });
                 if (has_acc) {
                     std::transform(imus.begin(), imus.end(),
