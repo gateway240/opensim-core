@@ -401,7 +401,7 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                 return j; // Return the index required by std::transform
             });
 
-    const double timeIncrement = 1.0 / dataRate;
+    const double timeIncrement = 1.0 / sampling_rate;
     const auto times =
             createVectorLinspaceInterval(n_lines, 0.0, timeIncrement);
     // Zero data matrices if the data is not found
@@ -416,7 +416,7 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
     std::vector<std::string> labels;
     std::transform(imus.begin(), imus.end(), std::back_inserter(labels),
             [](auto const& p) { return p.name; });
-    DataAdapter::OutputTables tables = createTablesFromMatrices(dataRate,
+    DataAdapter::OutputTables tables = createTablesFromMatrices(sampling_rate,
             labels, times, rotationsData, linearAccelerationData,
             magneticHeadingData, angularVelocityData);
     return tables;
