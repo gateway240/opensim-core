@@ -136,9 +136,9 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                 const bool found_linear_acceleration =
                         is_group_complete(acc_h, imu.header);
                 const bool found_magnetic_heading =
-                        is_group_complete(gyr_h, imu.header);
-                const bool found_angular_velocity =
                         is_group_complete(mag_h, imu.header);
+                const bool found_angular_velocity =
+                        is_group_complete(gyr_h, imu.header);
                 const bool found_quat = is_group_complete(quat_h, imu.header);
                 const bool found_euler = is_group_complete(euler_h, imu.header);
                 const bool found_rot_mat =
@@ -182,19 +182,19 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                     if (found_magnetic_heading)
                         imu.mag.push_back(SimTK::Vec3(
                                 OpenSim::IO::stod(
-                                        next_row[imu.header.at(gyr_h[0])]),
-                                OpenSim::IO::stod(
-                                        next_row[imu.header.at(gyr_h[1])]),
-                                OpenSim::IO::stod(
-                                        next_row[imu.header.at(gyr_h[2])])));
-                    if (found_angular_velocity)
-                        imu.gyr.push_back(SimTK::Vec3(
-                                OpenSim::IO::stod(
                                         next_row[imu.header.at(mag_h[0])]),
                                 OpenSim::IO::stod(
                                         next_row[imu.header.at(mag_h[1])]),
                                 OpenSim::IO::stod(
                                         next_row[imu.header.at(mag_h[2])])));
+                    if (found_angular_velocity)
+                        imu.gyr.push_back(SimTK::Vec3(
+                                OpenSim::IO::stod(
+                                        next_row[imu.header.at(gyr_h[0])]),
+                                OpenSim::IO::stod(
+                                        next_row[imu.header.at(gyr_h[1])]),
+                                OpenSim::IO::stod(
+                                        next_row[imu.header.at(gyr_h[2])])));
                     if (found_quat) {
                         imu.quat.push_back(SimTK::Quaternion(
                                 OpenSim::IO::stod(
@@ -252,47 +252,49 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                 return imu;
             });
 
-    // Ensure all files have the same row length
-    std::vector<int> line_lengths(imus.size());
-    std::transform(imus.begin(), imus.end(), line_lengths.begin(),
-            [](const auto& p) { return p.data_size; });
-    bool lines_equal_length =
-            std::adjacent_find(line_lengths.begin(), line_lengths.end(),
-                    std::not_equal_to<>()) == line_lengths.end();
-    OPENSIM_THROW_IF(!lines_equal_length, IOError,
-            "All data files in the trial do not have the same line length! "
-            "Please check that all sensor readings are from the same trial.");
-    int n_lines = line_lengths[0];
-
-    // Gather Update Rates together
+    // Ensure all files have the same size, update rate, and rotation
+    // format
+    std::vector<size_t> line_lengths(imus.size());
     std::vector<double> update_rates(imus.size());
-    std::transform(imus.begin(), imus.end(), update_rates.begin(),
-            [&dataRate](const auto& p) {
-                double update_rate = dataRate;
-                const auto& it = p.comments.find("Update Rate");
-                if (it != p.comments.end()) {
-                    update_rate = OpenSim::IO::stod(it->second);
-                }
-                return update_rate;
-            });
-    bool is_uniform_update_rate =
-            std::adjacent_find(update_rates.begin(), update_rates.end(),
-                    std::not_equal_to<>()) == update_rates.end();
-    OPENSIM_THROW_IF(!is_uniform_update_rate, IOError,
-            "All data files in the trial do not have the same update rate! "
-            "Please check that all sensor readings are from the same trial.");
-    dataRate = update_rates[0];
-
-    // Gather rotation formats together
     std::vector<std::string> rotation_formats(imus.size());
+
+    std::transform(imus.begin(), imus.end(), line_lengths.begin(),
+            [](const auto& imu) { return imu.data_size; });
+
+    std::transform(imus.begin(), imus.end(), update_rates.begin(),
+            [&dataRate](const auto& imu) {
+                const auto it = imu.comments.find("Update Rate");
+                return (it != imu.comments.end())
+                               ? OpenSim::IO::stod(it->second)
+                               : dataRate;
+            });
+
     std::transform(imus.begin(), imus.end(), rotation_formats.begin(),
-            [](const auto& p) { return p.rotation_format; });
-    bool is_uniform_rotation_format =
+            [](const auto& imu) { return imu.rotation_format; });
+
+    // Check for uniformity
+    OPENSIM_THROW_IF(
+            std::adjacent_find(line_lengths.begin(), line_lengths.end(),
+                    std::not_equal_to<>()) != line_lengths.end(),
+            IOError,
+            "All data files in the trial do not have the same line length!");
+
+    OPENSIM_THROW_IF(
+            std::adjacent_find(update_rates.begin(), update_rates.end(),
+                    std::not_equal_to<>()) != update_rates.end(),
+            IOError,
+            "All data files in the trial do not have the same update rate!");
+
+    OPENSIM_THROW_IF(
             std::adjacent_find(rotation_formats.begin(), rotation_formats.end(),
-                    std::not_equal_to<>()) == rotation_formats.end();
-    OPENSIM_THROW_IF(!is_uniform_rotation_format, IOError,
-            "All data files in the trial do not have the same rotation format! "
-            "Please check that all sensor readings are from the same trial.");
+                    std::not_equal_to<>()) != rotation_formats.end(),
+            IOError,
+            "All data files in the trial do not have the same rotation "
+            "format!");
+
+    // These have all been checked for uniformity
+    const size_t n_lines = line_lengths[0];
+    const double sampling_rate = update_rates[0];
     const std::string rotation_format = rotation_formats[0];
 
     // Will read data into pre-allocated Matrices in-memory rather than
@@ -301,6 +303,13 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
     SimTK::Matrix_<SimTK::Vec3> linearAccelerationData{n_lines, n_imus};
     SimTK::Matrix_<SimTK::Vec3> magneticHeadingData{n_lines, n_imus};
     SimTK::Matrix_<SimTK::Vec3> angularVelocityData{n_lines, n_imus};
+
+    const bool has_acc = std::all_of(imus.begin(), imus.end(),
+            [&n_lines](const auto& imu) { return imu.acc.size() == n_lines; });
+    const bool has_gyr = std::all_of(imus.begin(), imus.end(),
+            [&n_lines](const auto& imu) { return imu.gyr.size() == n_lines; });
+    const bool has_mag = std::all_of(imus.begin(), imus.end(),
+            [&n_lines](const auto& imu) { return imu.mag.size() == n_lines; });
 
     // We use a vector of row indices to transform over the rows (i.e., the time
     // steps)
@@ -311,9 +320,9 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
     // For all tables, will create row, stitch values from different
     // files then append,time and timestep are based on the first file
     std::transform(row_indices.begin(), row_indices.end(), row_indices.begin(),
-            [&imus, &rotation_format, &linearAccelerationData,
-                    &magneticHeadingData, &angularVelocityData,
-                    &rotationsData](int j) {
+            [&imus, &rotation_format, &n_lines, &has_acc, &has_gyr, &has_mag,
+                    &linearAccelerationData, &magneticHeadingData,
+                    &angularVelocityData, &rotationsData](int j) {
                 const int& n_imus = imus.size();
                 TimeSeriesTableQuaternion::RowVector orientation_row_vector(
                         n_imus, SimTK::Quaternion());
@@ -323,31 +332,51 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                         n_imus, SimTK::Vec3(SimTK::NaN));
                 TimeSeriesTableVec3::RowVector gyro_row_vector(
                         n_imus, SimTK::Vec3(SimTK::NaN));
+                const bool has_quat = std::all_of(
+                        imus.begin(), imus.end(), [&n_lines](const auto& imu) {
+                            return imu.quat.size() == n_lines;
+                        });
+                const bool has_euler = std::all_of(
+                        imus.begin(), imus.end(), [&n_lines](const auto& imu) {
+                            return imu.euler.size() == n_lines;
+                        });
+                const bool has_rot_mat = std::all_of(
+                        imus.begin(), imus.end(), [&n_lines](const auto& imu) {
+                            return imu.rot_mat.size() == n_lines;
+                        });
+                if (has_acc) {
+                    std::transform(imus.begin(), imus.end(),
+                            std::begin(accel_row_vector),
+                            [j](const auto& imu) { return imu.acc[j]; });
+                    linearAccelerationData[j] = accel_row_vector;
+                }
 
-                std::transform(imus.begin(), imus.end(),
-                        std::begin(accel_row_vector),
-                        [j](const auto& imu) { return imu.acc[j]; });
+                if (has_mag) {
+                    std::transform(imus.begin(), imus.end(),
+                            std::begin(magneto_row_vector),
+                            [j](const auto& imu) { return imu.mag[j]; });
+                    magneticHeadingData[j] = magneto_row_vector;
+                }
 
-                std::transform(imus.begin(), imus.end(),
-                        std::begin(magneto_row_vector),
-                        [j](const auto& imu) { return imu.mag[j]; });
+                if (has_gyr) {
+                    std::transform(imus.begin(), imus.end(),
+                            std::begin(gyro_row_vector),
+                            [j](const auto& imu) { return imu.gyr[j]; });
+                    angularVelocityData[j] = gyro_row_vector;
+                }
 
-                std::transform(imus.begin(), imus.end(),
-                        std::begin(gyro_row_vector),
-                        [j](const auto& imu) { return imu.gyr[j]; });
-
-                if (rotation_format == "rot_quaternion") {
+                if (rotation_format == "rot_quaternion" && has_quat) {
                     std::transform(imus.begin(), imus.end(),
                             std::begin(orientation_row_vector),
                             [j](const auto& imu) { return imu.quat[j]; });
-                } else if (rotation_format == "rot_euler") {
+                } else if (rotation_format == "rot_euler" && has_euler) {
                     std::transform(imus.begin(), imus.end(),
                             std::begin(orientation_row_vector),
                             [j](const auto& imu) {
                                 return imu.euler[j]
                                         .convertRotationToQuaternion();
                             });
-                } else if (rotation_format == "rot_matrix") {
+                } else if (rotation_format == "rot_matrix" && has_rot_mat) {
                     std::transform(imus.begin(), imus.end(),
                             std::begin(orientation_row_vector),
                             [j](const auto& imu) {
@@ -356,20 +385,20 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                                         .convertRotationToQuaternion();
                             });
                 }
-
                 // Store the rows in the matrices
-                linearAccelerationData[j] = accel_row_vector;
-                magneticHeadingData[j] = magneto_row_vector;
-                angularVelocityData[j] = gyro_row_vector;
+                // An exception was thrown if there is no rotation
                 rotationsData[j] = orientation_row_vector;
 
-                return j; // Return the index (this is required because
-                          // std::transform expects a return value)
+                return j; // Return the index required by std::transform
             });
 
     const double timeIncrement = 1.0 / dataRate;
     const auto times =
             createVectorLinspaceInterval(n_lines, 0.0, timeIncrement);
+    // Zero data matrices if the data is not found
+    if (!has_acc) { linearAccelerationData.resize(0, n_imus); }
+    if (!has_mag) { magneticHeadingData.resize(0, n_imus); }
+    if (!has_gyr) { angularVelocityData.resize(0, n_imus); }
 
     // Now create the tables from matrices
     // Create 4 tables for Rotations, LinearAccelerations,
