@@ -299,10 +299,17 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
 
     // Will read data into pre-allocated Matrices in-memory rather than
     // appendRow on the fly to avoid the overhead of
-    SimTK::Matrix_<SimTK::Quaternion> rotationsData{n_lines, n_imus};
-    SimTK::Matrix_<SimTK::Vec3> linearAccelerationData{n_lines, n_imus};
-    SimTK::Matrix_<SimTK::Vec3> magneticHeadingData{n_lines, n_imus};
-    SimTK::Matrix_<SimTK::Vec3> angularVelocityData{n_lines, n_imus};
+    OPENSIM_THROW_IF(n_lines > std::numeric_limits<int>::max(), IOError,
+            "Too many lines in file to fit in SimTK::Matrix_<T> dimensions.");
+
+    SimTK::Matrix_<SimTK::Quaternion> rotationsData{
+            static_cast<int>(n_lines), n_imus};
+    SimTK::Matrix_<SimTK::Vec3> linearAccelerationData{
+            static_cast<int>(n_lines), n_imus};
+    SimTK::Matrix_<SimTK::Vec3> magneticHeadingData{
+            static_cast<int>(n_lines), n_imus};
+    SimTK::Matrix_<SimTK::Vec3> angularVelocityData{
+            static_cast<int>(n_lines), n_imus};
 
     const bool has_acc = std::all_of(imus.begin(), imus.end(),
             [&n_lines](const auto& imu) { return imu.acc.size() == n_lines; });
