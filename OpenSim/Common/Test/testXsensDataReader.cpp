@@ -190,6 +190,12 @@ TEST_CASE("XsensDataReader") {
         DataAdapter::OutputTables tables = reader.read("./");
         auto accelTable = tables.at(XsensDataReader::LinearAccelerations);
         REQUIRE(accelTable->getNumRows() == 972);
+
+        auto gyroscopeTable = tables.at(XsensDataReader::AngularVelocity);
+        REQUIRE(gyroscopeTable->getNumRows() == 972);
+
+        auto orientationTable = tables.at(XsensDataReader::Orientations);
+        REQUIRE(orientationTable->getNumRows() == 972);
     }
 }
 
@@ -218,6 +224,12 @@ TEST_CASE("XsensDataReader MT Manager 2022 Data Formats") {
         auto accelTable = tables.at(XsensDataReader::LinearAccelerations);
         REQUIRE(accelTable->getNumRows() == 362);
 
+        auto gyroscopeTable = tables.at(XsensDataReader::AngularVelocity);
+        REQUIRE(gyroscopeTable->getNumRows() == 362);
+
+        auto orientationTable = tables.at(XsensDataReader::Orientations);
+        REQUIRE(orientationTable->getNumRows() == 362);
+
         const TimeSeriesTableVec3& accelTableTyped =
                 reader.getLinearAccelerationsTable(tables);
         const SimTK::RowVectorView_<SimTK::Vec3>& rvv =
@@ -244,6 +256,12 @@ TEST_CASE("XsensDataReader MT Manager 2022 Data Formats") {
         DataAdapter::OutputTables tables = reader.read("./");
         auto accelTable = tables.at(XsensDataReader::LinearAccelerations);
         REQUIRE(accelTable->getNumRows() == 362);
+
+        auto gyroscopeTable = tables.at(XsensDataReader::AngularVelocity);
+        REQUIRE(gyroscopeTable->getNumRows() == 362);
+
+        auto orientationTable = tables.at(XsensDataReader::Orientations);
+        REQUIRE(orientationTable->getNumRows() == 362);
     }
     SECTION("Acceleration, Gyroscope, Rotation Matrix, Comma separated") {
         XsensDataReaderSettings readerSettings;
@@ -256,6 +274,12 @@ TEST_CASE("XsensDataReader MT Manager 2022 Data Formats") {
         DataAdapter::OutputTables tables = reader.read("./");
         auto accelTable = tables.at(XsensDataReader::LinearAccelerations);
         REQUIRE(accelTable->getNumRows() == 362);
+
+        auto gyroscopeTable = tables.at(XsensDataReader::AngularVelocity);
+        REQUIRE(gyroscopeTable->getNumRows() == 362);
+
+        auto orientationTable = tables.at(XsensDataReader::Orientations);
+        REQUIRE(orientationTable->getNumRows() == 362);
     }
     SECTION("Acceleration, Gyroscope, Rotation Matrix, Semicolon separated") {
         XsensDataReaderSettings readerSettings;
@@ -268,6 +292,12 @@ TEST_CASE("XsensDataReader MT Manager 2022 Data Formats") {
         DataAdapter::OutputTables tables = reader.read("./");
         auto accelTable = tables.at(XsensDataReader::LinearAccelerations);
         REQUIRE(accelTable->getNumRows() == 362);
+
+        auto gyroscopeTable = tables.at(XsensDataReader::AngularVelocity);
+        REQUIRE(gyroscopeTable->getNumRows() == 362);
+
+        auto orientationTable = tables.at(XsensDataReader::Orientations);
+        REQUIRE(orientationTable->getNumRows() == 362);
     }
     SECTION("Acceleration, Gyroscope, Rotation Matrix, Space separated") {
         XsensDataReaderSettings readerSettings;
@@ -280,5 +310,11 @@ TEST_CASE("XsensDataReader MT Manager 2022 Data Formats") {
         DataAdapter::OutputTables tables = reader.read("./");
         auto accelTable = tables.at(XsensDataReader::LinearAccelerations);
         REQUIRE(accelTable->getNumRows() == 362);
+
+        auto gyroscopeTable = tables.at(XsensDataReader::AngularVelocity);
+        REQUIRE(gyroscopeTable->getNumRows() == 362);
+
+        auto orientationTable = tables.at(XsensDataReader::Orientations);
+        REQUIRE(orientationTable->getNumRows() == 362);
     }
 }

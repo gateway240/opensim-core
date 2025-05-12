@@ -78,7 +78,8 @@ std::pair<bool, char> OpenSim::detectDelimiter(
     // Count occurrences of common delimiters in the input string
     std::transform(delimiters.begin(), delimiters.end(),
             std::inserter(counts, counts.end()), [&input](const char& d) {
-                return std::make_pair(
+                // Need to explicitly type the pair for windows
+                return std::pair<const char, int>(
                         d, std::count_if(input.begin(), input.end(),
                                    [&d](char c) { return c == d; }));
             });
