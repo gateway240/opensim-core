@@ -205,11 +205,24 @@ TEST_CASE("XsensDataReader MT Manager 2022 Data Formats") {
         readerSettings.append_ExperimentalSensors(
                 OpenSim::ExperimentalSensor("_00B42D4B", "head_imu"));
         readerSettings.updProperty_trial_prefix() = "MT2022_ACC";
+        readerSettings.set_sampling_rate(60.0);
 
         XsensDataReader reader(readerSettings);
         DataAdapter::OutputTables tables = reader.read("./");
         auto accelTable = tables.at(XsensDataReader::LinearAccelerations);
         REQUIRE(accelTable->getNumRows() == 362);
+        const TimeSeriesTableVec3& accelTableTyped =
+                reader.getLinearAccelerationsTable(tables);
+        REQUIRE(accelTableTyped.getTableMetaData()
+                        .getValueForKey("DataRate")
+                        .getValue<std::string>() == "60.000000");
+
+        const auto& times = accelTableTyped.getIndependentColumn();
+        double lastTimestamp = times[times.size() - 1]; // last timestamp
+        double expectedLastTimestamp =
+                (accelTableTyped.getNumRows() - 1) / 60.0;
+        REQUIRE_THAT(lastTimestamp,
+                Catch::Matchers::WithinAbs(expectedLastTimestamp, SimTK::Eps));
     }
     SECTION("Acceleration, Gyroscope, All Rotation Formats, Tab separated, "
             "NaN") {

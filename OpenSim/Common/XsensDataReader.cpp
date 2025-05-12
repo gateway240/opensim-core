@@ -319,8 +319,7 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
     std::iota(row_indices.begin(), row_indices.end(),
             0); // Fill with 0, 1, 2, ..., n_lines-1
 
-    // For all tables, will create row, stitch values from different
-    // files then append,time and timestep are based on the first file
+    // For all tables, will create the row by stitching values from all read files
     std::transform(row_indices.begin(), row_indices.end(), row_indices.begin(),
             [&imus, &n_imus, &rotation_format, &n_lines, &has_acc, &has_gyr,
                     &has_mag, &linearAccelerationData, &magneticHeadingData,
@@ -387,12 +386,10 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                             });
                 }
                 // Store the rows in the matrices
-                // An exception was thrown if there is no rotation
                 rotationsData[j] = orientation_row_vector;
 
                 return j; // Return the index required by std::transform
             });
-
     const double timeIncrement = 1.0 / sampling_rate;
     const auto times = createVectorLinspaceInterval(
             static_cast<int>(n_lines), 0.0, timeIncrement);
