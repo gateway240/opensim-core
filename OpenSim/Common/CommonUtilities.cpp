@@ -73,13 +73,13 @@ std::string OpenSim::getFormattedDateTime(
 std::pair<bool, char> OpenSim::detectDelimiter(
         const std::string& input, const std::vector<char>& delimiters) {
 
-    std::unordered_map<char, int> counts;
+    std::unordered_map<char, std::size_t> counts;
 
     // Count occurrences of common delimiters in the input string
     std::transform(delimiters.begin(), delimiters.end(),
             std::inserter(counts, counts.end()), [&input](const char& d) {
                 // Need to explicitly type the pair for windows
-                return std::pair<const char, int>(
+                return std::pair<const char, std::size_t>(
                         d, std::count_if(input.begin(), input.end(),
                                    [&d](char c) { return c == d; }));
             });
