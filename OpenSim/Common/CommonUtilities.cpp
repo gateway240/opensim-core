@@ -31,6 +31,7 @@
 #include <iomanip>
 #include <memory>
 #include <sstream>
+#include <unordered_map>
 
 #include <SimTKcommon/internal/Pathname.h>
 
@@ -67,6 +68,31 @@ std::string OpenSim::getFormattedDateTime(
         ss << '.' << std::setfill('0') << std::setw(6) << microsec.count();
     }
     return ss.str();
+}
+
+std::pair<bool, char> OpenSim::detectDelimiter(
+        const std::string& input, const std::vector<char>& delimiters) {
+
+    std::unordered_map<char, int> counts;
+
+    // Count occurrences of common delimiters in the input string
+    std::transform(delimiters.begin(), delimiters.end(),
+            std::inserter(counts, counts.end()), [&input](const char& d) {
+                return std::make_pair(
+                        d, std::count_if(input.begin(), input.end(),
+                                   [&d](char c) { return c == d; }));
+            });
+
+    // Find the delimiter with the highest frequency
+    auto maxElem = std::max_element(counts.begin(), counts.end(),
+            [](const auto& a, const auto& b) { return a.second < b.second; });
+
+    // If a delimiter is found, return it, otherwise return the null terminator
+    if (maxElem != counts.end() && maxElem->second > 0) {
+        return {true, maxElem->first};
+    } else {
+        return {false, '\0'};
+    }
 }
 
 SimTK::Vector OpenSim::createVectorLinspace(

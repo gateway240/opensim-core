@@ -261,3 +261,40 @@ TEST_CASE("isUniform tests with createVectorLinspace(SimTK::Vector) and createVe
         REQUIRE_THAT(result_simtk.second, Catch::Matchers::WithinAbs(rate, tol));
     }
 }
+
+TEST_CASE("detectDelimiter") {
+    SECTION("Comma") {
+        std::string input = "a,b,c,d";
+        auto [found, delim] = detectDelimiter(input);
+        REQUIRE(found);
+        REQUIRE(delim == ',');
+    }
+
+    SECTION("Pipe") {
+        std::string input = "a|b|c|d";
+        auto [found, delim] = detectDelimiter(input);
+        REQUIRE(found);
+        REQUIRE(delim == '|');
+    }
+
+    SECTION("Tab") {
+        std::string input = "a\tb\tc\td";
+        auto [found, delim] = detectDelimiter(input);
+        REQUIRE(found);
+        REQUIRE(delim == '\t');
+    }
+
+    SECTION("Semicolon") {
+        std::string input = "a;b;c;d";
+        auto [found, delim] = detectDelimiter(input);
+        REQUIRE(found);
+        REQUIRE(delim == ';');
+    }
+
+    SECTION("Space") {
+        std::string input = "a b c d";
+        auto [found, delim] = detectDelimiter(input);
+        REQUIRE(found);
+        REQUIRE(delim == ' ');
+    }
+}

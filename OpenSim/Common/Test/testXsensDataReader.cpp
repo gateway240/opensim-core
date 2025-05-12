@@ -67,17 +67,19 @@ TEST_CASE("XsensDataReader") {
         SimTK::Vec3 fromFile = SimTK::Vec3{3.030769, 5.254238, -7.714005};
         double tolerance = SimTK::Eps;
         REQUIRE(fromTable.size() == fromFile.size());
-        for (size_t i = 0; i < fromTable.size(); ++i) {
-                REQUIRE_THAT(fromTable[i], Catch::Matchers::WithinAbs(fromFile[i], tolerance));
+        for (int i = 0; i < fromTable.size(); ++i) {
+            REQUIRE_THAT(fromTable[i],
+                    Catch::Matchers::WithinAbs(fromFile[i], tolerance));
         }
         // test last row as well to make sure all data is read correctly,
         // size is as expected
-        size_t numRows = accelTableTyped.getIndependentColumn().size();
+        int numRows = accelTableTyped.getIndependentColumn().size();
         fromTable = accelTableTyped.getRowAtIndex(numRows - 1)[0];
         fromFile = SimTK::Vec3{2.657654, 5.012634, -7.581414};
         REQUIRE(fromTable.size() == fromFile.size());
-        for (size_t i = 0; i < fromTable.size(); ++i) {
-                REQUIRE_THAT(fromTable[i], Catch::Matchers::WithinAbs(fromFile[i], tolerance));
+        for (int i = 0; i < fromTable.size(); ++i) {
+            REQUIRE_THAT(fromTable[i],
+                    Catch::Matchers::WithinAbs(fromFile[i], tolerance));
         }
         // Magenometer
         const TimeSeriesTableVec3& magTableTyped =
@@ -87,8 +89,9 @@ TEST_CASE("XsensDataReader") {
         fromTable = magTableTyped.getRowAtIndex(0)[0];
         fromFile = SimTK::Vec3{-0.045410, -0.266113, 0.897217};
         REQUIRE(fromTable.size() == fromFile.size());
-        for (size_t i = 0; i < fromTable.size(); ++i) {
-                REQUIRE_THAT(fromTable[i], Catch::Matchers::WithinAbs(fromFile[i], tolerance));
+        for (int i = 0; i < fromTable.size(); ++i) {
+            REQUIRE_THAT(fromTable[i],
+                    Catch::Matchers::WithinAbs(fromFile[i], tolerance));
         }
         // ASSERT_EQUAL(fromTable, fromFile, tolerance);
         // Gyro
@@ -98,8 +101,9 @@ TEST_CASE("XsensDataReader") {
         fromTable = gyroTableTyped.getRowAtIndex(0)[0];
         fromFile = SimTK::Vec3{0.005991, -0.032133, 0.022713};
         REQUIRE(fromTable.size() == fromFile.size());
-        for (size_t i = 0; i < fromTable.size(); ++i) {
-                REQUIRE_THAT(fromTable[i], Catch::Matchers::WithinAbs(fromFile[i], tolerance));
+        for (int i = 0; i < fromTable.size(); ++i) {
+            REQUIRE_THAT(fromTable[i],
+                    Catch::Matchers::WithinAbs(fromFile[i], tolerance));
         }
         // Orientation
         const TimeSeriesTableQuaternion& quatTableTyped =
@@ -121,7 +125,8 @@ TEST_CASE("XsensDataReader") {
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
                 // Matrix is stored column major
-                REQUIRE_THAT(rotationVectorInFile[i * 3 + j], Catch::Matchers::WithinAbs(rot[j][i], tolerance));
+                REQUIRE_THAT(rotationVectorInFile[i * 3 + j],
+                        Catch::Matchers::WithinAbs(rot[j][i], tolerance));
             }
         }
     }
@@ -176,16 +181,104 @@ TEST_CASE("XsensDataReader") {
         const std::vector<OpenSim::ExperimentalSensor> expSens = {
                 OpenSim::ExperimentalSensor("_00B42D4D", "femur_l_imu"),
                 OpenSim::ExperimentalSensor("_00B42D4E", "calcn_l_imu")};
-        readerSettings.set_ExperimentalSensors(expSens);
+        for (const auto& sensor : expSens) {
+            readerSettings.append_ExperimentalSensors(sensor);
+        }
         readerSettings.updProperty_trial_prefix() = "MT46_01-000";
 
         XsensDataReader reader(readerSettings);
         DataAdapter::OutputTables tables = reader.read("./");
         auto accelTable = tables.at(XsensDataReader::LinearAccelerations);
-        const TimeSeriesTableVec3& accelTableTyped =
-        reader.getLinearAccelerationsTable(tables);
-        STOFileAdapterVec3::write(
-                accelTableTyped , "./ALEX_TEST_accelerations.sto");
         REQUIRE(accelTable->getNumRows() == 972);
+    }
+}
+
+TEST_CASE("XsensDataReader MT Manager 2022 Data Formats") {
+    SECTION("Acceleration Only") {
+        XsensDataReaderSettings readerSettings;
+        readerSettings.append_ExperimentalSensors(
+                OpenSim::ExperimentalSensor("_00B42D4B", "head_imu"));
+        readerSettings.updProperty_trial_prefix() = "MT2022_ACC";
+
+        XsensDataReader reader(readerSettings);
+        DataAdapter::OutputTables tables = reader.read("./");
+        auto accelTable = tables.at(XsensDataReader::LinearAccelerations);
+        REQUIRE(accelTable->getNumRows() == 362);
+    }
+    SECTION("Acceleration, Gyroscope, All Rotation Formats, Tab separated, "
+            "NaN") {
+        XsensDataReaderSettings readerSettings;
+        readerSettings.append_ExperimentalSensors(
+                OpenSim::ExperimentalSensor("_00B42D4B", "head_imu"));
+        readerSettings.updProperty_trial_prefix() =
+                "MT2022_ACC_GYRO_ROT_ALL_TAB_NAN";
+
+        XsensDataReader reader(readerSettings);
+        DataAdapter::OutputTables tables = reader.read("./");
+        auto accelTable = tables.at(XsensDataReader::LinearAccelerations);
+        REQUIRE(accelTable->getNumRows() == 362);
+
+        const TimeSeriesTableVec3& accelTableTyped =
+                reader.getLinearAccelerationsTable(tables);
+        const SimTK::RowVectorView_<SimTK::Vec3>& rvv =
+                accelTableTyped.getRowAtIndex(0);
+        SimTK::Vec3 fromTable = accelTableTyped.getRowAtIndex(0)[0];
+        SimTK::Vec3 fromFile = SimTK::Vec3{SimTK::NaN, -0.040975, 9.922524};
+        double tolerance = SimTK::Eps;
+
+        REQUIRE(fromTable.size() == fromFile.size());
+        REQUIRE(std::isnan(fromTable[0]));
+        REQUIRE_THAT(fromTable[1],
+                Catch::Matchers::WithinAbs(fromFile[1], tolerance));
+        REQUIRE_THAT(fromTable[2],
+                Catch::Matchers::WithinAbs(fromFile[2], tolerance));
+    }
+    SECTION("Acceleration, Gyroscope, Euler Angles, Tab separated") {
+        XsensDataReaderSettings readerSettings;
+        readerSettings.append_ExperimentalSensors(
+                OpenSim::ExperimentalSensor("_00B42D4F", "radius_r_imu"));
+        readerSettings.updProperty_trial_prefix() =
+                "MT2022_ACC_GYRO_ROT_EULER_TAB";
+
+        XsensDataReader reader(readerSettings);
+        DataAdapter::OutputTables tables = reader.read("./");
+        auto accelTable = tables.at(XsensDataReader::LinearAccelerations);
+        REQUIRE(accelTable->getNumRows() == 362);
+    }
+    SECTION("Acceleration, Gyroscope, Rotation Matrix, Comma separated") {
+        XsensDataReaderSettings readerSettings;
+        readerSettings.append_ExperimentalSensors(
+                OpenSim::ExperimentalSensor("_00B42D4B", "head_imu"));
+        readerSettings.updProperty_trial_prefix() =
+                "MT2022_ACC_GYRO_ROT_MAT_COMMA";
+
+        XsensDataReader reader(readerSettings);
+        DataAdapter::OutputTables tables = reader.read("./");
+        auto accelTable = tables.at(XsensDataReader::LinearAccelerations);
+        REQUIRE(accelTable->getNumRows() == 362);
+    }
+    SECTION("Acceleration, Gyroscope, Rotation Matrix, Semicolon separated") {
+        XsensDataReaderSettings readerSettings;
+        readerSettings.append_ExperimentalSensors(
+                OpenSim::ExperimentalSensor("_00B42D4B", "head_imu"));
+        readerSettings.updProperty_trial_prefix() =
+                "MT2022_ACC_GYRO_ROT_MAT_SEMICOLON";
+
+        XsensDataReader reader(readerSettings);
+        DataAdapter::OutputTables tables = reader.read("./");
+        auto accelTable = tables.at(XsensDataReader::LinearAccelerations);
+        REQUIRE(accelTable->getNumRows() == 362);
+    }
+    SECTION("Acceleration, Gyroscope, Rotation Matrix, Space separated") {
+        XsensDataReaderSettings readerSettings;
+        readerSettings.append_ExperimentalSensors(
+                OpenSim::ExperimentalSensor("_00B42D4B", "head_imu"));
+        readerSettings.updProperty_trial_prefix() =
+                "MT2022_ACC_GYRO_ROT_MAT_SPACE";
+
+        XsensDataReader reader(readerSettings);
+        DataAdapter::OutputTables tables = reader.read("./");
+        auto accelTable = tables.at(XsensDataReader::LinearAccelerations);
+        REQUIRE(accelTable->getNumRows() == 362);
     }
 }

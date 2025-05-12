@@ -9,8 +9,8 @@
 #include <filesystem>
 #include <fstream>
 #include <iterator>
-#include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace OpenSim {
@@ -36,8 +36,8 @@ typedef struct XsensDataReader::XsensIMU {
 DataAdapter::OutputTables XsensDataReader::extendRead(
         const std::string& folderName) const {
 
-    // Valid headers for data file in order
-    const std::map<std::string, std::vector<std::string>> imu_h = {
+    // Valid headers for data file, header vector is in order
+    const std::unordered_map<std::string, std::vector<std::string>> imu_h = {
             {"acc", {"Acc_X", "Acc_Y", "Acc_Z"}},
             {"gyr", {"Gyr_X", "Gyr_Y", "Gyr_Z"}},
             {"mag", {"Mag_X", "Mag_Y", "Mag_Z"}},
@@ -49,10 +49,7 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
 
     // files specified by prefix + file name exist
     double dataRate = _settings.get_sampling_rate();
-    const std::string delimiter = _settings.get_delimiter();
     const std::string extension = _settings.get_trial_extension();
-    const std::string rotation_representation =
-            _settings.get_rotation_representation();
     const std::string prefix = _settings.get_trial_prefix();
 
     const int n_imus = _settings.getProperty_ExperimentalSensors().size();
@@ -78,7 +75,7 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
 
     // Read each IMU file
     std::transform(imuFiles.begin(), imuFiles.end(), imus.begin(),
-            [&delimiter, &imu_h, &rotation_representation](const auto& p) {
+            [&imu_h](const auto& p) {
                 // Open File
                 const std::string& fileName = p.second;
                 std::ifstream stream{fileName};
@@ -102,7 +99,12 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                         imu.comments.insert({tokens[0], tokens[1]});
                     }
                 }
-
+                const auto [delimFound, delim] =
+                        OpenSim::detectDelimiter(line);
+                OPENSIM_THROW_IF(!delimFound, TableMissingHeader,
+                        "No delimiter found for: " + imu.name +
+                                " Please ensure that the data file is valid!");
+                const std::string delimiter = std::string(1,delim);
                 // This is the header
                 // Find indices for Acc_{X,Y,Z}, Gyr_{X,Y,Z},
                 // Mag_{X,Y,Z}, Mat on first non-comment line
@@ -147,24 +149,18 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                 int rotation_reps_found =
                         found_quat + found_euler + found_rot_mat;
 
-                // Determine the rotation format to be used
-                if (rotation_reps_found > 1) {
-                    imu.rotation_format = rotation_representation;
-                } else {
-                    if (found_quat) { imu.rotation_format = "rot_quaternion"; }
-                    if (found_euler) { imu.rotation_format = "rot_euler"; }
-                    if (found_rot_mat) { imu.rotation_format = "rot_matrix"; }
+                // Determine the rotation format to be used in the order:
+                // 1. Quaternion => (best for OpenSim)
+                // 2. Rotation Matrix
+                // 3. Euler Angles
+                if (found_quat) {
+                    imu.rotation_format = "rot_quaternion";
+                } else if (found_rot_mat) {
+                    imu.rotation_format = "rot_matrix";
+                } else if (found_euler) {
+                    imu.rotation_format = "rot_euler";
                 }
-                // If no Orientation data is available we'll abort completely
-                OPENSIM_THROW_IF(!(rotation_reps_found >= 1),
-                        TableMissingHeader,
-                        "Rotation Data not found in: " + imu.name +
-                                " Please ensure that the "
-                                "XsensDataReaderSettings match the file "
-                                "format!\n Attempted to parse with rotation "
-                                "format : \"" +
-                                imu.rotation_format + "\" and delimiter: \"" +
-                                delimiter + "\"");
+
                 std::vector<std::string> next_row;
                 size_t row_count = 0;
                 while (!(next_row = FileAdapter::getNextLine(

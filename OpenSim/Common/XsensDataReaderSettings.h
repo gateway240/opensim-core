@@ -48,14 +48,6 @@ public:
         "This is used in calculating the time interval (1/frequency) for the resultant tables."
         "Newer versions of the Xsens software do not specify the recording data rate."
         "See #3956 for details.");
-    OpenSim_DECLARE_PROPERTY(delimiter, std::string,
-        "The delimiter used within the file to separate columns. Defaults to tab (\t)."
-        "Currently parsable options include: tab,space, and comma (\"\t\",\" \",\",\")");
-    OpenSim_DECLARE_PROPERTY(rotation_representation, std::string,
-        "How the rotation information is represented in the file. Defaults to \"rot_matrix\"."
-        "Valid values are: (\"rot_matrix\", \"rot_euler\", and \"rot_quaternion\"). "
-        "This value is only used if multiple rotation representations are present in the file."
-        "If only a single rotation format is present, this setting is disregarded.");
     OpenSim_DECLARE_LIST_PROPERTY(ExperimentalSensors, ExperimentalSensor,
         "List of Experimental sensors and desired associated names in resulting tables");
 
@@ -78,8 +70,6 @@ private:
         constructProperty_trial_prefix("");
         constructProperty_trial_extension(".txt");
         constructProperty_sampling_rate(40.0);
-        constructProperty_delimiter("\t");
-        constructProperty_rotation_representation("rot_matrix");
         constructProperty_ExperimentalSensors();
     }
 };
