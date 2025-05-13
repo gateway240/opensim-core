@@ -137,6 +137,7 @@ SimTK::Vector createVector(std::initializer_list<SimTK::Real> elements);
  * @note Supports single-character delimiters.
  */
  /// @ingroup commonutil
+OSIMCOMMON_API
 std::string detectDelimiter(
         const std::string& input, const std::vector<std::string>& delimiters);
 
