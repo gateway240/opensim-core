@@ -36,6 +36,9 @@ typedef struct XsensDataReader::XsensIMU {
 DataAdapter::OutputTables XsensDataReader::extendRead(
         const std::string& folderName) const {
 
+    // Valid delimiters for Xsens files
+    const std::vector<char>& delimiters = {',', ';', '|', '\t', ':', ' '};
+
     // Valid headers for data file, header vector is in order
     const std::unordered_map<std::string, std::vector<std::string>> imu_h = {
             {"acc", {"Acc_X", "Acc_Y", "Acc_Z"}},
@@ -75,7 +78,7 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
 
     // Read each IMU file
     std::transform(imuFiles.begin(), imuFiles.end(), imus.begin(),
-            [&imu_h](const auto& p) {
+            [&imu_h, &delimiters](const auto& p) {
                 // Open File
                 const std::string& fileName = p.second;
                 std::ifstream stream{fileName};
@@ -99,11 +102,11 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                         imu.comments.insert({tokens[0], tokens[1]});
                     }
                 }
-                const auto delim = OpenSim::detectDelimiter(line);
+                const auto delim = OpenSim::detectDelimiter(line,delimiters);
                 OPENSIM_THROW_IF(delim == '\0', TableMissingHeader,
                         "No delimiter found for: " + imu.name +
                                 " Please ensure that the data file is valid!");
-                const std::string delimiter = std::string(1,delim);
+                const std::string delimiter = std::string(1, delim);
                 // This is the header
                 // Find indices for Acc_{X,Y,Z}, Gyr_{X,Y,Z},
                 // Mag_{X,Y,Z}, Mat on first non-comment line
@@ -318,7 +321,8 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
     std::iota(row_indices.begin(), row_indices.end(),
             0); // Fill with 0, 1, 2, ..., n_lines-1
 
-    // For all tables, will create the row by stitching values from all read files
+    // For all tables, will create the row by stitching values from all read
+    // files
     std::transform(row_indices.begin(), row_indices.end(), row_indices.begin(),
             [&imus, &n_imus, &rotation_format, &n_lines, &has_acc, &has_gyr,
                     &has_mag, &linearAccelerationData, &magneticHeadingData,
