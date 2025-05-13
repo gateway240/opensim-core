@@ -99,9 +99,8 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                         imu.comments.insert({tokens[0], tokens[1]});
                     }
                 }
-                const auto [delimFound, delim] =
-                        OpenSim::detectDelimiter(line);
-                OPENSIM_THROW_IF(!delimFound, TableMissingHeader,
+                const auto delim = OpenSim::detectDelimiter(line);
+                OPENSIM_THROW_IF(delim == '\0', TableMissingHeader,
                         "No delimiter found for: " + imu.name +
                                 " Please ensure that the data file is valid!");
                 const std::string delimiter = std::string(1,delim);

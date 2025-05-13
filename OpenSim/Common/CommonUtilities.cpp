@@ -70,7 +70,7 @@ std::string OpenSim::getFormattedDateTime(
     return ss.str();
 }
 
-std::pair<bool, char> OpenSim::detectDelimiter(
+char OpenSim::detectDelimiter(
         const std::string& input, const std::vector<char>& delimiters) {
 
     std::unordered_map<char, std::size_t> counts;
@@ -89,11 +89,7 @@ std::pair<bool, char> OpenSim::detectDelimiter(
             [](const auto& a, const auto& b) { return a.second < b.second; });
 
     // If a delimiter is found, return it, otherwise return the null terminator
-    if (maxElem != counts.end() && maxElem->second > 0) {
-        return {true, maxElem->first};
-    } else {
-        return {false, '\0'};
-    }
+    return (maxElem != counts.end() && maxElem->second > 0) ? maxElem->first : '\0';
 }
 
 SimTK::Vector OpenSim::createVectorLinspace(
