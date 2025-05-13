@@ -131,14 +131,14 @@ SimTK::Vector createVector(std::initializer_list<SimTK::Real> elements);
  * @param input The string to analyze.
  * @param delimiters A vector of candidate delimiters.
  *
- * @return: The most likely delimiter (as a char), or the null terminator if none
- * was found.
+ * @return: The most likely delimiter (as an std::string),
+ * or an empty string if none was found.
  *
  * @note Supports single-character delimiters.
  */
  /// @ingroup commonutil
-char detectDelimiter(
-        const std::string& input, const std::vector<char>& delimiters);
+std::string detectDelimiter(
+        const std::string& input, const std::vector<std::string>& delimiters);
 
 /**
  * @brief Checks if the elements of a vector are uniformly spaced.

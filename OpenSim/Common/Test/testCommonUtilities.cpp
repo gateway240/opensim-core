@@ -263,47 +263,47 @@ TEST_CASE("isUniform tests with createVectorLinspace(SimTK::Vector) and createVe
 }
 
 TEST_CASE("detectDelimiter") {
-    const std::vector<char>& delimiters = {',', ';', '|', '\t', ':', ' '};
+    const std::vector<std::string> delimiters = {",", ";", "|", "\t", ":", " "};
     SECTION("Comma") {
         std::string input = "a,b,c,d";
-        auto delim = detectDelimiter(input,delimiters);
-        REQUIRE(delim == ',');
+        auto delim = detectDelimiter(input, delimiters);
+        REQUIRE(delim == ",");
     }
-
+    
     SECTION("Pipe") {
         std::string input = "a|b|c|d";
-        auto delim = detectDelimiter(input,delimiters);
-        REQUIRE(delim == '|');
+        auto delim = detectDelimiter(input, delimiters);
+        REQUIRE(delim == "|");
     }
-
+    
     SECTION("Tab") {
         std::string input = "a\tb\tc\td";
-        auto delim = detectDelimiter(input,delimiters);
-        REQUIRE(delim == '\t');
+        auto delim = detectDelimiter(input, delimiters);
+        REQUIRE(delim == "\t");
     }
-
+    
     SECTION("Semicolon") {
         std::string input = "a;b;c;d";
-        auto delim = detectDelimiter(input,delimiters);
-        REQUIRE(delim == ';');
+        auto delim = detectDelimiter(input, delimiters);
+        REQUIRE(delim == ";");
     }
-
+    
     SECTION("Space") {
         std::string input = "a b c d";
-        auto delim = detectDelimiter(input,delimiters);
-        REQUIRE(delim == ' ');
+        auto delim = detectDelimiter(input, delimiters);
+        REQUIRE(delim == " ");
     }
-
+    
     SECTION("No Valid Delimiter") {
         std::string input = "abcd";
-        auto delim = detectDelimiter(input,delimiters);
-        REQUIRE(delim == '\0');
+        auto delim = detectDelimiter(input, delimiters);
+        REQUIRE(delim == "");
     }
-
+    
     SECTION("Delimiter Exclusion") {
-        const std::vector<char>& small_delimiters = {',', ';'};
+        std::vector<std::string> small_delimiters = {",", ";"};
         std::string input = "a|b|c|d";
-        auto delim = detectDelimiter(input,small_delimiters);
-        REQUIRE(delim == '\0');
-    }
+        auto delim = detectDelimiter(input, small_delimiters);
+        REQUIRE(delim == "");
+    }    
 }

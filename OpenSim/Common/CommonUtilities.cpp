@@ -70,26 +70,30 @@ std::string OpenSim::getFormattedDateTime(
     return ss.str();
 }
 
-char OpenSim::detectDelimiter(
-        const std::string& input, const std::vector<char>& delimiters) {
+std::string OpenSim::detectDelimiter(
+        const std::string& input, const std::vector<std::string>& delimiters) {
 
-    std::unordered_map<char, std::size_t> counts;
+    std::unordered_map<std::string, std::size_t> counts;
 
     // Count occurrences of common delimiters in the input string
     std::transform(delimiters.begin(), delimiters.end(),
-            std::inserter(counts, counts.end()), [&input](const char& d) {
-                // Need to explicitly type the pair for windows
-                return std::pair<const char, std::size_t>(
-                        d, std::count_if(input.begin(), input.end(),
-                                   [&d](char c) { return c == d; }));
+            std::inserter(counts, counts.end()), [&input](const std::string& d) {
+                std::size_t count = 0;
+                std::size_t pos = 0;
+                // Find all occurrences of delimiter in input string
+                while ((pos = input.find(d, pos)) != std::string::npos) {
+                    ++count;
+                    pos += d.length(); // Move past the current delimiter
+                }
+                return std::pair<std::string, std::size_t>(d, count);
             });
 
     // Find the delimiter with the highest frequency
     auto maxElem = std::max_element(counts.begin(), counts.end(),
             [](const auto& a, const auto& b) { return a.second < b.second; });
 
-    // If a delimiter is found, return it, otherwise return the null terminator
-    return (maxElem != counts.end() && maxElem->second > 0) ? maxElem->first : '\0';
+    // If a delimiter is found, return it, otherwise return an empty string
+    return (maxElem != counts.end() && maxElem->second > 0) ? maxElem->first : "";
 }
 
 SimTK::Vector OpenSim::createVectorLinspace(

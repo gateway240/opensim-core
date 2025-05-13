@@ -37,7 +37,7 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
         const std::string& folderName) const {
 
     // Valid delimiters for Xsens files
-    const std::vector<char>& delimiters = {',', ';', '|', '\t', ':', ' '};
+    const std::vector<std::string> delimiters = {",", ";", "|", "\t", ":", " "};
 
     // Valid headers for data file, header vector is in order
     const std::unordered_map<std::string, std::vector<std::string>> imu_h = {
@@ -103,10 +103,10 @@ DataAdapter::OutputTables XsensDataReader::extendRead(
                     }
                 }
                 const auto delim = OpenSim::detectDelimiter(line,delimiters);
-                OPENSIM_THROW_IF(delim == '\0', TableMissingHeader,
+                OPENSIM_THROW_IF(delim == "", TableMissingHeader,
                         "No delimiter found for: " + imu.name +
                                 " Please ensure that the data file is valid!");
-                const std::string delimiter = std::string(1, delim);
+                const std::string delimiter = delim;
                 // This is the header
                 // Find indices for Acc_{X,Y,Z}, Gyr_{X,Y,Z},
                 // Mag_{X,Y,Z}, Mat on first non-comment line
