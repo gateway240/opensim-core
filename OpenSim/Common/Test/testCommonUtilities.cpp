@@ -303,7 +303,7 @@ TEST_CASE("detectDelimiter") {
     SECTION("Delimiter Exclusion") {
         const std::vector<char>& small_delimiters = {',', ';'};
         std::string input = "a|b|c|d";
-        auto delim = detectDelimiter(input,delimiters);
+        auto delim = detectDelimiter(input,small_delimiters);
         REQUIRE(delim == '\0');
     }
 }
