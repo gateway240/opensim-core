@@ -6,6 +6,6 @@ Checks: >
   misc-*,
 WarningsAsErrors: true
 HeaderFilterRegex: ''
-FormatStyle: 'InheritParentConfig'
+FormatStyle: 'file'
 ...
 
