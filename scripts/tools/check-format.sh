@@ -8,30 +8,36 @@
 # Disable exit on error so we can handle return codes manually
 set +e
 
-# directory where this script is located
 SCRIPT_DIR="./scripts/tools"
-
-
-# Use first argument as base ref, default to "main" if not provided
 BASE_REF=${1:-main}
+LOG_DIR="logs"
+LOG_FILE="$LOG_DIR/clang-format.log"
 
-# Run git-clang-format to check diffs
-git-clang-format.py "$BASE_REF" --diff
-rc1=$?
+# Create log directory if it doesn't exist
+mkdir -p "$LOG_DIR"
 
-# Run git-clang-format to show diffstat
-git-clang-format.py "$BASE_REF" --diffstat
-rc2=$?
+# Clear or create the log file
+: > "$LOG_FILE"
 
-# Combine return codes to detect any formatting errors
+# Run git-clang-format with logging
+"$SCRIPT_DIR/git-clang-format.py" "$BASE_REF" --diff | tee -a "$LOG_FILE"
+rc1=${PIPESTATUS[0]}
+
+"$SCRIPT_DIR/git-clang-format.py" "$BASE_REF" --diffstat | tee -a "$LOG_FILE"
+rc2=${PIPESTATUS[0]}
+
+# Combine exit codes
 FORMAT_ERROR=$(( rc1 || rc2 ))
 
 if [ "$FORMAT_ERROR" -ne 0 ]; then
-  echo
-  echo "Formatting issues found! Run the following command to fix them:"
-  echo
-  echo "    $SCRIPT_DIR/git-clang-format $BASE_REF"
-  echo 
+  echo | tee -a "$LOG_FILE"
+  echo "❌ Formatting issues found! Run the following command to fix them:" | tee -a "$LOG_FILE"
+  echo | tee -a "$LOG_FILE"
+  echo "    $SCRIPT_DIR/git-clang-format $BASE_REF" | tee -a "$LOG_FILE"
+  echo | tee -a "$LOG_FILE"
+else
+  echo "✅ No formatting issues found." | tee -a "$LOG_FILE"
 fi
 
 exit $FORMAT_ERROR
+

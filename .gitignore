@@ -18,7 +18,9 @@ install
 *~
 
 # OpenSim
-*.log
+err.log
+out.log
+logs/*.log
 
 # Mac
 .DS_Store

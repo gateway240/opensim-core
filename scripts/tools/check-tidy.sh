@@ -13,7 +13,11 @@ BASE_REF=${1:-main}
 # where your compile_commands.json lives
 BUILD_DIR=${2:-"../opensim-core-build"} 
 
-LOG_FILE="clang-tidy-analysis.log"
+LOG_DIR="logs"
+# Create log directory
+mkdir -p "$LOG_DIR"
+
+LOG_FILE="clang-tidy.log"
 
 if [ ! -f "$BUILD_DIR/compile_commands.json" ]; then
   echo "compile_commands.json not found in $BUILD_DIR"
@@ -30,16 +34,17 @@ if [ -z "$VALID_FILES" ]; then
 fi
 
 # Run clang-tidy and capture output
+OUTPUT_FILE="$LOG_DIR/$LOG_FILE"
 "$SCRIPT_DIR/run-clang-tidy.py" \
   -config-file=".clang-tidy" \
   -header-filter=.* \
   -p "$BUILD_DIR" \
-  $VALID_FILES 2>&1 | tee "$LOG_FILE"
+  $VALID_FILES 2>&1 | tee "$OUTPUT_FILE"
 
-if grep -qE 'warning:|error:' "$LOG_FILE"; then
+if grep -qE 'warning:|error:' "$OUTPUT_FILE"; then
   echo
   echo "⚠️  clang-tidy issues found in changed files!"
-  echo "📄 See full output in: $LOG_FILE"
+  echo "📄 See full output in: $OUTPUT_FILE"
   echo "💡 To auto-fix (where possible), run:"
   echo
   echo "  $SCRIPT_DIR/run-clang-tidy.py -config-file=.clang-tidy -header-filter=.* -p \"$BUILD_DIR\" -fix $VALID_FILES"
@@ -47,6 +52,6 @@ if grep -qE 'warning:|error:' "$LOG_FILE"; then
   exit 1
 else
   echo "✅ clang-tidy found no issues in changed files."
-  echo "📄 Output log saved to: $LOG_FILE"
+  echo "📄 Output log saved to: $OUTPUT_FILE"
   exit 0
 fi
