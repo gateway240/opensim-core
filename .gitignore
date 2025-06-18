@@ -18,8 +18,7 @@ install
 *~
 
 # OpenSim
-err.log
-out.log
+*.log
 
 # Mac
 .DS_Store
@@ -74,9 +73,6 @@ delete_this_to_stop_optimization*.txt
 .idea/other.xml
 .idea/encodings.xml
 .idea/inspectionProfiles/Project_Default.xml
-
-# Clang-Tidy
-.clang-tidy
 
 # CMake
 cmake-build-*

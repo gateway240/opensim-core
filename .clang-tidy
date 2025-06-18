@@ -1,0 +1,11 @@
+---
+Checks: > 
+  clang-analyzer-*,
+  bugprone-*,
+  cppcoreguidelines-*,
+  misc-*,
+WarningsAsErrors: true
+HeaderFilterRegex: ''
+FormatStyle: 'InheritParentConfig'
+...
+
