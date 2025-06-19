@@ -29,10 +29,9 @@
 
 // C++ INCLUDES
 #include "GCVSpline.h"
+
 #include "Constant.h"
 #include "gcvspl.h"
-
-
 
 using namespace OpenSim;
 using namespace std;
@@ -275,7 +274,8 @@ init(Function* aFunction)
         // XYFunctionInterface xyFunc(aFunction);
         // if (xyFunc.getNumberOfPoints() == 0) {
         //     // A GCVSpline must have at least getOrder() data points.
-        //     // If aFunction is a Constant, use its Y value for all data points.
+        //     // If aFunction is a Constant, use its Y value for all data
+        //     points.
         //     // If it is not, make up the data points.
         //     double* x = new double[order];
         //     double* y = new double[order];

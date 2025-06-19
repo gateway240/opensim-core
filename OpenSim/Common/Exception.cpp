@@ -26,8 +26,9 @@
  */
 
 #include "Exception.h"
-#include <iostream>  // for basic_ostream, operator<<, basic_ostream::operat...
-#include <string>    // for basic_string, string, char_traits, operator+
+
+#include <iostream> // for basic_ostream, operator<<, basic_ostream::operat...
+#include <string>   // for basic_string, string, char_traits, operator+
 
 using namespace OpenSim;
 using namespace std;
@@ -107,7 +108,8 @@ Exception::Exception(
 
     // const std::string className = component.getConcreteClassName();
     // const std::string absolutePath = component.getAbsolutePathString();
-    // addMessage("\tIn Component '" + absolutePath +  "' of type " + className + ".");
+    // addMessage("\tIn Component '" + absolutePath +  "' of type " + className
+    // + ".");
 }
 
 Exception::Exception(
@@ -198,8 +200,9 @@ print(ostream &aOut) const
     aOut << "\nException:\n";
 
     // MESSAGE
-    // Account for the _msg being multiple lines -- we want to prepend two spaces before each new line
-    // string formattedMsg = IO::formatText(_msg, "  ", 75);
+    // Account for the _msg being multiple lines -- we want to prepend two
+    // spaces before each new line string formattedMsg = IO::formatText(_msg, "
+    // ", 75);
     string formattedMsg = _msg;
     aOut << "  " << formattedMsg << endl;
 

@@ -24,10 +24,10 @@
 
 // C++ INCLUDES
 #include "PiecewiseLinearFunction.h"
+
 #include "Constant.h"
 #include "FunctionAdapter.h"
 #include "SimmMacros.h"
-
 
 using namespace OpenSim;
 using namespace std;
@@ -187,7 +187,8 @@ void PiecewiseLinearFunction::init(Function* aFunction)
         // XYFunctionInterface xyFunc(aFunction);
         // if (xyFunc.getNumberOfPoints() == 0) {
         //     // A PiecewiseLinearFunction must have at least 2 data points.
-        //     // If aFunction is a Constant, use its Y value for both data points.
+        //     // If aFunction is a Constant, use its Y value for both data
+        //     points.
         //     // If it is not, make up two data points.
         //     double x[2] = {0.0, 1.0}, y[2];
         //     Constant* cons = dynamic_cast<Constant*>(aFunction);

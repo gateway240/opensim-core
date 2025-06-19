@@ -29,7 +29,6 @@
 
 #include "Assertion.h"
 #include "Exception.h"
-
 #include <algorithm>
 #include <cstddef>
 #include <initializer_list>

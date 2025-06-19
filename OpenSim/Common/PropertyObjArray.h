@@ -27,7 +27,6 @@
  * Author: Frank C. Anderson 
  */
 
-
 // INCLUDES
 #include <string>
 #include "ArrayPtrs.h"

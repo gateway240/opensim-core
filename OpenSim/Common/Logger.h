@@ -22,13 +22,13 @@
  * limitations under the License.                                             *
  * -------------------------------------------------------------------------- */
 
-#include <spdlog/common.h>  // for string_view_t
-#include <spdlog/logger.h>  // for logger
+#include "osimCommonDLL.h" // for OSIMCOMMON_API
+#include <memory>          // for shared_ptr
+#include <spdlog/common.h> // for string_view_t
+#include <spdlog/fmt/ostr.h>
+#include <spdlog/logger.h> // for logger
 #include <spdlog/spdlog.h>
-#include <spdlog/fmt/ostr.h> 
-#include <memory>           // for shared_ptr
-#include <string>           // for basic_string, string
-#include "osimCommonDLL.h"  // for OSIMCOMMON_API
+#include <string> // for basic_string, string
 
 namespace OpenSim {
 

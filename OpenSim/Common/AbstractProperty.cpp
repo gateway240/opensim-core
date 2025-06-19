@@ -24,11 +24,12 @@
 // INCLUDES
 //============================================================================
 #include "AbstractProperty.h"
-#include <limits>                      // for numeric_limits
-#include <sstream>                     // for basic_stringstream, basic_ostream
-#include <utility>                     // for move
-#include "Assertion.h"                 // for OPENSIM_ASSERT
-#include "OpenSim/Common/Exception.h"  // for Exception
+
+#include "Assertion.h"                // for OPENSIM_ASSERT
+#include "OpenSim/Common/Exception.h" // for Exception
+#include <limits>                     // for numeric_limits
+#include <sstream>                    // for basic_stringstream, basic_ostream
+#include <utility>                    // for move
 
 using namespace OpenSim;
 using namespace SimTK;

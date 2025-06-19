@@ -28,30 +28,31 @@
 
 // INCLUDES
 #include "Storage.h"
-#include <stdlib.h>                            // for atoi
-#include <string.h>                            // for strtok, strcpy, strlen
-#include <algorithm>                           // for max, min
-#include <cmath>                               // for fabs, abs, sqrt
-#include <exception>                           // for exception
-#include <fstream>                             // for basic_ifstream, basic_...
-#include <memory>                              // for unique_ptr, shared_ptr
-#include <sstream>                             // for basic_stringstream
-#include <typeinfo>                            // for type_info
-#include <utility>                             // for pair
-#include "Assertion.h"                         // for OPENSIM_ASSERT_FRMOBJ
-#include "IO.h"                                // for IO
-#include "Logger.h"                            // for log_error, log_warn
-#include "OpenSim/Common/AbstractDataTable.h"  // for AbstractDataTable
-#include "OpenSim/Common/DataAdapter.h"        // for DataAdapter
-#include "OpenSim/Common/Exception.h"          // for Exception, OPENSIM_THR...
-#include "OpenSim/Common/FileAdapter.h"        // for FileAdapter
-#include "OpenSim/Common/StorageInterface.h"   // for StorageInterface
-#include "OpenSim/Common/Units.h"              // for Units
-#include "STOFileAdapter.h"                    // for STODataTypeNotSupported
-#include "Signal.h"                            // for Signal
-#include "SimmMacros.h"                        // for EQUAL_WITHIN_TOLERANCE
-#include "StateVector.h"                       // for StateVector
-#include "TimeSeriesTable.h"                   // for TimeSeriesTable_, Time...
+
+#include "Assertion.h"                        // for OPENSIM_ASSERT_FRMOBJ
+#include "IO.h"                               // for IO
+#include "Logger.h"                           // for log_error, log_warn
+#include "OpenSim/Common/AbstractDataTable.h" // for AbstractDataTable
+#include "OpenSim/Common/DataAdapter.h"       // for DataAdapter
+#include "OpenSim/Common/Exception.h"         // for Exception, OPENSIM_THR...
+#include "OpenSim/Common/FileAdapter.h"       // for FileAdapter
+#include "OpenSim/Common/StorageInterface.h"  // for StorageInterface
+#include "OpenSim/Common/Units.h"             // for Units
+#include "STOFileAdapter.h"                   // for STODataTypeNotSupported
+#include "Signal.h"                           // for Signal
+#include "SimmMacros.h"                       // for EQUAL_WITHIN_TOLERANCE
+#include "StateVector.h"                      // for StateVector
+#include "TimeSeriesTable.h"                  // for TimeSeriesTable_, Time...
+#include <algorithm>                          // for max, min
+#include <cmath>                              // for fabs, abs, sqrt
+#include <exception>                          // for exception
+#include <fstream>                            // for basic_ifstream, basic_...
+#include <memory>                             // for unique_ptr, shared_ptr
+#include <sstream>                            // for basic_stringstream
+#include <stdlib.h>                           // for atoi
+#include <string.h>                           // for strtok, strcpy, strlen
+#include <typeinfo>                           // for type_info
+#include <utility>                            // for pair
 
 using namespace OpenSim;
 using namespace std;
@@ -2547,8 +2548,8 @@ resample(double aDT, int aDegree)
     Array<std::string> saveLabels = getColumnLabels();
     // Free up memory used by Storage
     _storage.setSize(0);
-    // For every column, collect data and fit spline to originalTimes, dataColumn.
-    // Storage *newStorage = splineSet->constructStorage(0,aDT);
+    // For every column, collect data and fit spline to originalTimes,
+    // dataColumn. Storage *newStorage = splineSet->constructStorage(0,aDT);
     // newStorage->setInDegrees(isInDegrees());
     // copyData(*newStorage);
 
@@ -3333,7 +3334,7 @@ double Storage::compareColumnRMS(const Storage& aOtherStorage, const std::string
     if (SimTK::isNaN(endTime))
         endTime = min(thisTime.getLast(), otherTime.getLast());
     int endIndex = findIndex(endTime);
-    
+
     // create spline in case time values do not match up
     // GCVSpline spline(3, otherTime.getSize(), &otherTime[0], &otherData[0]);
 

@@ -28,9 +28,9 @@
 #endif
 
 #include "Assertion.h"
-#include <string>
-#include "Property_Deprecated.h"
 #include "OpenSim/Common/Array.h"
+#include "Property_Deprecated.h"
+#include <string>
 
 //=============================================================================
 //=============================================================================

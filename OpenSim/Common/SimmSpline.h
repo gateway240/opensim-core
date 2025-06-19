@@ -25,14 +25,13 @@
 
 
 // INCLUDES
-#include <SimTKcommon.h>              // for Function
-#include <string>                     // for basic_string, string
-#include "Array.h"                    // for Array
-#include "Function.h"                 // for Function
-#include "OpenSim/Common/Object.h"    // for OpenSim_DECLARE_CONCRETE_OBJECT
-#include "PropertyDblArray.h"         // for PropertyDblArray
-#include "osimCommonDLL.h"            // for OSIMCOMMON_API
-
+#include "Array.h"                 // for Array
+#include "Function.h"              // for Function
+#include "OpenSim/Common/Object.h" // for OpenSim_DECLARE_CONCRETE_OBJECT
+#include "PropertyDblArray.h"      // for PropertyDblArray
+#include "osimCommonDLL.h"         // for OSIMCOMMON_API
+#include <SimTKcommon.h>           // for Function
+#include <string>                  // for basic_string, string
 
 //=============================================================================
 //=============================================================================

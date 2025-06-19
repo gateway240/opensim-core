@@ -31,10 +31,9 @@
 #endif
 
 // INCLUDES
-#include "osimCommonDLL.h"
 #include "ArrayPtrs.h"
 #include "PropertyDblVec.h"
-
+#include "osimCommonDLL.h"
 
 #ifdef SWIG
     #ifdef OSIMCOMMON_API

@@ -29,12 +29,12 @@
 
 
 // INCLUDES
-#include <spdlog/common.h>   // for string_view_t
-#include <stddef.h>          // for size_t
-#include <exception>         // for exception
-#include <iosfwd>            // for ostream
-#include <string>            // for basic_string, string, operator+, allocator
-#include "osimCommonDLL.h"   // for OSIMCOMMON_API
+#include "osimCommonDLL.h" // for OSIMCOMMON_API
+#include <exception>       // for exception
+#include <iosfwd>          // for ostream
+#include <spdlog/common.h> // for string_view_t
+#include <stddef.h>        // for size_t
+#include <string>          // for basic_string, string, operator+, allocator
 
 #ifdef SWIG
     #ifdef OSIMCOMMON_API

@@ -25,20 +25,20 @@
  * Author: Frank C. Anderson 
  */
 
-
 // INCLUDES
 #include "Signal.h"
+
+#include "Array.h"                    // for Array
+#include "Logger.h"                   // for log_error, log_warn
+#include "OpenSim/Common/Exception.h" // for Exception, OPENSIM_THROW_IF
+#include "SimTKcommon/Constants.h"    // for SimTK_PI
+#include "SimTKcommon/Scalar.h"       // for NTraits<>::ArgDepth, NTraits<>...
+#include "SimTKcommon/SmallMatrix.h"  // for Vec, Vec<>::ArgDepth, Vec<>::C...
+#include <cmath>                      // for pow, cos, sin, sqrt, tan
 #include <simmath/internal/Spline.h>
 #include <simmath/internal/SplineFitter.h>
-#include <stddef.h>                    // for NULL, size_t
-#include <cmath>                       // for pow, cos, sin, sqrt, tan
-#include <vector>                      // for vector
-#include "Array.h"                     // for Array
-#include "Logger.h"                    // for log_error, log_warn
-#include "OpenSim/Common/Exception.h"  // for Exception, OPENSIM_THROW_IF
-#include "SimTKcommon/Constants.h"     // for SimTK_PI
-#include "SimTKcommon/Scalar.h"        // for NTraits<>::ArgDepth, NTraits<>...
-#include "SimTKcommon/SmallMatrix.h"   // for Vec, Vec<>::ArgDepth, Vec<>::C...
+#include <stddef.h> // for NULL, size_t
+#include <vector>   // for vector
 
 using namespace OpenSim;
 using namespace std;

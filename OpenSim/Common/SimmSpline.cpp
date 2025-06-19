@@ -24,18 +24,19 @@
 
 // C++ INCLUDES
 #include "SimmSpline.h"
-#include <SimTKcommon/Scalar.h>               // for NaN, NTraits<>::NActual...
-#include <stddef.h>                           // for NULL
-#include <vector>                             // for vector
-#include "FunctionAdapter.h"                  // for FunctionAdapter
-#include "OpenSim/Common/Array.h"             // for Array
-#include "OpenSim/Common/Exception.h"         // for Exception
-#include "OpenSim/Common/Function.h"          // for Function
-#include "OpenSim/Common/Logger.h"            // for log_error
-#include "OpenSim/Common/PropertyDblArray.h"  // for PropertyDblArray
-#include "OpenSim/Common/PropertySet.h"       // for PropertySet
-#include "SimmMacros.h"                       // for MAX, TINY_NUMBER, EQUAL...
 
+#include "FunctionAdapter.h"                 // for FunctionAdapter
+#include "OpenSim/Common/Array.h"            // for Array
+#include "OpenSim/Common/Exception.h"        // for Exception
+#include "OpenSim/Common/Function.h"         // for Function
+#include "OpenSim/Common/Logger.h"           // for log_error
+#include "OpenSim/Common/PropertyDblArray.h" // for PropertyDblArray
+#include "OpenSim/Common/PropertySet.h"      // for PropertySet
+#include "SimmMacros.h"                      // for MAX, TINY_NUMBER, EQUAL...
+#include <stddef.h>                          // for NULL
+#include <vector>                            // for vector
+
+#include <SimTKcommon/Scalar.h> // for NaN, NTraits<>::NActual...
 
 using namespace OpenSim;
 using namespace std;
@@ -195,7 +196,8 @@ void SimmSpline::init(Function* aFunction)
         // XYFunctionInterface xyFunc(aFunction);
         // if (xyFunc.getNumberOfPoints() == 0) {
         //     // A SimmSpline must have at least 2 data points.
-        //     // If aFunction is a Constant, use its Y value for both data points.
+        //     // If aFunction is a Constant, use its Y value for both data
+        //     points.
         //     // If it is not, make up two data points.
         //     double x[2] = {0.0, 1.0}, y[2];
         //     Constant* cons = dynamic_cast<Constant*>(aFunction);

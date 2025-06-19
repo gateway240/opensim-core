@@ -1,7 +1,8 @@
 #include "DataAdapter.h"
-#include <stdexcept>                   // for out_of_range
-#include <utility>                     // for pair
-#include "OpenSim/Common/Exception.h"  // for OPENSIM_THROW, OPENSIM_THROW_IF
+
+#include "OpenSim/Common/Exception.h" // for OPENSIM_THROW, OPENSIM_THROW_IF
+#include <stdexcept>                  // for out_of_range
+#include <utility>                    // for pair
 
 namespace OpenSim {
 
@@ -43,16 +44,16 @@ namespace {
 // registerAdapters{DataAdapter::registerDataAdapter("trc", TRCFileAdapter{}) &&
 //                  DataAdapter::registerDataAdapter("csv", CSVFileAdapter{}) &&
 //                  DataAdapter::registerDataAdapter("mot", STOFileAdapter{})};
-bool 
-registerAdapters{
-//     DataAdapter::registerDataAdapter("trc", TRCFileAdapter{}) 
-//         && DataAdapter::registerDataAdapter("mot", STOFileAdapter_<double>{}) 
-//         && DataAdapter::registerDataAdapter("csv", CSVFileAdapter{})
-// #if defined (WITH_EZC3D)
-//               && DataAdapter::registerDataAdapter("c3d", C3DFileAdapter{})
-// #endif
-                };
-
+bool registerAdapters{
+        //     DataAdapter::registerDataAdapter("trc", TRCFileAdapter{})
+        //         && DataAdapter::registerDataAdapter("mot",
+        //         STOFileAdapter_<double>{})
+        //         && DataAdapter::registerDataAdapter("csv", CSVFileAdapter{})
+        // #if defined (WITH_EZC3D)
+        //               && DataAdapter::registerDataAdapter("c3d",
+        //               C3DFileAdapter{})
+        // #endif
+};
 }
 
 // Ignore this function. This exists to suppress compiler warning

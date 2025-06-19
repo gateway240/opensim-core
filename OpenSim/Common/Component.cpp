@@ -24,16 +24,17 @@
 
 // INCLUDES
 #include "Component.h"
-#include <ctype.h>                            // for isspace
-#include <exception>                          // for exception
-#include <regex>                              // for regex_match, regex
-#include <unordered_set>                      // for unordered_set
-#include "Logger.h"                           // for log_cout, log_warn
-#include "OpenSim/Common/AbstractProperty.h"  // for AbstractProperty
-#include "OpenSim/Common/ComponentList.h"     // for ComponentList, Componen...
-#include "OpenSim/Common/ComponentPath.h"     // for ComponentPath, operator<<
-#include "OpenSim/Common/IO.h"                // for IO
-#include "XMLDocument.h"                      // for XMLDocument
+
+#include "Logger.h"                          // for log_cout, log_warn
+#include "OpenSim/Common/AbstractProperty.h" // for AbstractProperty
+#include "OpenSim/Common/ComponentList.h"    // for ComponentList, Componen...
+#include "OpenSim/Common/ComponentPath.h"    // for ComponentPath, operator<<
+#include "OpenSim/Common/IO.h"               // for IO
+#include "XMLDocument.h"                     // for XMLDocument
+#include <ctype.h>                           // for isspace
+#include <exception>                         // for exception
+#include <regex>                             // for regex_match, regex
+#include <unordered_set>                     // for unordered_set
 
 namespace OpenSim {
 

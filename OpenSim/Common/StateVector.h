@@ -27,13 +27,12 @@
  * Author: Frank C. Anderson 
  */
 
+#include "Array.h"         // for operator<<, Array
+#include "osimCommonDLL.h" // for OSIMCOMMON_API
+#include <ostream>         // for basic_ostream, operator<<, ostream
+#include <stdio.h>         // for FILE
 
-#include <SimTKcommon/Orientation.h>  // for Vector_
-#include <stdio.h>                    // for FILE
-#include <ostream>                    // for basic_ostream, operator<<, ostream
-#include "Array.h"                    // for operator<<, Array
-#include "osimCommonDLL.h"            // for OSIMCOMMON_API
-
+#include <SimTKcommon/Orientation.h> // for Vector_
 
 namespace OpenSim { 
 

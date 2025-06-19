@@ -29,11 +29,12 @@
 
 
 // INCLUDES
-#include <SimTKcommon/internal/Xml.h>    // for Element (ptr only)
-#include <string>                        // for string, basic_string
-#include "Array.h"                       // for Array
-#include "SimTKcommon/SmallMatrix.h"     // for Vec3
-#include "osimCommonDLL.h"               // for OSIMCOMMON_API
+#include "Array.h"                   // for Array
+#include "SimTKcommon/SmallMatrix.h" // for Vec3
+#include "osimCommonDLL.h"           // for OSIMCOMMON_API
+#include <string>                    // for string, basic_string
+
+#include <SimTKcommon/internal/Xml.h> // for Element (ptr only)
 
 namespace OpenSim { 
 //=============================================================================

@@ -25,13 +25,14 @@
  * Author: Frank C. Anderson 
  */
 
-
 // INCLUDES
 #include "StateVector.h"
-#include <SimTKcommon/Scalar.h>    // for NTraits<>::NActualScalars, NaN
-#include "IO.h"                    // for IO_STRLEN, IO
-#include "Logger.h"                // for log_error
-#include "OpenSim/Common/Array.h"  // for Array, operator==
+
+#include "IO.h"                   // for IO_STRLEN, IO
+#include "Logger.h"               // for log_error
+#include "OpenSim/Common/Array.h" // for Array, operator==
+
+#include <SimTKcommon/Scalar.h> // for NTraits<>::NActualScalars, NaN
 
 using namespace OpenSim;
 

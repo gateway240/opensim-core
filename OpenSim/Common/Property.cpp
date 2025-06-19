@@ -24,10 +24,11 @@
 // INCLUDES
 //============================================================================
 #include "Property.h"
-#include <SimTKcommon/SmallMatrix.h>  // for Mat<>::ColSpacing, Mat<>::RowSp...
-#include <cmath>                      // for abs
-#include <string>                     // for basic_string, string
 
+#include <cmath>  // for abs
+#include <string> // for basic_string, string
+
+#include <SimTKcommon/SmallMatrix.h> // for Mat<>::ColSpacing, Mat<>::RowSp...
 
 using namespace OpenSim;
 using namespace std;

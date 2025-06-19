@@ -22,13 +22,13 @@
 
 #include "Logger.h"
 
-#include <algorithm>                              // for remove
-#include <spdlog/sinks/basic_file_sink.h>         // for basic_file_sink
-#include <spdlog/sinks/sink.h>                    // for sink
-#include <spdlog/sinks/stdout_color_sinks.h>      // for stdout_color_mt
-#include <vector>                                 // for vector
-#include "Exception.h"                            // for Exception, OPENSIM_...
-#include "LogSink.h"                              // for LogSink
+#include "Exception.h"                       // for Exception, OPENSIM_...
+#include "LogSink.h"                         // for LogSink
+#include <algorithm>                         // for remove
+#include <spdlog/sinks/basic_file_sink.h>    // for basic_file_sink
+#include <spdlog/sinks/sink.h>               // for sink
+#include <spdlog/sinks/stdout_color_sinks.h> // for stdout_color_mt
+#include <vector>                            // for vector
 
 using namespace OpenSim;
 

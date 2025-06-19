@@ -27,7 +27,6 @@
  * Author: Frank C. Anderson 
  */
 
-
 #include <iostream>
 #include "Exception.h"
 #include "Logger.h"

@@ -24,23 +24,24 @@
  * -------------------------------------------------------------------------- */
 
 // INCLUDES
-#include <SimTKcommon/Scalar.h>             // for NTraits<>::RealStrideFactor
+#include "AbstractProperty.h"             // for writeUnformatted, readUnf...
+#include "Assertion.h"                    // for OPENSIM_ASSERT
+#include "Exception.h"                    // for Exception, InvalidArgument
+#include "Logger.h"                       // for log_warn
+#include "OpenSim/Common/osimCommonDLL.h" // for OSIMCOMMON_API
+#include "SimTKcommon/SmallMatrix.h"      // for Vec6, Mat<>::ColSpacing
+#include <iomanip>                        // for operator<<, setprecision
+#include <sstream>                        // for basic_ostream, operator<<
+#include <stddef.h>                       // for NULL
+#include <string>                         // for basic_string, allocator
+#include <typeinfo>                       // for bad_cast
+#include <utility>                        // for move
+
+#include <SimTKcommon/Scalar.h> // for NTraits<>::RealStrideFactor
 #include <SimTKcommon/internal/Array.h>
 #include <SimTKcommon/internal/BigMatrix.h>
-#include <SimTKcommon/internal/ClonePtr.h>  // for ClonePtr (ptr only)
+#include <SimTKcommon/internal/ClonePtr.h> // for ClonePtr (ptr only)
 #include <SimTKcommon/internal/Transform.h>
-#include <stddef.h>                         // for NULL
-#include <iomanip>                          // for operator<<, setprecision
-#include <sstream>                          // for basic_ostream, operator<<
-#include <string>                           // for basic_string, allocator
-#include <typeinfo>                         // for bad_cast
-#include <utility>                          // for move
-#include "AbstractProperty.h"               // for writeUnformatted, readUnf...
-#include "Assertion.h"                      // for OPENSIM_ASSERT
-#include "Exception.h"                      // for Exception, InvalidArgument
-#include "Logger.h"                         // for log_warn
-#include "OpenSim/Common/osimCommonDLL.h"   // for OSIMCOMMON_API
-#include "SimTKcommon/SmallMatrix.h"        // for Vec6, Mat<>::ColSpacing
 
 namespace OpenSim {
 
