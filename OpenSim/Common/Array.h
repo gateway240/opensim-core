@@ -29,8 +29,6 @@
 
 #include "Assertion.h"
 #include "Exception.h"
-#include "osimCommonDLL.h"
-#include "Logger.h"
 
 #include <algorithm>
 #include <cstddef>

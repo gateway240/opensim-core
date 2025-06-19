@@ -27,9 +27,6 @@
 
 #include "Exception.h"
 
-#include "Component.h"
-#include "IO.h"
-#include "Object.h"
 #include "osimCommonDLL.h"
 
 #include <iostream>
@@ -90,10 +87,10 @@ Exception::Exception(const std::string& file,
                      const std::string& func,
                      const Object& obj)
     : Exception{file, line, func} {
-    std::string className = obj.getConcreteClassName();
-    std::string objName = obj.getName();
-    if (objName.empty()) objName = "<no-name>";
-    addMessage("\tIn Object '" + objName + "' of type " + className + ".");
+    // std::string className = obj.getConcreteClassName();
+    // std::string objName = obj.getName();
+    // if (objName.empty()) objName = "<no-name>";
+    // addMessage("\tIn Object '" + objName + "' of type " + className + ".");
 }
 
 Exception::Exception(const std::string& file,
@@ -112,9 +109,9 @@ Exception::Exception(
     const Component& component)
     : Exception{file, line, func} {
 
-    const std::string className = component.getConcreteClassName();
-    const std::string absolutePath = component.getAbsolutePathString();
-    addMessage("\tIn Component '" + absolutePath +  "' of type " + className + ".");
+    // const std::string className = component.getConcreteClassName();
+    // const std::string absolutePath = component.getAbsolutePathString();
+    // addMessage("\tIn Component '" + absolutePath +  "' of type " + className + ".");
 }
 
 Exception::Exception(
@@ -206,7 +203,8 @@ print(ostream &aOut) const
 
     // MESSAGE
     // Account for the _msg being multiple lines -- we want to prepend two spaces before each new line
-    string formattedMsg = IO::formatText(_msg, "  ", 75);
+    // string formattedMsg = IO::formatText(_msg, "  ", 75);
+    string formattedMsg = _msg;
     aOut << "  " << formattedMsg << endl;
 
     // FILE

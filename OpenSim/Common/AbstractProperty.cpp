@@ -26,8 +26,6 @@
 #include "AbstractProperty.h"
 
 #include "Assertion.h"
-#include "Component.h"
-#include "Object.h"
 
 #include <limits>
 #include <sstream>
@@ -119,10 +117,10 @@ void AbstractProperty::clear() {
 // any contained Objects.
 void AbstractProperty::setAllPropertiesUseDefault(bool shouldUseDefault) {
     setValueIsDefault(shouldUseDefault);
-    if (!isObjectProperty())
-        return;
-    for (int i=0; i < size(); ++i)
-        updValueAsObject(i).setAllPropertiesUseDefault(shouldUseDefault);
+    // if (!isObjectProperty())
+    //     return;
+    // for (int i=0; i < size(); ++i)
+    //     updValueAsObject(i).setAllPropertiesUseDefault(shouldUseDefault);
 }
 
 // Implement the policy that locates a property value's element within its 
@@ -260,10 +258,10 @@ void AbstractProperty::writeToXMLParentElement(Xml::Element& parent) const {
     //      <ObjectTypeTag ...> value </ObjectTypeTag> 
     // otherwise.
 
-    const Object& obj = getValueAsObject();
+    // const Object& obj = getValueAsObject();
 
-    // If this is a named property then the lone object must have its
-    // name attribute set to the property name.
-    obj.updateXMLNode(parent, this);
+    // // If this is a named property then the lone object must have its
+    // // name attribute set to the property name.
+    // obj.updateXMLNode(parent, this);
 }
 

@@ -23,10 +23,8 @@
 #include "Logger.h"
 
 #include "Exception.h"
-#include "IO.h"
 #include "LogSink.h"
-
-#include "spdlog/sinks/stdout_color_sinks.h"
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 using namespace OpenSim;
 
@@ -168,7 +166,7 @@ Logger::Level Logger::getLevel() {
 
 void Logger::setLevelString(std::string str) {
     Level level;
-    str = IO::Lowercase(str);
+    // str = IO::Lowercase(str);
     if (str == "off") level = Level::Off;
     else if (str == "critical") level = Level::Critical;
     else if (str == "error") level = Level::Error;

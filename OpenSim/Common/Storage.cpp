@@ -31,8 +31,6 @@
 
 #include "Assertion.h"
 #include "CommonUtilities.h"
-#include "GCVSpline.h"
-#include "GCVSplineSet.h"
 #include "IO.h"
 #include "Logger.h"
 #include "STOFileAdapter.h"
@@ -40,7 +38,6 @@
 #include "SimTKcommon.h"
 #include "SimmMacros.h"
 #include "StateVector.h"
-#include "TableUtilities.h"
 #include "TimeSeriesTable.h"
 #include <iostream>
 
@@ -521,14 +518,15 @@ getHeaderToken() const
 int Storage::
 getStateIndex(const std::string &aColumnName, int startIndex) const
 {
-    int thisColumnIndex =
-            TableUtilities::findStateLabelIndex(_columnLabels, aColumnName);
-    if (thisColumnIndex == -1) {
-        return -1;
-    }
-    // Subtract 1 because time is included in the labels but not
-    // in the "state vector".
-    return thisColumnIndex - 1;
+    // int thisColumnIndex =
+    //         TableUtilities::findStateLabelIndex(_columnLabels, aColumnName);
+    // if (thisColumnIndex == -1) {
+    //     return -1;
+    // }
+    // // Subtract 1 because time is included in the labels but not
+    // // in the "state vector".
+    // return thisColumnIndex - 1;
+    return -1;
 }
 
 
@@ -2532,20 +2530,20 @@ resample(double aDT, int aDegree)
         aDT = newDT;
     }
 
-    GCVSplineSet *splineSet = new GCVSplineSet(aDegree,this);
+    // GCVSplineSet *splineSet = new GCVSplineSet(aDegree,this);
 
     Array<std::string> saveLabels = getColumnLabels();
     // Free up memory used by Storage
     _storage.setSize(0);
     // For every column, collect data and fit spline to originalTimes, dataColumn.
-    Storage *newStorage = splineSet->constructStorage(0,aDT);
-    newStorage->setInDegrees(isInDegrees());
-    copyData(*newStorage);
+    // Storage *newStorage = splineSet->constructStorage(0,aDT);
+    // newStorage->setInDegrees(isInDegrees());
+    // copyData(*newStorage);
 
-    setColumnLabels(saveLabels);
+    // setColumnLabels(saveLabels);
 
-    delete newStorage;
-    delete splineSet;
+    // delete newStorage;
+    // delete splineSet;
 
     return aDT;
 }
@@ -3325,15 +3323,15 @@ double Storage::compareColumnRMS(const Storage& aOtherStorage, const std::string
     int endIndex = findIndex(endTime);
     
     // create spline in case time values do not match up
-    GCVSpline spline(3, otherTime.getSize(), &otherTime[0], &otherData[0]);
+    // GCVSpline spline(3, otherTime.getSize(), &otherTime[0], &otherData[0]);
 
     double rms = 0.;
 
-    for(int i = startIndex; i <= endIndex; i++) {
-        SimTK::Vector inputTime(1, thisTime[i]);
-        double diff = thisData[i] - spline.calcValue(inputTime);
-        rms += diff * diff;
-    }
+    // for(int i = startIndex; i <= endIndex; i++) {
+    //     SimTK::Vector inputTime(1, thisTime[i]);
+    //     double diff = thisData[i] - spline.calcValue(inputTime);
+    //     rms += diff * diff;
+    // }
 
     rms = sqrt(rms/(endIndex - startIndex));
 

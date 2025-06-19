@@ -1,4 +1,4 @@
-#include "Adapters.h"
+#include "DataAdapter.h"
 
 namespace OpenSim {
 
@@ -41,12 +41,13 @@ namespace {
 //                  DataAdapter::registerDataAdapter("csv", CSVFileAdapter{}) &&
 //                  DataAdapter::registerDataAdapter("mot", STOFileAdapter{})};
 bool 
-registerAdapters{DataAdapter::registerDataAdapter("trc", TRCFileAdapter{}) 
-        && DataAdapter::registerDataAdapter("mot", STOFileAdapter_<double>{}) 
-        && DataAdapter::registerDataAdapter("csv", CSVFileAdapter{})
-#if defined (WITH_EZC3D)
-              && DataAdapter::registerDataAdapter("c3d", C3DFileAdapter{})
-#endif
+registerAdapters{
+//     DataAdapter::registerDataAdapter("trc", TRCFileAdapter{}) 
+//         && DataAdapter::registerDataAdapter("mot", STOFileAdapter_<double>{}) 
+//         && DataAdapter::registerDataAdapter("csv", CSVFileAdapter{})
+// #if defined (WITH_EZC3D)
+//               && DataAdapter::registerDataAdapter("c3d", C3DFileAdapter{})
+// #endif
                 };
 
 }

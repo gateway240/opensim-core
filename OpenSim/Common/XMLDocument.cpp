@@ -31,8 +31,8 @@
 //-----------------------------------------------------------------------------
 #include "Assertion.h"
 #include "XMLDocument.h"
-#include "Object.h"
 #include <functional>
+#include "Logger.h"
 
 
 using namespace OpenSim;
@@ -83,9 +83,9 @@ const int XMLDocument::LatestVersion = 40600;
  */
 XMLDocument::~XMLDocument()
 {
-    for(int i = 0; i < _defaultObjects.size(); i++) {
-        delete _defaultObjects.get(i);
-    }
+    // for(int i = 0; i < _defaultObjects.size(); i++) {
+    //     delete _defaultObjects.get(i);
+    // }
     _defaultObjects.setSize(0);
 }
 
@@ -281,15 +281,15 @@ void XMLDocument::writeDefaultObjects(SimTK::Xml::Element& elmt)
     SimTK::Xml::Element defaultsElement("defaults");
     
     elmt.insertNodeAfter(elmt.node_end(), defaultsElement);
-    for(int i=0; i < _defaultObjects.getSize(); i++){
-        _defaultObjects.get(i)->updateXMLNode(defaultsElement);
-    }
+    // for(int i=0; i < _defaultObjects.getSize(); i++){
+    //     _defaultObjects.get(i)->updateXMLNode(defaultsElement);
+    // }
 }
 
 void XMLDocument::copyDefaultObjects(const XMLDocument &aDocument){
         _defaultObjects.setSize(0);
-        for (int i=0; i< aDocument._defaultObjects.getSize(); i++)
-            _defaultObjects.append(aDocument._defaultObjects.get(i)->clone());
+        // for (int i=0; i< aDocument._defaultObjects.getSize(); i++)
+        //     _defaultObjects.append(aDocument._defaultObjects.get(i)->clone());
 }
 
 /*static*/ 
