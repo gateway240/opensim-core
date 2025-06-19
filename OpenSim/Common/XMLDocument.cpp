@@ -89,9 +89,9 @@ const int XMLDocument::LatestVersion = 40600;
  */
 XMLDocument::~XMLDocument()
 {
-    // for(int i = 0; i < _defaultObjects.size(); i++) {
-    //     delete _defaultObjects.get(i);
-    // }
+    for(int i = 0; i < _defaultObjects.size(); i++) {
+        free(_defaultObjects.get(i));
+    }
     _defaultObjects.setSize(0);
 }
 
@@ -279,23 +279,6 @@ getRootDataElement()
 void XMLDocument::addDefaultObject(OpenSim::Object *aDefaultObject)
 {
     _defaultObjects.append(aDefaultObject);
-}
-void XMLDocument::writeDefaultObjects(SimTK::Xml::Element& elmt)
-{
-    if (_defaultObjects.getSize()==0) return;
-    // Make node for "defaults"
-    SimTK::Xml::Element defaultsElement("defaults");
-    
-    elmt.insertNodeAfter(elmt.node_end(), defaultsElement);
-    // for(int i=0; i < _defaultObjects.getSize(); i++){
-    //     _defaultObjects.get(i)->updateXMLNode(defaultsElement);
-    // }
-}
-
-void XMLDocument::copyDefaultObjects(const XMLDocument &aDocument){
-        _defaultObjects.setSize(0);
-        // for (int i=0; i< aDocument._defaultObjects.getSize(); i++)
-        //     _defaultObjects.append(aDocument._defaultObjects.get(i)->clone());
 }
 
 /*static*/ 

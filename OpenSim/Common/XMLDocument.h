@@ -62,12 +62,14 @@ class OSIMCOMMON_API XMLDocument  : public SimTK::Xml::Document {
 public:
     /** Latest version of the code encoded as an int xxyyzz where x: major release, y: minor, z: patch */
     static const int LatestVersion;
+
 private:
     /** Name of the XML Document */
     std::string _fileName;
     /** Document Version as written to the file */
     int _documentVersion;
     OpenSim::Array<Object*> _defaultObjects;
+
 //=============================================================================
 // METHODS
 //=============================================================================
@@ -79,8 +81,6 @@ public:
     XMLDocument();
     XMLDocument(const std::string &aFileName);
     XMLDocument(const XMLDocument &aDocument);
-    void copyDefaultObjects(const XMLDocument &aDocument);
-    void writeDefaultObjects(SimTK::Xml::Element& elmt);
     //--------------------------------------------------------------------------
     // VERSIONING /BACKWARD COMPATIBILITY SUPPORT
     //--------------------------------------------------------------------------    
@@ -89,6 +89,12 @@ public:
     const int& getDocumentVersion() const { return _documentVersion; };
     static void getVersionAsString(const int aVersion, std::string& aString); 
     SimTK::Xml::Element getRootDataElement();
+    OpenSim::Array<OpenSim::Object*>& getDefaultObjects() {
+        return _defaultObjects;
+    }
+    const OpenSim::Array<OpenSim::Object*>& getDefaultObjects() const {
+        return _defaultObjects;
+    }
     bool isEqualTo(XMLDocument& aOtherDocument, double toleranceForDoubles=1e-6, 
         bool compareDefaults=false, bool compareVersionNumbers=false);
     /** This adds an XML element to `element` of the following form:
