@@ -28,11 +28,11 @@
  */
 
 
-#include "osimCommonDLL.h"
-#include "Array.h"
-
-#include "SimTKcommon.h"
-#include <vector>
+#include <SimTKcommon/Orientation.h>  // for Vector_
+#include <stdio.h>                    // for FILE
+#include <ostream>                    // for basic_ostream, operator<<, ostream
+#include "Array.h"                    // for operator<<, Array
+#include "osimCommonDLL.h"            // for OSIMCOMMON_API
 
 
 namespace OpenSim { 

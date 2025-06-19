@@ -24,19 +24,20 @@
  * -------------------------------------------------------------------------- */
 
 // INCLUDES
-#include "Assertion.h"
-#include <string>
-#include <typeinfo>
-#include "osimCommonDLL.h"
-#include "Exception.h"
-#include "SimTKcommon/internal/Xml.h"
+#include <SimTKcommon/internal/Xml.h>
+#include <stddef.h>         // for size_t
+#include <string>           // for string, basic_string, operator!=
+#include <typeinfo>         // for type_info
+#include "Assertion.h"      // for OPENSIM_ASSERT
+#include "Exception.h"      // for Exception
+#include "osimCommonDLL.h"  // for OSIMCOMMON_API
 
+namespace SimTK { namespace Xml { class Element; } }
 
 namespace OpenSim {
 
 class Object;
 class Component;
-template <class T> class Property;
 
 //==============================================================================
 /// Property Exceptions

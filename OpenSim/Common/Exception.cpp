@@ -26,12 +26,8 @@
  */
 
 #include "Exception.h"
-
-#include "osimCommonDLL.h"
-
-#include <iostream>
-#include <string>
-
+#include <iostream>  // for basic_ostream, operator<<, basic_ostream::operat...
+#include <string>    // for basic_string, string, char_traits, operator+
 
 using namespace OpenSim;
 using namespace std;

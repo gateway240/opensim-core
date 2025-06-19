@@ -28,18 +28,30 @@
 
 // INCLUDES
 #include "Storage.h"
-
-#include "Assertion.h"
-#include "CommonUtilities.h"
-#include "IO.h"
-#include "Logger.h"
-#include "STOFileAdapter.h"
-#include "Signal.h"
-#include "SimTKcommon.h"
-#include "SimmMacros.h"
-#include "StateVector.h"
-#include "TimeSeriesTable.h"
-#include <iostream>
+#include <stdlib.h>                            // for atoi
+#include <string.h>                            // for strtok, strcpy, strlen
+#include <algorithm>                           // for max, min
+#include <cmath>                               // for fabs, abs, sqrt
+#include <exception>                           // for exception
+#include <fstream>                             // for basic_ifstream, basic_...
+#include <memory>                              // for unique_ptr, shared_ptr
+#include <sstream>                             // for basic_stringstream
+#include <typeinfo>                            // for type_info
+#include <utility>                             // for pair
+#include "Assertion.h"                         // for OPENSIM_ASSERT_FRMOBJ
+#include "IO.h"                                // for IO
+#include "Logger.h"                            // for log_error, log_warn
+#include "OpenSim/Common/AbstractDataTable.h"  // for AbstractDataTable
+#include "OpenSim/Common/DataAdapter.h"        // for DataAdapter
+#include "OpenSim/Common/Exception.h"          // for Exception, OPENSIM_THR...
+#include "OpenSim/Common/FileAdapter.h"        // for FileAdapter
+#include "OpenSim/Common/StorageInterface.h"   // for StorageInterface
+#include "OpenSim/Common/Units.h"              // for Units
+#include "STOFileAdapter.h"                    // for STODataTypeNotSupported
+#include "Signal.h"                            // for Signal
+#include "SimmMacros.h"                        // for EQUAL_WITHIN_TOLERANCE
+#include "StateVector.h"                       // for StateVector
+#include "TimeSeriesTable.h"                   // for TimeSeriesTable_, Time...
 
 using namespace OpenSim;
 using namespace std;

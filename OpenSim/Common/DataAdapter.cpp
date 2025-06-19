@@ -1,4 +1,7 @@
 #include "DataAdapter.h"
+#include <stdexcept>                   // for out_of_range
+#include <utility>                     // for pair
+#include "OpenSim/Common/Exception.h"  // for OPENSIM_THROW, OPENSIM_THROW_IF
 
 namespace OpenSim {
 

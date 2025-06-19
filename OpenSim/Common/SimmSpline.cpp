@@ -24,9 +24,17 @@
 
 // C++ INCLUDES
 #include "SimmSpline.h"
-#include "Constant.h"
-#include "SimmMacros.h"
-#include "FunctionAdapter.h"
+#include <SimTKcommon/Scalar.h>               // for NaN, NTraits<>::NActual...
+#include <stddef.h>                           // for NULL
+#include <vector>                             // for vector
+#include "FunctionAdapter.h"                  // for FunctionAdapter
+#include "OpenSim/Common/Array.h"             // for Array
+#include "OpenSim/Common/Exception.h"         // for Exception
+#include "OpenSim/Common/Function.h"          // for Function
+#include "OpenSim/Common/Logger.h"            // for log_error
+#include "OpenSim/Common/PropertyDblArray.h"  // for PropertyDblArray
+#include "OpenSim/Common/PropertySet.h"       // for PropertySet
+#include "SimmMacros.h"                       // for MAX, TINY_NUMBER, EQUAL...
 
 
 using namespace OpenSim;

@@ -23,16 +23,13 @@
 #ifndef OPENSIM_DATA_ADAPTER_H_
 #define OPENSIM_DATA_ADAPTER_H_
 
-// Non-standard headers.
-#include "osimCommonDLL.h"
-#include "Exception.h"
-#include "AbstractDataTable.h"
-
-// Standard headers.
-#include <string>
-#include <unordered_map>
-#include <memory>
-
+#include <stddef.h>             // for size_t
+#include <map>                  // for map, operator==
+#include <memory>               // for allocator, shared_ptr
+#include <string>               // for basic_string, string, operator+, oper...
+#include "AbstractDataTable.h"  // for AbstractDataTable
+#include "Exception.h"          // for Exception
+#include "osimCommonDLL.h"      // for OSIMCOMMON_API
 
 namespace OpenSim {
 

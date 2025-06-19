@@ -27,18 +27,18 @@
 
 
 // INCLUDES
-#include <math.h>
 #include "Signal.h"
-#include "Array.h"
-#include "SimTKcommon/Constants.h"
-#include "SimTKcommon/Orientation.h"
-#include "SimTKcommon/Scalar.h"
-#include "SimTKcommon/SmallMatrix.h"
-#include "simmath/internal/Spline.h"
-#include "simmath/internal/SplineFitter.h"
-#include "Logger.h"
-
-#include <vector>
+#include <simmath/internal/Spline.h>
+#include <simmath/internal/SplineFitter.h>
+#include <stddef.h>                    // for NULL, size_t
+#include <cmath>                       // for pow, cos, sin, sqrt, tan
+#include <vector>                      // for vector
+#include "Array.h"                     // for Array
+#include "Logger.h"                    // for log_error, log_warn
+#include "OpenSim/Common/Exception.h"  // for Exception, OPENSIM_THROW_IF
+#include "SimTKcommon/Constants.h"     // for SimTK_PI
+#include "SimTKcommon/Scalar.h"        // for NTraits<>::ArgDepth, NTraits<>...
+#include "SimTKcommon/SmallMatrix.h"   // for Vec, Vec<>::ArgDepth, Vec<>::C...
 
 using namespace OpenSim;
 using namespace std;

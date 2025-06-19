@@ -43,22 +43,38 @@
  */
 
 // INCLUDES
-#include "ComponentList.h"
-#include "ComponentPath.h"
-#include "Logger.h"
-#include "OpenSim/Common/ComponentSocket.h"
-#include "OpenSim/Common/Object.h"
-#include "simbody/internal/MultibodySystem.h"
+#include <OpenSim/Common/osimCommonDLL.h>      // for OSIMCOMMON_API
+#include <SimTKcommon.h>                       // for DefaultSystemSubsystem
+#include <SimTKcommon/Scalar.h>                // for NaN
+#include <SimTKcommon/basics.h>                // for ClonePtr, ReferencePtr
+#include <simbody/internal/MultibodySystem.h>  // for MultibodySystem (ptr o...
+#include <algorithm>                           // for max
+#include <cstddef>                             // for size_t, NULL
+#include <functional>                          // for function, mem_fn
+#include <limits>                              // for numeric_limits
+#include <map>                                 // for map, operator==, opera...
+#include <memory>                              // for allocator, unique_ptr
+#include <sstream>                             // for basic_stringstream
+#include <string>                              // for basic_string, string
+#include <type_traits>                         // for is_base_of
+#include <unordered_map>                       // for unordered_map, operator!=
+#include <utility>                             // for get, pair, move
+#include <vector>                              // for vector
+#include "ComponentList.h"                     // for ComponentListIterator
+#include "ComponentPath.h"                     // for ComponentPath, operator==
+#include "Logger.h"                            // for log_cout, log_debug
+#include "OpenSim/Common/Array.h"              // for Array
+#include "OpenSim/Common/Assertion.h"          // for OPENSIM_ASSERT_FRMOBJ
+#include "OpenSim/Common/ComponentOutput.h"    // for CacheEntryIndex, Subsy...
+#include "OpenSim/Common/ComponentSocket.h"    // for Input, Socket, Abstrac...
+#include "OpenSim/Common/Exception.h"          // for Exception, OPENSIM_THROW
+#include "OpenSim/Common/Object.h"             // for Object, OpenSim_DECLAR...
+#include "OpenSim/Common/Property.h"           // for PropertyIndex, Vector
 
-#include <OpenSim/Common/osimCommonDLL.h>
-
-#include <functional>
-#include <unordered_map>
-#include <utility>
+namespace SimTK { class MultibodySystem; }
 
 namespace OpenSim {
 
-class Model;
 class ModelDisplayHints;
 
 //==============================================================================

@@ -27,12 +27,13 @@
 
 
 // INCLUDES
-#include "IO.h"
 #include "StateVector.h"
-#include "Logger.h"
+#include <SimTKcommon/Scalar.h>    // for NTraits<>::NActualScalars, NaN
+#include "IO.h"                    // for IO_STRLEN, IO
+#include "Logger.h"                // for log_error
+#include "OpenSim/Common/Array.h"  // for Array, operator==
 
 using namespace OpenSim;
-using namespace std;
 
 //=============================================================================
 // CONSTRUCTOR(S)

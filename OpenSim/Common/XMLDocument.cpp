@@ -29,11 +29,16 @@
 //-----------------------------------------------------------------------------
 // INCLUDES
 //-----------------------------------------------------------------------------
-#include "Assertion.h"
 #include "XMLDocument.h"
-#include <functional>
-#include "Logger.h"
-
+#include <SimTKcommon/Scalar.h>       // for NTraits<>::ArgDepth, NTraits<>:...
+#include <SimTKcommon/SmallMatrix.h>  // for Vec3
+#include <stdio.h>                    // for snprintf
+#include <cmath>                      // for fabs
+#include <functional>                 // for function
+#include <sstream>                    // for basic_ostringstream, basic_stri...
+#include "Assertion.h"                // for Object, OPENSIM_ASSERT
+#include "Logger.h"                   // for log_info, log_cout
+#include "OpenSim/Common/Array.h"     // for Array
 
 using namespace OpenSim;
 using namespace std;

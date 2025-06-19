@@ -24,7 +24,9 @@
 // INCLUDES
 //============================================================================
 #include "Property.h"
-#include <string>
+#include <SimTKcommon/SmallMatrix.h>  // for Mat<>::ColSpacing, Mat<>::RowSp...
+#include <cmath>                      // for abs
+#include <string>                     // for basic_string, string
 
 
 using namespace OpenSim;

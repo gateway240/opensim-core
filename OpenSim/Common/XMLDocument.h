@@ -29,14 +29,11 @@
 
 
 // INCLUDES
-#include "osimCommonDLL.h"
-#include "Array.h"
-#include "SimTKcommon/internal/Xml.h"
-#include "SimTKcommon/SmallMatrix.h"
-
-//using namespace std;  // Ayman:per .NET 2003
-
-
+#include <SimTKcommon/internal/Xml.h>    // for Element (ptr only)
+#include <string>                        // for string, basic_string
+#include "Array.h"                       // for Array
+#include "SimTKcommon/SmallMatrix.h"     // for Vec3
+#include "osimCommonDLL.h"               // for OSIMCOMMON_API
 
 namespace OpenSim { 
 //=============================================================================
