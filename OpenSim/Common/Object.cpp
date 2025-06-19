@@ -1076,15 +1076,17 @@ void Object::updateXMLNode(SimTK::Xml::Element& aParent,
     // DEFAULT OBJECTS
     //updateDefaultObjectsXMLNode(aParent);
     if (_document) {
-        if (_document->getDefaultObjects().getSize()==0) return;
+        if (_document->getDefaultObjects().getSize() == 0) return;
         // Make node for "defaults"
         SimTK::Xml::Element defaultsElement("defaults");
 
-        myObjectElement.insertNodeAfter(myObjectElement.node_end(), defaultsElement);
-        for(int i=0; i < _document->getDefaultObjects().getSize(); i++){
-            _document->getDefaultObjects().get(i)->updateXMLNode(defaultsElement);
+        myObjectElement.insertNodeAfter(
+                myObjectElement.node_end(), defaultsElement);
+        for (int i = 0; i < _document->getDefaultObjects().getSize(); i++) {
+            _document->getDefaultObjects().get(i)->updateXMLNode(
+                    defaultsElement);
         }
-    } 
+    }
 
     // LOOP THROUGH PROPERTIES
     bool wroteAnyProperties = false;
@@ -1367,8 +1369,9 @@ print(const string &aFileName) const
         auto newDoc = std::make_shared<XMLDocument>();
         if (_document) {
             newDoc->getDefaultObjects().setSize(0);
-            for (int i=0; i< _document->getDefaultObjects().getSize(); i++)
-                newDoc->addDefaultObject(_document->getDefaultObjects().get(i)->clone());
+            for (int i = 0; i < _document->getDefaultObjects().getSize(); i++)
+                newDoc->addDefaultObject(
+                        _document->getDefaultObjects().get(i)->clone());
         }
         _document = std::move(newDoc);
         SimTK::Xml::Element e = _document->getRootElement();

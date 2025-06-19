@@ -80,7 +80,7 @@ public:
     virtual ~XMLDocument();
     XMLDocument();
     XMLDocument(const std::string &aFileName);
-    XMLDocument(const XMLDocument &aDocument);
+    XMLDocument(const XMLDocument& aDocument);
     //--------------------------------------------------------------------------
     // VERSIONING /BACKWARD COMPATIBILITY SUPPORT
     //--------------------------------------------------------------------------    
