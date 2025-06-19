@@ -22,13 +22,70 @@
  * limitations under the License.                                             *
  * -------------------------------------------------------------------------- */
 
-#include "osimCommonDLL.h"
-#include <set>
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <string>
-#include <spdlog/fmt/ostr.h> 
+#include <SimTKcommon/Orientation.h>  // for Rotation, operator<<
+#include <SimTKcommon/Scalar.h>       // for NTraits<>::ArgDepth, NTraits<>:...
+#include <SimTKcommon/internal/BigMatrix.h>
+#include <SimTKcommon/internal/MassProperties.h>
+#include <spdlog/common.h>            // for string_view_t
+#include <spdlog/fmt/bundled/base.h>  // for format_parse_context, format_to
+#include <spdlog/logger.h>            // for logger
+#include <memory>                     // for shared_ptr
+#include <sstream>                    // for basic_stringstream, stringstream
+#include <string>                     // for basic_string, allocator, string
+#include "SimTKcommon/SmallMatrix.h"  // for Vec
+#include "osimCommonDLL.h"            // for OSIMCOMMON_API
 
+#ifndef SWIG
+template <>
+struct fmt::formatter<SimTK::Vec<3>> {
+    // No custom parsing logic; use default
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+    // MUST be const
+    template <typename FormatContext>
+    auto format(const SimTK::Vec<3>& v, FormatContext& ctx) const {
+        return fmt::format_to(ctx.out(), "[{}, {}, {}]", v[0], v[1], v[2]);
+    }
+};
+
+template <>
+struct fmt::formatter<SimTK::Vector> {
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(const SimTK::Vector& v, FormatContext& ctx) {
+        std::stringstream ss;
+        ss << v;
+        std::string out = ss.str();
+        return fmt::format_to(ctx.out(), "{}", out);
+    }
+};
+
+template <>
+struct fmt::formatter<SimTK::Rotation> {
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+    template <typename FormatContext>
+    auto format(const SimTK::Rotation& R, FormatContext& ctx) {
+        std::stringstream ss;
+        ss << R;
+        std::string out = ss.str();
+        return fmt::format_to(ctx.out(), "{}", out);
+    }
+};
+
+template <>
+struct fmt::formatter<SimTK::Inertia> {
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(const SimTK::Inertia& I, FormatContext& ctx) {
+        std::stringstream ss;
+        ss << I;
+        std::string out = ss.str();
+        return fmt::format_to(ctx.out(), "{}", out);
+    }
+};
+#endif
 namespace OpenSim {
 
 class LogSink;

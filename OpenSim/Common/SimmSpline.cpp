@@ -23,6 +23,7 @@
 
 
 // C++ INCLUDES
+#include "Logger.h"
 #include "SimmSpline.h"
 #include "Constant.h"
 #include "SimmMacros.h"

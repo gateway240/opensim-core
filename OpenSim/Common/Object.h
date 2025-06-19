@@ -48,6 +48,8 @@
 #include <set>
 #include <string>
 
+#include <spdlog/fmt/ranges.h>
+
 // DISABLES MULTIPLE INSTANTIATION WARNINGS
 
 

@@ -5,6 +5,8 @@
 #endif
 #include "STOFileAdapter.h"
 
+#include "Logger.h"
+
 namespace {
 
 #ifdef WITH_EZC3D

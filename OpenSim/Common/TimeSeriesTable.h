@@ -30,7 +30,6 @@ provide an in-memory container for data access and manipulation.              */
 
 #include "OpenSim/Common/DataTable.h"
 #include <SimTKsimbody.h>
-#include "Logger.h"
 
 namespace OpenSim {
 
@@ -469,8 +468,8 @@ public:
         // do the actual trimming based on index instead of time.
         trimToIndices(start_index, last_index);
         // If resulting table is empty, throw
-        if (this->getNumRows()==0)
-            log_warn("Trimming resulted in an empty table.");
+        // if (this->getNumRows()==0)
+            // log_warn("Trimming resulted in an empty table.");
     }
     /**
      * trim TimeSeriesTable, keeping rows at newStartTime to the end.

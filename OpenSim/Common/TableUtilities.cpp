@@ -24,6 +24,7 @@
 #include "TableUtilities.h"
 
 #include "CommonUtilities.h"
+#include "Logger.h"
 #include "FunctionSet.h"
 #include "GCVSplineSet.h"
 #include "PiecewiseLinearFunction.h"

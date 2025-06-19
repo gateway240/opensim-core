@@ -32,6 +32,7 @@
 #include "Model.h"
 #include <OpenSim/Simulation/SimbodyEngine/SimbodyEngine.h>
 #include <OpenSim/Simulation/Control/ControlSetController.h>
+#include <OpenSim/Common/Logger.h>
 using namespace OpenSim;
 using namespace std;
 

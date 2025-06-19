@@ -76,7 +76,7 @@ public:
 
             msg += "was renamed and is being reset to '" + name
                 + "'.";
-            log_info(msg);
+            // log_info(msg);
         }
     }
 

@@ -31,7 +31,6 @@
 
 using namespace std;
 using namespace OpenSim;
-using namespace SimTK;
 
 // here for perf reasons: many functions take a const reference to a
 // std::string. Using a C string literal results in millions of temporary
@@ -81,7 +80,7 @@ void Actuator::extendAddToSystem(SimTK::MultibodySystem& system) const
     // the index into the shared cache Vector.
     mutableThis->_controlIndex = _model->updDefaultControls().size();
     _model->updDefaultControls().resizeKeep(_controlIndex + numControls());
-    _model->updDefaultControls()(_controlIndex, numControls()) = Vector(numControls(), 0.0);
+    _model->updDefaultControls()(_controlIndex, numControls()) = SimTK::Vector(numControls(), 0.0);
 }
 
 // CONTROLS
@@ -92,13 +91,13 @@ void Actuator::extendAddToSystem(SimTK::MultibodySystem& system) const
  * @param the current state
  * @return The value of the controls.
  */
-const VectorView_<Real> Actuator::getControls( const SimTK::State& s ) const
+const SimTK::VectorView_<SimTK::Real> Actuator::getControls( const SimTK::State& s ) const
 {
-    const Vector &controlsCache = _model->getControls(s);
+    const SimTK::Vector &controlsCache = _model->getControls(s);
     return  controlsCache(_controlIndex, numControls());
 }
 
-void Actuator::getControls(const Vector& modelControls, Vector& actuatorControls) const
+void Actuator::getControls(const SimTK::Vector& modelControls, SimTK::Vector& actuatorControls) const
 {
     SimTK_ASSERT(modelControls.size() == _model->getNumControls(), 
         "Actuator::getControls, input modelControls size does not match model.getNumControls().\n");
@@ -107,7 +106,7 @@ void Actuator::getControls(const Vector& modelControls, Vector& actuatorControls
     actuatorControls = modelControls(_controlIndex, numControls());
 }
 
-void Actuator::setControls(const Vector& actuatorControls, Vector& modelControls) const
+void Actuator::setControls(const SimTK::Vector& actuatorControls, SimTK::Vector& modelControls) const
 {
     SimTK_ASSERT(actuatorControls.size() == numControls(), 
         "Actuator::setControls, input actuatorControls incompatible with actuator's numControls().\n");
@@ -118,7 +117,7 @@ void Actuator::setControls(const Vector& actuatorControls, Vector& modelControls
     modelControls(_controlIndex, numControls()) = actuatorControls;
 }
 
-void Actuator::addInControls(const Vector& actuatorControls, Vector& modelControls) const
+void Actuator::addInControls(const SimTK::Vector& actuatorControls, SimTK::Vector& modelControls) const
 {
     SimTK_ASSERT(actuatorControls.size() == numControls(), 
         "Actuator::addInControls, input actuatorControls incompatible with actuator's numControls()\n");
@@ -149,8 +148,8 @@ ScalarActuator::ScalarActuator()
  */
 void ScalarActuator::constructProperties()
 {
-    constructProperty_min_control(-Infinity);
-    constructProperty_max_control( Infinity);
+    constructProperty_min_control(-SimTK::Infinity);
+    constructProperty_max_control( SimTK::Infinity);
 }
 
 void ScalarActuator::setMinControl(const double& aMinControl)
@@ -183,10 +182,10 @@ void ScalarActuator::extendAddToSystem(SimTK::MultibodySystem& system) const
     addModelingOption(overrideActuationKey, 1);
 
     // Cache the computed actuation of the scalar valued actuator
-    _actuationCV = addCacheVariable("actuation", 0.0, Stage::Velocity);
+    _actuationCV = addCacheVariable("actuation", 0.0, SimTK::Stage::Velocity);
 
     // Discrete state variable is the override actuation value if in override mode
-    addDiscreteVariable(overrideActuationKey, Stage::Time);
+    addDiscreteVariable(overrideActuationKey, SimTK::Stage::Time);
 }
 
 double ScalarActuator::getControl(const SimTK::State& s) const
@@ -204,7 +203,7 @@ double ScalarActuator::getOptimalForce() const
     OPENSIM_ERROR_IF_NOT_OVERRIDDEN();
 }
 
-double ScalarActuator::getActuation(const State &s) const
+double ScalarActuator::getActuation(const SimTK::State &s) const
 {
     if (appliesForce(s)) {
         return getCacheVariableValue(s, _actuationCV);
@@ -213,7 +212,7 @@ double ScalarActuator::getActuation(const State &s) const
     }
 }
 
-void ScalarActuator::setActuation(const State& s, double aActuation) const
+void ScalarActuator::setActuation(const SimTK::State& s, double aActuation) const
 {
     setCacheVariableValue(s, _actuationCV, aActuation);
 }
