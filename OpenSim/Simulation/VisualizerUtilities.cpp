@@ -27,6 +27,7 @@
 #include "VisualizerUtilities.h"
 
 #include <OpenSim/Common/CommonUtilities.h>
+#include <OpenSim/Common/Logger.h>
 #include <OpenSim/Common/TableSource.h>
 #include <OpenSim/Common/TableUtilities.h>
 #include <OpenSim/Simulation/Model/Model.h>
@@ -320,8 +321,7 @@ void VisualizerUtilities::showOrientationData(
         std::string::size_type pos = name.find("_imu");
         if (pos != string::npos) name = name.substr(0, pos);
         // Create Body
-        OpenSim::Body* body =
-                new OpenSim::Body(name, 1, SimTK::Vec3(0), SimTK::Inertia(0));
+        OpenSim::Body* body = new OpenSim::Body(name, 1, SimTK::Vec3(0), SimTK::Inertia(0));
         world.addBody(body);
         bodies.push_back(body);
         // Create FreeJoint
@@ -412,8 +412,7 @@ void VisualizerUtilities::showOrientationData(
 
     // Will add text on screen corresponding to Body names
     for (unsigned b = 0; b < bodies.size(); ++b) {
-        SimTK::MobilizedBodyIndex mbi =
-                bodies.getElt(b)->getMobilizedBodyIndex();
+        SimTK::MobilizedBodyIndex mbi = bodies.getElt(b)->getMobilizedBodyIndex();
         SimTK::DecorativeText bodyNameText(bodies.getElt(b)->getName());
         bodyNameText.setScale(0.05);
         bodyNameText.setColor(SimTK::Blue);
