@@ -26,6 +26,7 @@
 //=============================================================================
 #include "ConditionalPathPoint.h"
 #include <OpenSim/Simulation/SimbodyEngine/Coordinate.h>
+#include <OpenSim/Common/IO.h>
 
 //=============================================================================
 // STATICS
