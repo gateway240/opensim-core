@@ -254,11 +254,32 @@ else()
         # Patch the scripts that download Metis and MUMPS to use our
         # Sourceforge mirror. The original links are not reliable.
         message(STATUS "Building Metis...")
+    
+   
 
+        # ExternalProject_Add(metis
+        #     DEPENDS gklib
+        #     GIT_REPOSITORY https://github.com/KarypisLab/METIS.git
+        #     GIT_TAG a6e6a2cfa92f93a3ee2971ebc9ddfc3b0b581ab2
+        #     CONFIGURE_COMMAND cd <SOURCE_DIR> &&  ${MAKE_EXECUTABLE} config shared=1 "prefix=${CMAKE_INSTALL_PREFIX}/ipopt" BUILDDIR=bdir
+        #     BUILD_COMMAND cd <SOURCE_DIR>/bdir && ${CMAKE_MAKE_PROGRAM}
+        #     INSTALL_DIR       "${CMAKE_INSTALL_PREFIX}/ipopt"
+        #     INSTALL_COMMAND cd <SOURCE_DIR>/bdir && ${CMAKE_MAKE_PROGRAM} install
+
+        # )
+        # ExternalProject_Add(metis
+        #     GIT_REPOSITORY   https://github.com/KarypisLab/METIS.git
+        #     GIT_TAG    a6e6a2cfa92f93a3ee2971ebc9ddfc3b0b581ab2
+        #     CONFIGURE_COMMAND cd <SOURCE_DIR> && ${CMAKE_MAKE_PROGRAM} shared=1 config "prefix=${CMAKE_INSTALL_PREFIX}/ipopt" BUILDDIR=bdir
+        #     BUILD_COMMAND cd <SOURCE_DIR>/bdir && ${CMAKE_MAKE_PROGRAM}
+        #     INSTALL_DIR       "${CMAKE_INSTALL_PREFIX}/ipopt"
+        #     INSTALL_COMMAND cd <SOURCE_DIR>/bdir && ${CMAKE_MAKE_PROGRAM} install
+        #     CMAKE_ARGS ""  # Don't let CMake try to process their CMakeLists.txt
+        # )
         ExternalProject_Add(metis
             # URL    http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-5.1.0.tar.gz
             URL    https://sourceforge.net/projects/myosin/files/metis-5.1.0.tar.gz/download
-            CONFIGURE_COMMAND cd <SOURCE_DIR> && ${CMAKE_MAKE_PROGRAM} shared=1 config "prefix=${CMAKE_INSTALL_PREFIX}/ipopt" BUILDDIR=bdir
+            CONFIGURE_COMMAND cd <SOURCE_DIR> && ${MAKE_EXECUTABLE} CMAKE_POLICY_VERSION_MINIMUM=4.0 shared=1 config "prefix=${CMAKE_INSTALL_PREFIX}/ipopt" BUILDDIR=bdir
             BUILD_COMMAND cd <SOURCE_DIR>/bdir && ${CMAKE_MAKE_PROGRAM}
             INSTALL_DIR       "${CMAKE_INSTALL_PREFIX}/ipopt"
             INSTALL_COMMAND cd <SOURCE_DIR>/bdir && ${CMAKE_MAKE_PROGRAM} install)
@@ -276,7 +297,8 @@ else()
 
         ExternalProject_Add(ipopt
             DEPENDS           mumps metis
-            URL https://github.com/coin-or/Ipopt/archive/refs/tags/releases/3.14.16.zip
+            GIT_REPOSITORY https://github.com/coin-or/Ipopt.git
+            GIT_TAG  releases/3.14.17
             INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/ipopt"
             # Suppress warnings treated as errors in Clang/LLVM with -Wno-error=implicit-function-declaration
             CONFIGURE_COMMAND <SOURCE_DIR>/configure --with-mumps --prefix=<INSTALL_DIR> --with-mumps-cflags="-I${CMAKE_INSTALL_PREFIX}/ipopt/include/coin-or/mumps" --with-mumps-lflags="-L${CMAKE_INSTALL_PREFIX}/ipopt/lib -lcoinmumps"
