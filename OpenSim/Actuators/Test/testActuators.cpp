@@ -473,6 +473,10 @@ TEST_CASE("testMcKibbenActuator") {
 
         ASSERT_EQUAL(applied, theoretical, 10.0);
     }
+    model->finalizeConnections();
+    model->print("McKibbenActuatorModel.osim");
+
+    manager.getStateStorage().print("mckibben_actuator_states.sto");
 
 
     std::cout << " ******** Test McKibbenActuator time = ********" <<
