@@ -28,8 +28,8 @@
 #include <spdlog/fmt/bundled/base.h>    // for formatter
 #include <spdlog/fmt/bundled/ostream.h> // for ostream_formatter
 #include <spdlog/logger.h>              // for logger
-#include <string_view>                  // for std::string_view
 #include <string>                       // for basic_string, string
+#include <string_view>                  // for std::string_view
 #include <utility>                      // for std::forward
 
 #ifndef SWIG
@@ -269,14 +269,10 @@ inline void log_error(std::string_view msg) {
 }
 
 /// @related Logger
-inline void log_warn(std::string_view msg) {
-    OpenSim::Logger::warn("{}", msg);
-}
+inline void log_warn(std::string_view msg) { OpenSim::Logger::warn("{}", msg); }
 
 /// @related Logger
-inline void log_info(std::string_view msg) {
-    OpenSim::Logger::info("{}", msg);
-}
+inline void log_info(std::string_view msg) { OpenSim::Logger::info("{}", msg); }
 
 /// @related Logger
 inline void log_debug(std::string_view msg) {
@@ -289,10 +285,7 @@ inline void log_trace(std::string_view msg) {
 }
 
 /// @related Logger
-inline void log_cout(std::string_view msg) {
-    OpenSim::Logger::cout("{}", msg);
-}
-
+inline void log_cout(std::string_view msg) { OpenSim::Logger::cout("{}", msg); }
 
 /// @}
 

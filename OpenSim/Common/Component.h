@@ -3527,8 +3527,8 @@ public:
                 // when what appears to be the complete path.
                 log_debug("{} Found '{}' as a match for: Component '{}'"
                           ", but it is not on the specified path.",
-                          msg, compAbsPath.toString(),
-                          comp.getConcreteClassName());
+                        msg, compAbsPath.toString(),
+                        comp.getConcreteClassName());
                 //throw Exception(details, __FILE__, __LINE__);
             }
         }
