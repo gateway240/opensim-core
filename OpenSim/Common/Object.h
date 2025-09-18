@@ -72,6 +72,9 @@ template class OSIMCOMMON_API OpenSim::ArrayPtrs<OpenSim::Object>;
     #endif
 #else
     #define SWIG_DECLARE_EXCEPTION
+
+    // // fmt library serializers for custom SimTK objects
+    // template <> struct fmt::formatter<OpenSim::Object> : ostream_formatter {};
 #endif
 
 // Forward-declare SimTK types.

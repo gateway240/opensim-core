@@ -204,9 +204,9 @@ public:
     Exception(const std::string& file,
               size_t line,
               const std::string& func,
-              spdlog::string_view_t fmt,
-              const Args&... args)
-            : Exception{file, line, func, fmt::format(fmt, args...)} {}
+              spdlog::format_string_t<Args...> fmt,
+              Args&&... args)
+            : Exception{file, line, func, fmt::format(fmt, std::forward<Args>(args)...)} {}
 
     /** The message created by this constructor will contain the class name and
     instance name of the provided Object, and also accepts a message formatted
@@ -218,9 +218,9 @@ public:
               size_t line,
               const std::string& func,
               const Object& obj,
-              spdlog::string_view_t fmt,
-              const Args&... args)
-            : Exception{file, line, func, obj, fmt::format(fmt, args...)} {}
+              spdlog::format_string_t<Args...> fmt,
+              Args&&... args)
+            : Exception{file, line, func, obj, fmt::format(fmt, std::forward<Args>(args)...)} {}
 
     virtual ~Exception() throw() {}
 
@@ -323,7 +323,12 @@ public:
 
 class ComponentNotFound : public Exception {
 public:
-    using Exception::Exception;
+    // Constructor forwarding 3 args to base Exception
+    ComponentNotFound(const std::string& file,
+                     size_t line,
+                     const std::string& func)
+        : Exception(file, line, func) {}
+
     ComponentNotFound(const std::string& file,
         size_t line,
         const std::string& func,
