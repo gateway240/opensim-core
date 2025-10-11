@@ -96,7 +96,7 @@ public:
     typedef std::map<std::string, const AbstractDataTable*>
             InputTables;
 
-    virtual DataAdapter* clone() const = 0;
+    virtual std::unique_ptr<DataAdapter> clone() const = 0;
 
     DataAdapter()                              = default;
     DataAdapter(const DataAdapter&)            = default;

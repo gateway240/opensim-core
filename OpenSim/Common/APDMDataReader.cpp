@@ -24,8 +24,8 @@ const std::vector<std::string> APDMDataReader::orientation_labels{
 
 const std::string APDMDataReader::TimeLabel{ "Time" };
 
-APDMDataReader* APDMDataReader::clone() const {
-    return new APDMDataReader{*this};
+std::unique_ptr<DataAdapter>  APDMDataReader::clone() const {
+    return std::make_unique<APDMDataReader>(*this);
 }
 
 DataAdapter::OutputTables 

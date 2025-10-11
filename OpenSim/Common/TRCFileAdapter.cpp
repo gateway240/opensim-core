@@ -1,7 +1,9 @@
 #include "TRCFileAdapter.h"
 #include <OpenSim/Common/IO.h>
+#include "OpenSim/Common/DataAdapter.h"
 #include <fstream>
 #include <iomanip>
+#include <memory>
 
 namespace OpenSim {
 
@@ -22,9 +24,9 @@ const std::vector<std::string> TRCFileAdapter::_metadataKeys{"DataRate",
         "CameraRate", "NumFrames", "NumMarkers", "Units", "OrigDataRate", 
         "OrigDataStartFrame", "OrigNumFrames"};
 
-TRCFileAdapter* 
+std::unique_ptr<DataAdapter>
 TRCFileAdapter::clone() const {
-    return new TRCFileAdapter{*this};
+    return std::make_unique<TRCFileAdapter>(*this);
 }
 
 void 

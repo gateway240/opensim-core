@@ -23,6 +23,7 @@
 #define OPENSIM_CSV_FILE_ADAPTER_H_
 
 #include "DelimFileAdapter.h"
+#include "OpenSim/Common/DataAdapter.h"
 
 
 namespace OpenSim {
@@ -36,7 +37,7 @@ public:
     CSVFileAdapter(CSVFileAdapter&&)                 = default;
     ~CSVFileAdapter()                                = default;
 
-    CSVFileAdapter* clone() const override;
+    std::unique_ptr<DataAdapter> clone() const override;
 
     /** Write a CSV file.                                                     */
     static

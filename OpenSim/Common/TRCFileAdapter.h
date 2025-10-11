@@ -48,6 +48,7 @@ Frame#<tab>Time<tab>marker1<tab><tab><tab>marker2<tab><tab><tab>marker3<tab><tab
 */
 
 #include "FileAdapter.h"
+#include "OpenSim/Common/DataAdapter.h"
 #include "TimeSeriesTable.h"
 
 namespace OpenSim {
@@ -144,7 +145,7 @@ public:
     TRCFileAdapter& operator=(TRCFileAdapter&&)      = default;
     ~TRCFileAdapter()                                = default;
     
-    TRCFileAdapter* clone() const override;
+    std::unique_ptr<DataAdapter> clone() const override;
 
     /** Write a table to a TRC file. The filename provided need not contain 
     ".trc".                                                                   */

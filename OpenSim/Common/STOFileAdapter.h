@@ -23,6 +23,8 @@
 #define OPENSIM_STO_FILE_ADAPTER_H_
 
 #include "DelimFileAdapter.h"
+#include "OpenSim/Common/DataAdapter.h"
+#include <memory>
 
 
 namespace OpenSim {
@@ -113,7 +115,7 @@ public:
     STOFileAdapter_& operator=(STOFileAdapter_&&)      = default;
     ~STOFileAdapter_()                                 = default;
 
-    STOFileAdapter_* clone() const override;
+    std::unique_ptr<DataAdapter> clone() const override;
 
     /** Write a STO file.                                                     */
     static
@@ -129,9 +131,9 @@ STOFileAdapter_<T>::STOFileAdapter_() :
                         ) {}
 
 template<typename T>
-STOFileAdapter_<T>*
+std::unique_ptr<DataAdapter>
 STOFileAdapter_<T>::clone() const {
-    return new STOFileAdapter_{*this};
+    return std::make_unique<STOFileAdapter_<T>>(*this);
 }
 
 template<typename T>

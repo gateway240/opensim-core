@@ -1,4 +1,6 @@
 #include "CSVFileAdapter.h"
+#include "OpenSim/Common/DataAdapter.h"
+#include <memory>
 
 namespace OpenSim {
 
@@ -7,9 +9,9 @@ CSVFileAdapter::CSVFileAdapter() :
                      ","  // delimiter for write
                      ) {}
 
-CSVFileAdapter*
+std::unique_ptr<DataAdapter>
 CSVFileAdapter::clone() const {
-    return new CSVFileAdapter{*this};
+    return std::make_unique<CSVFileAdapter>(*this);
 }
 
 void 

@@ -23,6 +23,7 @@
 #define OPENSIM_C3D_FILE_ADAPTER_H_
 
 #include "FileAdapter.h"
+#include "OpenSim/Common/DataAdapter.h"
 #include "TimeSeriesTable.h"
 #include "Event.h"
 
@@ -103,7 +104,7 @@ public:
         PointOfWrenchApplication = 2    ///< 2 : PWA as defined by Shimba, 1984
     };
 
-    C3DFileAdapter* clone() const override;
+    std::unique_ptr<DataAdapter> clone() const override;
     /**  C3DFileAdpater provides options for expressing the force-plate 
         measurements either as the net force and moments expressed at the 
         ForcePlateOrigin, the CenterOfPressure, or the 

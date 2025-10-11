@@ -1,4 +1,6 @@
 #include "C3DFileAdapter.h"
+#include "OpenSim/Common/DataAdapter.h"
+#include <memory>
 
 #ifdef WITH_EZC3D
 #include "ezc3d/ezc3d_all.h"
@@ -55,9 +57,9 @@ C3DFileAdapter::_unit_index{{"marker", 0},
                             {"power" , 4},
                             {"scalar", 5}};
 
-C3DFileAdapter*
+std::unique_ptr<DataAdapter>
 C3DFileAdapter::clone() const {
-    return new C3DFileAdapter{*this};
+    return std::make_unique<C3DFileAdapter>(*this);
 }
 
 void C3DFileAdapter::write(

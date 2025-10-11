@@ -22,6 +22,7 @@
 #ifndef OPENSIM_DELIM_FILE_ADAPTER_H_
 #define OPENSIM_DELIM_FILE_ADAPTER_H_
 
+#include "OpenSim/Common/DataAdapter.h"
 #include "SimTKcommon.h"
 
 #include "About.h"
@@ -108,7 +109,7 @@ public:
                      const std::string& compDelimRead,
                      const std::string& compDelimWrite);
 
-    DelimFileAdapter* clone() const override;
+    std::unique_ptr<DataAdapter> clone() const override;
 
     /** Key used for table associative array returned/accepted by write/read. */
     static const std::string tableString();
@@ -299,9 +300,9 @@ DelimFileAdapter<T>::DelimFileAdapter(const std::string& delimitersRead,
 {}
 
 template<typename T>
-DelimFileAdapter<T>*
+std::unique_ptr<DataAdapter>
 DelimFileAdapter<T>::clone() const {
-    return new DelimFileAdapter{*this};
+    return std::make_unique<DelimFileAdapter<T>>(*this);
 }
 
 template<typename T>

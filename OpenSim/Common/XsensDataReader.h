@@ -50,7 +50,7 @@ public:
     }
     virtual ~XsensDataReader() = default;
 
-    XsensDataReader* clone() const override;
+    std::unique_ptr<DataAdapter> clone() const override;
 
 protected:
     /** Typically, Xsens can export a trial as one .mtb file (binary that we

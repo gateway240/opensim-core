@@ -22,9 +22,9 @@ DataAdapter::registerDataAdapter(const std::string& identifier,
 std::shared_ptr<DataAdapter> 
 DataAdapter::createAdapter(const std::string& identifier) {
     try {
-        DataAdapter* adapter = 
+        std::unique_ptr<DataAdapter> adapter = 
             _registeredDataAdapters.at(identifier)->clone();
-        return std::shared_ptr<DataAdapter>{adapter};
+        return std::shared_ptr<DataAdapter>{adapter.release()};
     } catch(std::out_of_range&) {
         OPENSIM_THROW(NoRegisteredDataAdapter,
                       identifier);

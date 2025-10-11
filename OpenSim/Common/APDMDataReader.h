@@ -26,8 +26,10 @@
 #include "Object.h"
 #include "ExperimentalSensor.h"
 #include "APDMDataReaderSettings.h"
+#include "OpenSim/Common/DataAdapter.h"
 #include "TimeSeriesTable.h"
 #include "IMUDataReader.h"
+#include <memory>
 
 /** @file
 * This file defines class for reading data files from IMU maker APDM and 
@@ -48,7 +50,7 @@ public:
     }
     virtual ~APDMDataReader() = default;
 
-    APDMDataReader* clone() const override;
+    std::unique_ptr<DataAdapter> clone() const override;
 
     // Ordered labels provided by APDM
     static const std::vector<std::string> acceleration_labels;

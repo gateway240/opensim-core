@@ -3,20 +3,22 @@
 #include "CommonUtilities.h"
 #include "Exception.h"
 #include "FileAdapter.h"
+#include "OpenSim/Common/DataAdapter.h"
 #include "Simbody.h"
 #include "TimeSeriesTable.h"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 namespace OpenSim {
 
-XsensDataReader* XsensDataReader::clone() const {
-    return new XsensDataReader{*this};
+std::unique_ptr<DataAdapter> XsensDataReader::clone() const {
+    return std::make_unique<XsensDataReader>(*this);
 }
 
 typedef struct XsensDataReader::XsensIMU {
