@@ -2528,20 +2528,17 @@ resample(double aDT, int aDegree)
         aDT = newDT;
     }
 
-    GCVSplineSet *splineSet = new GCVSplineSet(aDegree,this);
+    std::unique_ptr<GCVSplineSet> splineSet = std::make_unique<GCVSplineSet>(aDegree,this);
 
     Array<std::string> saveLabels = getColumnLabels();
     // Free up memory used by Storage
     _storage.setSize(0);
     // For every column, collect data and fit spline to originalTimes, dataColumn.
-    Storage *newStorage = splineSet->constructStorage(0,aDT);
+    std::unique_ptr<Storage> newStorage(splineSet->constructStorage(0, aDT));
     newStorage->setInDegrees(isInDegrees());
     copyData(*newStorage);
 
     setColumnLabels(saveLabels);
-
-    delete newStorage;
-    delete splineSet;
 
     return aDT;
 }

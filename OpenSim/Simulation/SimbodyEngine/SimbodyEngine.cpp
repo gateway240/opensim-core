@@ -37,6 +37,7 @@
 #include "SimbodyEngine.h"
 #include "Coordinate.h"
 #include "OpenSim/Common/StateVector.h"
+#include <memory>
 
 //=============================================================================
 // STATICS
@@ -838,7 +839,7 @@ formCompleteStorages( const SimTK::State& s, const OpenSim::Storage &aQIn,
     double time;
     Array<double> data(0.0);
     Array<double> q(0.0,nq);
-    Storage *qStore = new Storage();
+    std::unique_ptr<Storage> qStore = std::make_unique<Storage>();
     qStore->setInDegrees(aQIn.isInDegrees());
     qStore->setName("GeneralizedCoordinates");
     qStore->setColumnLabels(columnLabels);
@@ -864,8 +865,8 @@ formCompleteStorages( const SimTK::State& s, const OpenSim::Storage &aQIn,
         convertDegreesToRadians(*qStore);
 
     // Compute generalized speeds
-    GCVSplineSet tempQset(5, qStore);
-    std::unique_ptr<Storage> uStore{tempQset.constructStorage(1)};
+    GCVSplineSet tempQset(5, qStore.get());
+    auto uStore{tempQset.constructStorage(1)};
 
     // Compute constraints
     Array<double> qu(0.0, nq + nu);
@@ -892,7 +893,6 @@ formCompleteStorages( const SimTK::State& s, const OpenSim::Storage &aQIn,
         rUComplete->append(time, nu, &qu[nq]);
     }
 
-    delete qStore;
     
     // Set column labels before returning
     rQComplete->setColumnLabels(columnLabels);

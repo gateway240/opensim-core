@@ -96,7 +96,6 @@ void MarkerFrame::setNull()
  */
 void MarkerFrame::addMarker(const SimTK::Vec3& aCoords)
 {
-    //SimmPoint* pt = new SimmPoint(aCoords);
     _markers.push_back(aCoords);
 }
 
