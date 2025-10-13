@@ -43,6 +43,8 @@
 #include "TableUtilities.h"
 #include "TimeSeriesTable.h"
 #include <iostream>
+#include <memory>
+#include <string>
 
 using namespace OpenSim;
 using namespace std;
@@ -2237,15 +2239,12 @@ Storage* Storage::
 integrate(int aI1,int aI2) const
 {
     // CREATE COPY
-    Storage *integStore = new Storage(*this,false);
+    auto integStore = std::make_unique<Storage>(*this,false);
     integStore->setName(getName()+"_integrated");
 
     int n = getSmallestNumberOfStates();
-    int result = integrate(aI1,aI2,n,NULL,integStore);
-    if(result<=0) {
-        delete integStore;
-        return NULL;
-    } else return integStore;
+    int result = integrate(aI1,aI2,n,NULL,integStore.get());
+    return integStore.release();
 }
 //_____________________________________________________________________________
 /**
@@ -2269,15 +2268,14 @@ Storage* Storage::
 integrate(double aTI,double aTF) const
 {
     // CREATE COPY
-    Storage *integStore = new Storage(*this,false);
+    auto integStore = std::make_unique<Storage>(*this,false);
     integStore->setName(getName()+"_integrated");
 
     int n = getSmallestNumberOfStates();
-    int result = integrate(aTI,aTF,n,NULL,integStore);
+    int result = integrate(aTI,aTF,n,NULL,integStore.get());
     if(result<=0) {
-        delete integStore;
         return NULL;
-    } else return integStore;
+    } else return integStore.release();
 }
 
 //_____________________________________________________________________________
@@ -2300,7 +2298,7 @@ pad(int aPadSize)
     // PAD EACH COLUMN
     int nc = getSmallestNumberOfStates();
     Array<double> paddedSignal(0.0,size);
-    StateVector *vecs = new StateVector[newSize];
+    std::unique_ptr<StateVector[]> vecs = std::make_unique<StateVector[]>(newSize);
     for(int j=0;j<newSize;j++) {
         vecs[j].getData().setSize(nc);
         vecs[j].setTime(paddedTime[j]);
@@ -2316,8 +2314,6 @@ pad(int aPadSize)
     _storage.setSize(0);
     for(int i=0;i<newSize;i++) _storage.append(vecs[i]);
 
-    // CLEANUP
-    delete[] vecs;
 }
 
 void Storage::
@@ -2577,23 +2573,22 @@ resampleLinear(double aDT)
     double tf = getLastTime();
     int nr = IO::ComputeNumberOfSteps(ti,tf,aDT);
 
-    Storage *newStorage = new Storage(nr);
+    std::unique_ptr<Storage> newStorage = std::make_unique<Storage>(nr);
 
     // LOOP THROUGH THE DATA
     int ny=0;
-    double *y=NULL;
-    StateVector vec;
-    for(int i=0; i<nr; i++) {
-        double t = ti+aDT*(double)i;
-        // INTERPOLATE THE STATES
-        ny = getDataAtTime(t,ny,&y);
-        newStorage->append(t,ny,y);
+    std::unique_ptr<double[]> y;
+
+    for (int i = 0; i < nr; i++) {
+        double t = ti + aDT * (double)i;
+
+        // Allocate new memory via getDataAtTime, replacing the old one
+        double* rawY = nullptr;
+        ny = getDataAtTime(t, ny, &rawY);
+        y.reset(rawY);  // safely deletes old memory, takes ownership of new
+
+        newStorage->append(t, ny, y.get());
     }
-
-    copyData(*newStorage);
-
-    delete newStorage;
-    delete[] y;
 
     return aDT;
 }

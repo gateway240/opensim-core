@@ -250,17 +250,17 @@ void BodyKinematics::
 allocateStorage()
 {
     // ACCELERATIONS
-    _aStore = new Storage(1000,"Accelerations");
+    _aStore = std::make_unique<Storage>(1000,"Accelerations");
     _aStore->setDescription(getDescription());
     _aStore->setColumnLabels(getColumnLabels());
 
     // VELOCITIES
-    _vStore = new Storage(1000,"Velocities");
+    _vStore = std::make_unique<Storage>(1000,"Velocities");
     _vStore->setDescription(getDescription());
     _vStore->setColumnLabels(getColumnLabels());
 
     // POSITIONS
-    _pStore = new Storage(1000,"Positions");
+    _pStore = std::make_unique<Storage>(1000,"Positions");
     _pStore->setDescription(getDescription());
     _pStore->setColumnLabels(getColumnLabels());
 }
@@ -276,9 +276,6 @@ allocateStorage()
 void BodyKinematics::
 deleteStorage()
 {
-    if(_aStore!=NULL) { delete _aStore;  _aStore=NULL; }
-    if(_vStore!=NULL) { delete _vStore;  _vStore=NULL; }
-    if(_pStore!=NULL) { delete _pStore;  _pStore=NULL; }
 }
 
 //_____________________________________________________________________________
@@ -359,7 +356,7 @@ setModel(Model& aModel)
 Storage* BodyKinematics::
 getAccelerationStorage()
 {
-    return(_aStore);
+    return _aStore.get();
 }
 //_____________________________________________________________________________
 /**
@@ -370,7 +367,7 @@ getAccelerationStorage()
 Storage* BodyKinematics::
 getVelocityStorage()
 {
-    return(_vStore);
+    return _vStore.get();
 }
 //_____________________________________________________________________________
 /**
@@ -381,7 +378,7 @@ getVelocityStorage()
 Storage* BodyKinematics::
 getPositionStorage()
 {
-    return(_pStore);
+    return _pStore.get();
 }
 
 //-----------------------------------------------------------------------------
@@ -697,13 +694,13 @@ printResults(const string &aBaseName,const string &aDir,double aDT,
     _pStore->setInDegrees(getInDegrees());
 
     // ACCELERATIONS
-    Storage::printResult(_aStore,aBaseName+"_"+getName()+"_acc"+suffix,aDir,aDT,aExtension);
+    Storage::printResult(_aStore.get(),aBaseName+"_"+getName()+"_acc"+suffix,aDir,aDT,aExtension);
 
     // VELOCITIES
-    Storage::printResult(_vStore,aBaseName+"_"+getName()+"_vel"+suffix,aDir,aDT,aExtension);
+    Storage::printResult(_vStore.get(),aBaseName+"_"+getName()+"_vel"+suffix,aDir,aDT,aExtension);
 
     // POSITIONS
-    Storage::printResult(_pStore,aBaseName+"_"+getName()+"_pos_global",aDir,aDT,aExtension);
+    Storage::printResult(_pStore.get(),aBaseName+"_"+getName()+"_pos_global",aDir,aDT,aExtension);
 
     return(0);
 }

@@ -76,10 +76,10 @@ protected:
     PropertyInt _maximumIterationsProp;
     int &_maximumIterations;
 
-    Storage *_activationStorage;
-    Storage *_forceStorage;
+    std::unique_ptr<Storage> _activationStorage;
+    std::unique_ptr<Storage> _forceStorage;
     GCVSplineSet _statesSplineSet;
-    Storage *_statesDerivativeStore;
+    std::unique_ptr<Storage> _statesDerivativeStore;
 
     Array<int> _accelerationIndices;
 
@@ -124,7 +124,7 @@ public:
     void setStorageCapacityIncrements(int) {}
     Storage* getActivationStorage();
     Storage* getForceStorage();
-    Storage* getStatesDerivativeStore() {return _statesDerivativeStore; }
+    Storage* getStatesDerivativeStore() {return _statesDerivativeStore.get(); }
 
     bool getUseModelForceSet() { return _useModelForceSet; }
     void setUseModelForceSet(bool aUseModelActuatorSet) { _useModelForceSet = aUseModelActuatorSet; }

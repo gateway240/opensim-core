@@ -154,6 +154,8 @@ public:
      */
     Storage* constructStorage(int aDerivOrder,double aDX=-1);
 
+private:
+    std::shared_ptr<Storage> store;
 };  // END class GCVSplineSet
 
 }; //namespace

@@ -58,9 +58,9 @@ protected:
     Array<int> _coordinateIndices;
     Array<double> _values;
 
-    Storage *_pStore;
-    Storage *_vStore;
-    Storage *_aStore;
+    std::shared_ptr<Storage> _pStore;
+    std::shared_ptr<Storage> _vStore;
+    std::shared_ptr<Storage> _aStore;
 
     // Make recording accelerations optional since it is more computationally intensive (invokes dynamics engine calls)
     bool _recordAccelerations;

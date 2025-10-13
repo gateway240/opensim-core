@@ -208,7 +208,7 @@ void StaticOptimization::constructColumnLabels() {
  * Allocate storage for the static optimization.
  */
 void StaticOptimization::allocateStorage() {
-    _activationStorage = new Storage(1000, "Static Optimization");
+    _activationStorage = std::make_unique<Storage>(1000, "Static Optimization");
     _activationStorage->setDescription(getDescription());
     _activationStorage->setColumnLabels(getColumnLabels());
 }
@@ -221,8 +221,6 @@ void StaticOptimization::allocateStorage() {
  * Delete storage objects.
  */
 void StaticOptimization::deleteStorage() {
-    delete _activationStorage;
-    _activationStorage = NULL;
 }
 
 //=============================================================================
@@ -246,7 +244,7 @@ void StaticOptimization::setModel(Model& aModel) { Analysis::setModel(aModel); }
  * @return Activation storage.
  */
 Storage* StaticOptimization::getActivationStorage() {
-    return _activationStorage;
+    return _activationStorage.get();
 }
 //_____________________________________________________________________________
 /**
@@ -303,7 +301,7 @@ int StaticOptimization::record(const SimTK::State& s) {
             sWorkingCopy, _modelWorkingCopy, na, nacc, _useMusclePhysiology);
     target.setStatesStore(_statesStore);
     target.setStatesSplineSet(_statesSplineSet);
-    target.setStatesDerivativeStore(_statesDerivativeStore);
+    target.setStatesDerivativeStore(_statesDerivativeStore.get());
     target.setActivationExponent(_activationExponent);
     target.setDX(_numericalDerivativeStepSize);
 
@@ -578,7 +576,7 @@ int StaticOptimization::begin(const SimTK::State& s) {
     _statesSplineSet = GCVSplineSet(5, _statesStore);
 
     // Calculate and store state derivatives
-    _statesDerivativeStore = _statesSplineSet.constructStorage(1);
+    _statesDerivativeStore.reset(_statesSplineSet.constructStorage(1));
 
     // DESCRIPTION AND LABELS
     constructDescription();
@@ -670,7 +668,7 @@ int StaticOptimization::end(const SimTK::State& s) {
 int StaticOptimization::printResults(const string& aBaseName,
         const string& aDir, double aDT, const string& aExtension) {
     // ACTIVATIONS
-    Storage::printResult(_activationStorage,
+    Storage::printResult(_activationStorage.get(),
             aBaseName + "_" + getName() + "_activation", aDir, aDT, aExtension);
 
     // FORCES

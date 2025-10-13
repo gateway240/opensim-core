@@ -411,12 +411,11 @@ constructColumnLabels()
  */
 void JointReaction::loadForcesFromFile()
 {
-    delete _storeActuation; _storeActuation = NULL;
     // check if the forces storage file name is valid and, if so, load the file into storage
     if(_forcesFileNameProp.isValidFileName()) {
         
         log_info("Loading actuator forces from file {}.", _forcesFileName);
-        _storeActuation = new Storage(_forcesFileName);
+        _storeActuation = std::make_unique<Storage>(_forcesFileName);
         int storeSize = _storeActuation->getSmallestNumberOfStates();
 
         log_info("Found {} actuator forces with time stamps ranging from {}"

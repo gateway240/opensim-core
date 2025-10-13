@@ -106,7 +106,6 @@ setNull()
     constructProperties();
 
     setName("Kinematics");
-    _pStore=_vStore=_aStore=NULL;
 
     // Make sure storages are owned/managed by the Analysis
     _storageList.setMemoryOwner(false);
@@ -141,20 +140,20 @@ void Kinematics::allocateStorage()
 
     // ACCELERATIONS
     if(_recordAccelerations) {
-        _aStore = new Storage(1000,"Accelerations");
+        _aStore = std::make_shared<Storage>(1000,"Accelerations");
         _aStore->setDescription(getDescription());
-        _storageList.append(_aStore);
+        _storageList.append(_aStore.get());
     }
 
     // VELOCITIES
-    _vStore = new Storage(1000,"Speeds");
+    _vStore = std::make_shared<Storage>(1000,"Speeds");
     _vStore->setDescription(getDescription());
-    _storageList.append(_vStore);
+    _storageList.append(_vStore.get());
 
     // POSITIONS
-    _pStore = new Storage(1000,"Coordinates");
+    _pStore = std::make_shared<Storage>(1000,"Coordinates");
     _pStore->setDescription(getDescription());
-    _storageList.append(_pStore);
+    _storageList.append(_pStore.get());
 }
 
 
@@ -168,9 +167,6 @@ void Kinematics::allocateStorage()
 void Kinematics::
 deleteStorage()
 {
-    if(_aStore!=NULL) { delete _aStore;  _aStore=NULL; }
-    if(_vStore!=NULL) { delete _vStore;  _vStore=NULL; }
-    if(_pStore!=NULL) { delete _pStore;  _pStore=NULL; }
 }
 
 
@@ -284,7 +280,7 @@ constructColumnLabels()
 Storage* Kinematics::
 getAccelerationStorage()
 {
-    return(_aStore);
+    return _aStore.get();
 }
 //_____________________________________________________________________________
 /**
@@ -295,7 +291,7 @@ getAccelerationStorage()
 Storage* Kinematics::
 getVelocityStorage()
 {
-    return(_vStore);
+    return _vStore.get();
 }
 //_____________________________________________________________________________
 /**
@@ -306,7 +302,7 @@ getVelocityStorage()
 Storage* Kinematics::
 getPositionStorage()
 {
-    return(_pStore);
+    return _pStore.get();
 }
 //_____________________________________________________________________________
 /**
@@ -488,14 +484,14 @@ printResults(const string &aBaseName,const string &aDir,double aDT,
 
     // ACCELERATIONS
     if(_recordAccelerations) {
-        Storage::printResult(_aStore,aBaseName+"_"+getName()+"_dudt",aDir,aDT,aExtension);
+        Storage::printResult(_aStore.get(),aBaseName+"_"+getName()+"_dudt",aDir,aDT,aExtension);
     }
 
     // VELOCITIES
-    Storage::printResult(_vStore,aBaseName+"_"+getName()+"_u",aDir,aDT,aExtension);
+    Storage::printResult(_vStore.get(),aBaseName+"_"+getName()+"_u",aDir,aDT,aExtension);
 
     // POSITIONS
-    Storage::printResult(_pStore,aBaseName+"_"+getName()+"_q",aDir,aDT,aExtension);
+    Storage::printResult(_pStore.get(),aBaseName+"_"+getName()+"_q",aDir,aDT,aExtension);
 
     /*
     // POSITIONS (.mot file)

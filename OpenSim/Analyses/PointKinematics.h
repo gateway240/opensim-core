@@ -83,10 +83,9 @@ protected:
     std::string &_pointName;
     std::string &_relativeToBodyName;
 
-    double *_kin;
-    Storage *_pStore;
-    Storage *_vStore;
-    Storage *_aStore;
+    std::unique_ptr<Storage> _pStore;
+    std::unique_ptr<Storage> _vStore;
+    std::unique_ptr<Storage> _aStore;
 
 //=============================================================================
 // METHODS

@@ -188,20 +188,20 @@ void Actuation::
 allocateStorage()
 {
     // ACCELERATIONS
-    _forceStore = new Storage(1000, "ActuatorForces");
+    _forceStore = std::make_unique<Storage>(1000, "ActuatorForces");
     _forceStore->setDescription(getDescription());
     // Keep references o all storages in a list for uniform access from GUI
-    _storageList.append(_forceStore);
+    _storageList.append(_forceStore.get());
     _storageList.setMemoryOwner(false);
     // VELOCITIES
-    _speedStore = new Storage(1000, "ActuatorSpeeds");
+    _speedStore = std::make_unique<Storage>(1000, "ActuatorSpeeds");
     _speedStore->setDescription(getDescription());
-    _storageList.append(_speedStore);
+    _storageList.append(_speedStore.get());
 
     // POSITIONS
-    _powerStore = new Storage(1000, "ActuatorPowers");
+    _powerStore = std::make_unique<Storage>(1000, "ActuatorPowers");
     _powerStore->setDescription(getDescription());
-    _storageList.append(_powerStore);
+    _storageList.append(_powerStore.get());
 }
 
 //-----------------------------------------------------------------------------
@@ -280,9 +280,7 @@ constructColumnLabels()
 void Actuation::
 deleteStorage()
 {
-    if (_forceStore != NULL) { delete _forceStore;  _forceStore = NULL; }
-    if (_speedStore != NULL) { delete _speedStore;  _speedStore = NULL; }
-    if (_powerStore != NULL) { delete _powerStore;  _powerStore = NULL; }
+
 }
 
 
@@ -302,7 +300,7 @@ deleteStorage()
 Storage* Actuation::
 getForceStorage() const
 {
-    return(_forceStore);
+    return _forceStore.get();
 }
 //_____________________________________________________________________________
 /**
@@ -313,7 +311,7 @@ getForceStorage() const
 Storage* Actuation::
 getSpeedStorage() const
 {
-    return(_speedStore);
+    return _speedStore.get();
 }
 //_____________________________________________________________________________
 /**
@@ -324,7 +322,7 @@ getSpeedStorage() const
 Storage* Actuation::
 getPowerStorage() const
 {
-    return(_powerStore);
+    return _powerStore.get();
 }
 
 //=============================================================================
@@ -403,11 +401,11 @@ begin(const SimTK::State& s)
 
     // RESET STORAGE
     if (_forceStore == NULL)
-        _forceStore = new Storage();
+        _forceStore = std::make_unique<Storage>();
     if (_speedStore == NULL)
-        _speedStore = new Storage();
+        _speedStore = std::make_unique<Storage>();
     if (_powerStore == NULL)
-        _powerStore = new Storage();
+        _powerStore = std::make_unique<Storage>();
 
     // RESET STORAGE
     _forceStore->reset(s.getTime());
@@ -503,9 +501,9 @@ const string &aExtension)
     }
 
     std::string prefix = aBaseName + "_" + getName() + "_";
-    Storage::printResult(_forceStore, prefix + "force", aDir, aDT, aExtension);
-    Storage::printResult(_speedStore, prefix + "speed", aDir, aDT, aExtension);
-    Storage::printResult(_powerStore, prefix + "power", aDir, aDT, aExtension);
+    Storage::printResult(_forceStore.get(), prefix + "force", aDir, aDT, aExtension);
+    Storage::printResult(_speedStore.get(), prefix + "speed", aDir, aDT, aExtension);
+    Storage::printResult(_powerStore.get(), prefix + "power", aDir, aDT, aExtension);
 
     return(0);
 }

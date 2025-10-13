@@ -194,11 +194,11 @@ constructColumnLabels()
 void InverseDynamics::
 allocateStorage()
 {
-    _storage = new Storage(1000,"Inverse Dynamics");
+    _storage = std::make_unique<Storage>(1000,"Inverse Dynamics");
     _storage->setDescription(getDescription());
     _storage->setColumnLabels(getColumnLabels());
     // Keep references o all storages in a list for uniform access from GUI
-    _storageList.append(_storage);
+    _storageList.append(_storage.get());
     _storageList.setMemoryOwner(false);
 }
 
@@ -213,7 +213,6 @@ allocateStorage()
 void InverseDynamics::
 deleteStorage()
 {
-    delete _storage; _storage = NULL;
 }
 
 //=============================================================================
@@ -244,7 +243,7 @@ setModel(Model& aModel)
 Storage* InverseDynamics::
 getStorage()
 {
-    return(_storage);
+    return _storage.get();
 }
 
 //=============================================================================
@@ -568,7 +567,7 @@ printResults(const string &aBaseName,const string &aDir,double aDT,
                  const string &aExtension)
 {
     // ACCELERATIONS
-    Storage::printResult(_storage,aBaseName+"_"+getName(),aDir,aDT,aExtension);
+    Storage::printResult(_storage.get(),aBaseName+"_"+getName(),aDir,aDT,aExtension);
 
     return(0);
 }

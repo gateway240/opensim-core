@@ -103,8 +103,8 @@ protected:
     bool &_reportConstraintReactions;
 
     /** Storages for recording induced accelerations for specified coordinates and/or bodies. */
-    Array<Storage *> _storeInducedAccelerations;
-    Storage* _storeConstraintReactions;
+    Array<std::shared_ptr<Storage>> _storeInducedAccelerations;
+    std::unique_ptr<Storage> _storeConstraintReactions;
 
     /** List of all the contributors to the model acceleration */
     Array<std::string> _contributors;

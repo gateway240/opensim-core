@@ -110,7 +110,7 @@ protected:
     //-----------------------------------------------------------------------
 
     /** Storage for holding actuator forces IF SPECIFIED by user.*/
-    Storage *_storeActuation;
+    std::unique_ptr<Storage> _storeActuation;
 
     /** Storage for recording joint Reaction loads.*/
     Storage _storeReactionLoads;

@@ -148,7 +148,6 @@ void PointKinematics::
 setNull()
 {
     // POINTERS
-    _kin = NULL;
     _pStore = NULL;
     _vStore = NULL;
     _aStore = NULL;
@@ -261,17 +260,17 @@ void PointKinematics::
 allocateStorage()
 {
     // ACCELERATIONS
-    _aStore = new Storage(1000,"PointAcceleration");
+    _aStore = std::make_unique<Storage>(1000,"PointAcceleration");
     _aStore->setDescription(getDescription());
     _aStore->setColumnLabels(getColumnLabels());
 
     // VELOCITIES
-    _vStore = new Storage(1000,"PointVelocity");
+    _vStore = std::make_unique<Storage>(1000,"PointVelocity");
     _vStore->setDescription(getDescription());
     _vStore->setColumnLabels(getColumnLabels());
 
     // POSITIONS
-    _pStore = new Storage(1000,"PointPosition");
+    _pStore = std::make_unique<Storage>(1000,"PointPosition");
     _pStore->setDescription(getDescription());
     _pStore->setColumnLabels(getColumnLabels());
 }
@@ -287,9 +286,6 @@ allocateStorage()
 void PointKinematics::
 deleteStorage()
 {
-    if(_aStore!=NULL) { delete _aStore;  _aStore=NULL; }
-    if(_vStore!=NULL) { delete _vStore;  _vStore=NULL; }
-    if(_pStore!=NULL) { delete _pStore;  _pStore=NULL; }
 }
 
 
@@ -463,7 +459,7 @@ getPointName()
 Storage* PointKinematics::
 getAccelerationStorage()
 {
-    return(_aStore);
+    return _aStore.get();
 }
 //_____________________________________________________________________________
 /**
@@ -474,7 +470,7 @@ getAccelerationStorage()
 Storage* PointKinematics::
 getVelocityStorage()
 {
-    return(_vStore);
+    return _vStore.get();
 }
 //_____________________________________________________________________________
 /**
@@ -485,7 +481,7 @@ getVelocityStorage()
 Storage* PointKinematics::
 getPositionStorage()
 {
-    return(_pStore);
+    return _pStore.get();
 }
 
 
@@ -640,13 +636,13 @@ printResults(const string &aBaseName,const string &aDir,double aDT,
                  const string &aExtension)
 {
     // ACCELERATIONS
-    Storage::printResult(_aStore,aBaseName+"_"+getName()+"_"+getPointName()+"_acc",aDir,aDT,aExtension);
+    Storage::printResult(_aStore.get(),aBaseName+"_"+getName()+"_"+getPointName()+"_acc",aDir,aDT,aExtension);
 
     // VELOCITIES
-    Storage::printResult(_vStore,aBaseName+"_"+getName()+"_"+getPointName()+"_vel",aDir,aDT,aExtension);
+    Storage::printResult(_vStore.get(),aBaseName+"_"+getName()+"_"+getPointName()+"_vel",aDir,aDT,aExtension);
 
     // POSITIONS
-    Storage::printResult(_pStore,aBaseName+"_"+getName()+"_"+getPointName()+"_pos",aDir,aDT,aExtension);
+    Storage::printResult(_pStore.get(),aBaseName+"_"+getName()+"_"+getPointName()+"_pos",aDir,aDT,aExtension);
 
     return(0);
 }

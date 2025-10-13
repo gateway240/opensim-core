@@ -36,6 +36,7 @@
 
 #include "SimbodyEngine.h"
 #include "Coordinate.h"
+#include "OpenSim/Common/StateVector.h"
 
 //=============================================================================
 // STATICS
@@ -842,7 +843,7 @@ formCompleteStorages( const SimTK::State& s, const OpenSim::Storage &aQIn,
     qStore->setName("GeneralizedCoordinates");
     qStore->setColumnLabels(columnLabels);
     int size = aQIn.getSize();
-    StateVector *vector;
+    StateVector* vector;
     int j;
     for(i=0;i<size;i++) {
         vector = aQIn.getStateVector(i);

@@ -64,11 +64,11 @@ class Storage;
         /** Work array for storing forces, speeds, or powers. */
         double *_fsp;
         /** Force storage. */
-        Storage *_forceStore;
+        std::unique_ptr<Storage> _forceStore;
         /** Speed storage. */
-        Storage *_speedStore;
+        std::unique_ptr<Storage> _speedStore;
         /** Power storage. */
-        Storage *_powerStore;
+        std::unique_ptr<Storage> _powerStore;
 
         //=============================================================================
         // METHODS

@@ -24,6 +24,7 @@
 #include "GCVSplineSet.h"
 #include "GCVSpline.h"
 #include "Storage.h"
+#include <memory>
 
 
 using namespace OpenSim;
@@ -132,22 +133,17 @@ void GCVSplineSet::construct(int aDegree,
 }
 
 GCVSpline* GCVSplineSet::getGCVSpline(int aIndex) const {
-    GCVSpline& func = (GCVSpline&)get(aIndex);
-    return(&func);
+    GCVSpline& func = dynamic_cast<GCVSpline&>(get(aIndex));
+    return (&func);
 }
 
 Storage* GCVSplineSet::constructStorage(int aDerivOrder,double aDX) {
     if(aDerivOrder<0) return(NULL);
     if(getSize()<=0) return(NULL);
 
-    // GET FIRST NON-NULL SPLINE
-    GCVSpline *spl;
+    // GET FIRST NON-NULL SPLINE (without consuming ownership)
     int n = getSize();
-    for(int i=0;i<n;i++) {
-        spl = getGCVSpline(i);
-        if(spl!=NULL) break;
-    }
-    if(spl==NULL) return(NULL);
+    auto spl = getGCVSpline(0);
 
     // HOW MANY X STEPS
     double xRange = getMaxX() - getMinX();
@@ -165,24 +161,17 @@ Storage* GCVSplineSet::constructStorage(int aDerivOrder,double aDX) {
     } else {
         name = fmt::format("{}_GCVSpline_Deriv_{}", getName(), aDerivOrder);
     }
-    Storage *store = new Storage(nSteps,name);
+    store = std::make_shared<Storage>(nSteps,name);
 
     // DESCRIPTION
     store->setDescription(getDescription());
 
     // SET COLUMN LABELS
-    GCVSpline *spline;
     Array<std::string> labels;
     labels.append("time");
     for(int i=0;i<n;i++) {
-        spline = getGCVSpline(i);
-        if(spline==NULL) {
-            char cName[32];
-            snprintf(cName, 32, "data_%d", i);
-            labels.append(std::string(cName));
-        } else {
-            labels.append(spline->getName());
-        }
+        auto spline = getGCVSpline(i);
+        labels.append(spline->getName());
     }
     store->setColumnLabels(labels);
 
@@ -212,7 +201,7 @@ Storage* GCVSplineSet::constructStorage(int aDerivOrder,double aDX) {
         }
     }
 
-    return(store);
+    return store.get();
 }
 
 double GCVSplineSet::getMinX() const
@@ -220,8 +209,8 @@ double GCVSplineSet::getMinX() const
     double min = SimTK::Infinity;
 
     for (int i=0; i<getSize(); i++) {
-        const GCVSpline* spl = getGCVSpline(i);
-        if (spl && spl->getMinX() < min)
+        auto spl = getGCVSpline(i);
+        if (spl->getMinX() < min)
             min = spl->getMinX();
     }
 
@@ -233,8 +222,8 @@ double GCVSplineSet::getMaxX() const
     double max = -SimTK::Infinity;
 
     for (int i=0; i<getSize(); i++) {
-        const GCVSpline* spl = getGCVSpline(i);
-        if (spl && spl->getMaxX() > max)
+        auto spl = getGCVSpline(i);
+        if (spl->getMaxX() > max)
             max = spl->getMaxX();
     }
 

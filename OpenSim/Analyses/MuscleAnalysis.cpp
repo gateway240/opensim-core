@@ -232,18 +232,18 @@ void MuscleAnalysis::allocateStorageObjects()
         }
 
         int nq = _coordinateList.getSize();
-        Storage* store;
+        std::unique_ptr<Storage> store;
         for(int i=0;i<nq;i++) {
             string name = "MomentArm_" + _coordinateList[i];
-            store = new Storage(1000,name);
+            store = std::make_unique<Storage>(1000,name);
             store->setDescription(getDescription());
-            _storageList.append(store);
+            _storageList.append(store.get());
         }
         for(int i=0;i<nq;i++) {
             string name = "Moment_" + _coordinateList[i];
-            store = new Storage(1000,name);
+            store = std::make_unique<Storage>(1000,name);
             store->setDescription(getDescription());
-            _storageList.append(store);
+            _storageList.append(store.get());
         }
 
         // POPULATE ACTIVE MOMENT ARM ARRAY
@@ -252,91 +252,91 @@ void MuscleAnalysis::allocateStorageObjects()
         for(int i=0; i<nq; i++) {
             int found = qSet.getIndex(_coordinateList[i]);
             if(found >=0){
-                StorageCoordinatePair *pair = new StorageCoordinatePair();
+                std::unique_ptr<StorageCoordinatePair> pair = std::make_unique<StorageCoordinatePair>();
                 pair->q = &qSet[found];
                 pair->momentArmStore = _storageList[i];
                 pair->momentStore = _storageList[i+nq];
-                _momentArmStorageArray.append(pair);
+                _momentArmStorageArray.append(pair.get());
             }
         }
     }
 
     // EVERYTHING ELSE
     //_storageList.setMemoryOwner(false);
-    _pennationAngleStore = new Storage(1000,"PennationAngle");
+    _pennationAngleStore = std::make_unique<Storage>(1000,"PennationAngle");
     _pennationAngleStore->setDescription(getDescription());
-    _storageList.append(_pennationAngleStore );
+    _storageList.append(_pennationAngleStore.get() );
 
-    _lengthStore = new Storage(1000,"Length");
+    _lengthStore = std::make_unique<Storage>(1000,"Length");
     _lengthStore->setDescription(getDescription());
-    _storageList.append(_lengthStore );
+    _storageList.append(_lengthStore.get() );
 
-    _fiberLengthStore = new Storage(1000,"FiberLength");
+    _fiberLengthStore = std::make_unique<Storage>(1000,"FiberLength");
     _fiberLengthStore->setDescription(getDescription());
-    _storageList.append(_fiberLengthStore );
+    _storageList.append(_fiberLengthStore.get() );
 
-    _normalizedFiberLengthStore = new Storage(1000,"NormalizedFiberLength");
+    _normalizedFiberLengthStore = std::make_unique<Storage>(1000,"NormalizedFiberLength");
     _normalizedFiberLengthStore->setDescription(getDescription());
-    _storageList.append(_normalizedFiberLengthStore );
+    _storageList.append(_normalizedFiberLengthStore.get() );
 
-    _tendonLengthStore = new Storage(1000,"TendonLength");
+    _tendonLengthStore = std::make_unique<Storage>(1000,"TendonLength");
     _tendonLengthStore->setDescription(getDescription());
-    _storageList.append(_tendonLengthStore );
+    _storageList.append(_tendonLengthStore.get() );
 
-    _fiberVelocityStore = new Storage(1000,"FiberVelocity");
+    _fiberVelocityStore = std::make_unique<Storage>(1000,"FiberVelocity");
     _fiberVelocityStore->setDescription(getDescription());
-    _storageList.append(_fiberVelocityStore );
+    _storageList.append(_fiberVelocityStore.get() );
 
-    _normFiberVelocityStore = new Storage(1000,"NormFiberVelocity");
+    _normFiberVelocityStore = std::make_unique<Storage>(1000,"NormFiberVelocity");
     _normFiberVelocityStore->setDescription(getDescription());
-    _storageList.append(_normFiberVelocityStore );
+    _storageList.append(_normFiberVelocityStore.get() );
 
-    _pennationAngularVelocityStore = new Storage(1000,
+    _pennationAngularVelocityStore = std::make_unique<Storage>(1000,
         "PennationAngularVelocity");
     _pennationAngularVelocityStore->setDescription(getDescription());
-    _storageList.append(_pennationAngularVelocityStore );
+    _storageList.append(_pennationAngularVelocityStore.get() );
 
-    _forceStore = new Storage(1000,"TendonForce");
+    _forceStore = std::make_unique<Storage>(1000,"TendonForce");
     _forceStore->setDescription(getDescription());
-    _storageList.append(_forceStore );
+    _storageList.append(_forceStore.get() );
 
-    _fiberForceStore = new Storage(1000,"FiberForce");
+    _fiberForceStore = std::make_unique<Storage>(1000,"FiberForce");
     _fiberForceStore->setDescription(getDescription());
-    _storageList.append(_fiberForceStore );
+    _storageList.append(_fiberForceStore.get() );
 
-    _activeFiberForceStore = new Storage(1000,"ActiveFiberForce");
+    _activeFiberForceStore = std::make_unique<Storage>(1000,"ActiveFiberForce");
     _activeFiberForceStore->setDescription(getDescription());
-    _storageList.append(_activeFiberForceStore );
+    _storageList.append(_activeFiberForceStore.get() );
 
-    _passiveFiberForceStore = new Storage(1000,"PassiveFiberForce");
+    _passiveFiberForceStore = std::make_unique<Storage>(1000,"PassiveFiberForce");
     _passiveFiberForceStore->setDescription(getDescription());
-    _storageList.append(_passiveFiberForceStore );
+    _storageList.append(_passiveFiberForceStore.get() );
 
-    _activeFiberForceAlongTendonStore = new Storage(1000,
+    _activeFiberForceAlongTendonStore = std::make_unique<Storage>(1000,
         "ActiveFiberForceAlongTendon");
     _activeFiberForceAlongTendonStore->setDescription(getDescription());
-    _storageList.append(_activeFiberForceAlongTendonStore );
+    _storageList.append(_activeFiberForceAlongTendonStore.get() );
 
-    _passiveFiberForceAlongTendonStore = new Storage(1000,
+    _passiveFiberForceAlongTendonStore = std::make_unique<Storage>(1000,
         "PassiveFiberForceAlongTendon");
     _passiveFiberForceAlongTendonStore->setDescription(getDescription());
-    _storageList.append(_passiveFiberForceAlongTendonStore );
+    _storageList.append(_passiveFiberForceAlongTendonStore.get() );
 
-    _fiberActivePowerStore = new Storage(1000,"FiberActivePower");
+    _fiberActivePowerStore = std::make_unique<Storage>(1000,"FiberActivePower");
     _fiberActivePowerStore->setDescription(getDescription());
-    _storageList.append(_fiberActivePowerStore );
+    _storageList.append(_fiberActivePowerStore.get() );
 
-    _fiberPassivePowerStore = new Storage(1000,"FiberPassivePower");
+    _fiberPassivePowerStore = std::make_unique<Storage>(1000,"FiberPassivePower");
     _fiberPassivePowerStore->setDescription(getDescription());
-    _storageList.append(_fiberPassivePowerStore );
+    _storageList.append(_fiberPassivePowerStore.get() );
 
-    _tendonPowerStore = new Storage(1000,"TendonPower");
+    _tendonPowerStore = std::make_unique<Storage>(1000,"TendonPower");
     _tendonPowerStore->setDescription(getDescription());
-    _storageList.append(_tendonPowerStore );
+    _storageList.append(_tendonPowerStore.get() );
 
-    _musclePowerStore = new Storage(1000,"MuscleActuatorPower");
+    _musclePowerStore = std::make_unique<Storage>(1000,"MuscleActuatorPower");
     _musclePowerStore->setDescription(getDescription());
-    _storageList.append(_musclePowerStore );
+    _storageList.append(_musclePowerStore.get() );
 
     // POPULATE MUSCLE LIST FOR "all"
     ForceSet& fSet = _model->updForceSet();
@@ -618,27 +618,24 @@ int MuscleAnalysis::record(const SimTK::State& s)
 
     if (getComputeMoments()){
         // LOOP OVER ACTIVE MOMENT ARM STORAGE OBJECTS
-        Coordinate *q = NULL;
-        Storage *maStore=NULL, *mStore=NULL;
+        // std::unique_ptr<Coordinate> q;
+        // std::unique_ptr<Storage> maStore;
+        // std::unique_ptr<Storage> mStore;
         int nq = _momentArmStorageArray.getSize();
         Array<double> ma(0.0,nm),m(0.0,nm);
 
         for(int i=0; i<nq; i++) {
 
-            q = _momentArmStorageArray[i]->q;
-            maStore = _momentArmStorageArray[i]->momentArmStore;
-            mStore = _momentArmStorageArray[i]->momentStore;
-           
             // bool locked = q->getLocked(s);
 
             _model->getMultibodySystem().realize(s, s.getSystemStage());
             // LOOP OVER MUSCLES
             for(int j=0; j<nm; j++) {
-                ma[j] = _muscleArray[j]->computeMomentArm(s,*q);
+                ma[j] = _muscleArray[j]->computeMomentArm(s,*_momentArmStorageArray[i]->q);
                 m[j] = ma[j] * force[j];
             }
-            maStore->append(s.getTime(),nm,&ma[0]);
-            mStore->append(s.getTime(),nm,&m[0]);
+            _momentArmStorageArray[i]->momentArmStore->append(s.getTime(),nm,&ma[0]);
+            _momentArmStorageArray[i]->momentStore->append(s.getTime(),nm,&m[0]);
         }
     }
     return 0;
@@ -665,10 +662,9 @@ int MuscleAnalysis::begin(const SimTK::State&s )
     allocateStorageObjects();
 
     // RESET STORAGE
-    Storage *store;
     int size = _storageList.getSize();
     for(int i=0;i<size;i++) {
-        store = _storageList[i];
+        const auto store = _storageList[i];
         if(store==NULL) continue;
         store->purge();
     }
@@ -678,14 +674,13 @@ int MuscleAnalysis::begin(const SimTK::State&s )
     // Make sure coordinates are not locked
     if (getComputeMoments()){
     // LOOP OVER ACTIVE MOMENT ARM STORAGE OBJECTS
-        Coordinate *q = NULL;
         int nq = _momentArmStorageArray.getSize();
         for(int i=0; i<nq; i++) {
-            q = _momentArmStorageArray[i]->q;
-            if (q->getLocked(s)) {
+            auto& q = _momentArmStorageArray[i]->q;
+            if (_momentArmStorageArray[i]->q->getLocked(s)) {
                 log_warn("MuscleAnalysis: coordinate {} is locked and can't be "
                          "varied.",
-                        q->getName());
+                        _momentArmStorageArray[i]->q->getName());
             }
         }
     }

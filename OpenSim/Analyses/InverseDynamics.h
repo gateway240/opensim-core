@@ -62,7 +62,7 @@ protected:
     PropertyBool _useModelForceSetProp;
     bool &_useModelForceSet;
 
-    Storage *_storage;
+    std::unique_ptr<Storage> _storage;
     GCVSplineSet _statesSplineSet;
 
     Array<double> _dydt;

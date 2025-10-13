@@ -50,7 +50,6 @@ InducedAccelerations::~InducedAccelerations()
 {
     delete &_coordSet;
     delete &_bodySet;
-    delete _storeConstraintReactions;
 }
 //_____________________________________________________________________________
 /*
@@ -394,7 +393,7 @@ void InducedAccelerations::setupStorage()
     _coordIndAccs.setSize(0);
     Array<string> coordAccLabels = constructColumnLabelsForCoordinate();
     for(int i=0; i<nc; i++){
-        _storeInducedAccelerations.append(new Storage(1000));
+        _storeInducedAccelerations.append(std::make_shared<Storage>(1000));
         _storeInducedAccelerations[i]->setName(_coordSet.get(i).getName());
         _storeInducedAccelerations[i]->setDescription(getDescription());
         _storeInducedAccelerations[i]->setColumnLabels(coordAccLabels);
@@ -430,7 +429,7 @@ void InducedAccelerations::setupStorage()
     _bodyIndAccs.setSize(0);
     Array<string> bodyAccLabels = constructColumnLabelsForBody();
     for(int i=0; i<nb; i++){
-        _storeInducedAccelerations.append(new Storage(1000));
+        _storeInducedAccelerations.append(std::make_unique<Storage>(1000));
         // cout << "Body " << i << " in _bodySet: " << _bodySet.get(i).getName() << endl;
         _storeInducedAccelerations[nc+i]->setName(_bodySet.get(i).getName());
         _storeInducedAccelerations[nc+i]->setDescription(getDescription());
@@ -441,16 +440,15 @@ void InducedAccelerations::setupStorage()
     if(_includeCOM){
         Array<string> comAccLabels = constructColumnLabelsForCOM();
         _comIndAccs.setSize(0);
-        _storeInducedAccelerations.append(new Storage(1000, CENTER_OF_MASS_NAME));
+        _storeInducedAccelerations.append(std::make_unique<Storage>(1000, CENTER_OF_MASS_NAME));
         _storeInducedAccelerations[nc+nb]->setDescription(getDescription());
         _storeInducedAccelerations[nc+nb]->setColumnLabels(comAccLabels);
     }
 
-    delete _storeConstraintReactions;
     if(_reportConstraintReactions){
         Array<string> constReactionLabels = constructColumnLabelsForConstraintReactions();
         _constraintReactions.setSize(0);
-        _storeConstraintReactions = new Storage(1000, "induced_constraint_reactions");
+        _storeConstraintReactions = std::make_unique<Storage>(1000, "induced_constraint_reactions");
         _storeConstraintReactions->setDescription(getDescription());
         _storeConstraintReactions->setColumnLabels(constReactionLabels);
     }
@@ -929,12 +927,12 @@ printResults(const string &aBaseName,const string &aDir,double aDT,
 {
     // Write out induced accelerations for all kinematic variables
     for(int i = 0; i < _storeInducedAccelerations.getSize(); i++){
-        Storage::printResult(_storeInducedAccelerations[i],aBaseName+"_"
+        Storage::printResult(_storeInducedAccelerations[i].get(),aBaseName+"_"
                                +getName()+"_"+_storeInducedAccelerations[i]->getName(),aDir,aDT,aExtension);
     }
 
     if(_reportConstraintReactions){
-        Storage::printResult(_storeConstraintReactions, aBaseName+"_"
+        Storage::printResult(_storeConstraintReactions.get(), aBaseName+"_"
                                +getName()+"_"+_storeConstraintReactions->getName(),aDir,aDT,aExtension);
     }
     return(0);
