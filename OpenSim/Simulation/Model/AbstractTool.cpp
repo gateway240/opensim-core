@@ -407,7 +407,7 @@ updateModelForces(Model& model, const string &aToolSetupFileName, ForceSet *rOri
     // Load force set(s)
     for(int i=0; i<_forceSetFiles.getSize(); i++) {
         log_info("Adding force object set from {}", _forceSetFiles[i]);
-        ForceSet *forceSet=new ForceSet(_forceSetFiles[i], true);
+        std::unique_ptr<ForceSet> forceSet= std::make_unique<ForceSet>(_forceSetFiles[i], true);
         model.updForceSet().append(*forceSet);
     }
 
@@ -703,9 +703,9 @@ void AbstractTool::removeExternalLoadsFromModel()
     // Create controllers and add them as needed.
     if (controlsFileName!="" && controlsFileName!="Unassigned"){
         // controls_file was specified, create a ControlSetController for it
-        ControlSetController* csc = new ControlSetController();
+        std::unique_ptr<ControlSetController> csc = std::make_unique<ControlSetController>();
         csc->setControlSetFileName(controlsFileName);
-        _controllerSet.adoptAndAppend(csc);
+        _controllerSet.adoptAndAppend(csc.get());
     }
 }
 void AbstractTool::loadQStorage (const std::string& statesFileName, Storage& rQStore) const {
@@ -761,9 +761,9 @@ void AbstractTool::setControlsFileName(const std::string& controlsFilename)
     }
     if (disableControlSetController) return;
     // Create a new controlsetController and add it to the tool
-    ControlSetController* csc = new ControlSetController();
+    std::unique_ptr<ControlSetController> csc = std::make_unique<ControlSetController>();
     csc->setControlSetFileName(controlsFilename);
-    _controllerSet.adoptAndAppend(csc);
+    _controllerSet.adoptAndAppend(csc.get());
 }
 //_____________________________________________________________________________
 /**
@@ -843,14 +843,14 @@ std::string AbstractTool::createExternalLoadsFile(const std::string& oldFile,
             }
         }
         for(int f=0; f<2; f++){
-            ExternalForce* xf = new ExternalForce();
+            std::unique_ptr<ExternalForce> xf = std::make_unique<ExternalForce>();
             xf->setAppliedToBodyName((f==0)?body1:body2);
             char pad[3];
             snprintf(pad, 3, "%d", f+1);
 
             std::string suffix = "ExternalForce_"+string(pad);
             xf->setName(suffix);
-            _externalLoads.adoptAndAppend(xf);
+            _externalLoads.adoptAndAppend(xf.get());
         }
         _externalLoads.setDataFileName(oldFile);
         std::string newName=oldFile.substr(0, oldFile.length()-4)+".xml";

@@ -27,6 +27,7 @@
 #include "Body.h"
 #include <OpenSim/Common/ScaleSet.h>
 #include "simbody/internal/MobilizedBody.h"
+#include <SimTKcommon/internal/ReferencePtr.h>
 
 //=============================================================================
 // STATICS
@@ -440,18 +441,20 @@ void Body::updateFromXMLNode(SimTK::Xml::Element& aNode, int versionNumber)
 
 Body* Body::addSlave()
 {
-    Body* slave = new Body();
+    std::unique_ptr<Body> slave = std::make_unique<Body>();
     int count = (int)_slaves.size();
 
     stringstream name;
     name << getName() << "_slave_" << count;
     slave->setName(name.str());
 
+    auto ref_body = SimTK::ReferencePtr<Body>(slave.release());
+
     //add to internal list of references
-    _slaves.push_back(SimTK::ReferencePtr<Body>(slave));
+    _slaves.push_back(ref_body);
 
     //add to list of subcomponents to automatically add to system and initialize
-    adoptSubcomponent(slave);
+    adoptSubcomponent(ref_body.get());
 
-    return slave;
+    return ref_body.get();
 }

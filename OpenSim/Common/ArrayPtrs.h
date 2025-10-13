@@ -167,7 +167,7 @@ void clearAndDestroy()
     
     int i;
     for(i=0;i<_size;i++) {
-        delete _array[i];  _array[i]=NULL;
+        // delete _array[i];  _array[i]=NULL;
     }
 
     _size = 0;

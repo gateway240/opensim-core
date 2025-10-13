@@ -220,10 +220,10 @@ bool IMUPlacer::run(bool visualizeResults) {
                         imuName, *bodies[imuix], SimTK::Transform(R_FB, p_FB));
                 bodies[imuix]->addComponent(imuOffset);
                 // Create an IMU Object in the model, connect it to imuOffset
-                IMU* modelImu = new IMU();
+                std::unique_ptr<IMU> modelImu = std::make_unique<IMU>();
                 modelImu->setName(imuName);
                 modelImu->connectSocket_frame(*imuOffset);
-                _model->addModelComponent(modelImu);
+                _model->addModelComponent(modelImu.get());
                 log_info("Added offset frame for {}.", imuName);
             }
             log_info("{} offset computed from {} data from file.",

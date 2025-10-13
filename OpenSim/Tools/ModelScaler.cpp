@@ -235,11 +235,11 @@ bool ModelScaler::processModel(Model* aModel, const string& aPathToSubject,
      * Initialize all factors to 1.0.
      */
     for (const auto& segment : aModel->getComponentList<PhysicalFrame>()) {
-        Scale* segmentScale = new Scale();
+        std::unique_ptr<Scale> segmentScale = std::make_unique<Scale>();
         segmentScale->setSegmentName(segment.getName());
         segmentScale->setScaleFactors(unity);
         segmentScale->setApply(true);
-        theScaleSet.adoptAndAppend(segmentScale);
+        theScaleSet.adoptAndAppend(segmentScale.get());
     }
 
     SimTK::State& s = aModel->initSystem();

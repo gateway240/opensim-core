@@ -283,7 +283,7 @@ bool MarkerPlacer::processModel(Model* aModel,
                                          staticPoseUnits.getAbbreviation());
     }
     
-    MarkerData* staticPose = new MarkerData(aPathToSubject + _markerFileName);
+    std::unique_ptr<MarkerData> staticPose = std::make_unique<MarkerData>(aPathToSubject + _markerFileName);
     staticPose->averageFrames(_maxMarkerMovement, _timeRange[0], _timeRange[1]);
     staticPose->convertToUnits(aModel->getLengthUnits());
 

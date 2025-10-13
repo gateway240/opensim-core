@@ -29,6 +29,7 @@
 #include <OpenSim/Simulation/Model/Model.h>
 #include <OpenSim/Simulation/Model/PhysicalFrame.h>
 #include <OpenSim/Simulation/Model/PhysicalOffsetFrame.h>
+#include "OpenSim/Simulation/SimbodyEngine/Coordinate.h"
 #include "simbody/internal/Constraint.h"
 #include "simbody/internal/MobilizedBody_Ground.h"
 
@@ -125,13 +126,15 @@ Joint::Joint(const std::string&    name,
 Joint::CoordinateIndex Joint::constructCoordinate(Coordinate::MotionType mt,
                                                   unsigned idx)
 {
-    Coordinate* coord = new Coordinate();
+    std::unique_ptr<Coordinate> coord = std::make_unique<Coordinate>();
     coord->setName(getName() + "_coord_" + std::to_string( numCoordinates() ));
+    const std::string coordinate_name = coord->getName();
     // Joint takes ownership
     coord->setJoint(*this);
-    updProperty_coordinates().adoptAndAppendValue(coord);
+    updProperty_coordinates().adoptAndAppendValue(coord.release());
     auto cix = CoordinateIndex(getProperty_coordinates().
-                               findIndexForName( coord->getName() ));
+                               findIndexForName( coordinate_name ));
+
     _motionTypes.push_back(mt);
     SimTK_ASSERT_ALWAYS(static_cast<unsigned>(numCoordinates()) == 
                         _motionTypes.size(), 

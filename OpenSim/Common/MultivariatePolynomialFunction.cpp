@@ -611,8 +611,8 @@ private:
                     createHornerScheme(vars, factors.second);
 
             // Construct a FactorNode.
-            FactorNode* factor = new FactorNode(left, right, index);
-            return SimTK::ClonePtr<FactorNode>(factor); 
+            std::unique_ptr<FactorNode> factor = std::make_unique<FactorNode>(left, right, index);
+            return SimTK::ClonePtr<FactorNode>(factor.get()); 
         }
     }
     

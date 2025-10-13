@@ -168,7 +168,7 @@ Model* GenericModelMaker::processModel(const string& aPathToSubject) const
             std::string markerSetPath = 
                 SimTK::Pathname::getAbsolutePathnameUsingSpecifiedWorkingDirectory(aPathToSubject, _markerSetFileName);
             log_info("Loading marker set from '{}'.", markerSetPath);
-            MarkerSet *markerSet = new MarkerSet(markerSetPath);
+            std::unique_ptr<MarkerSet> markerSet = std::make_unique<MarkerSet>(markerSetPath);
             model->updateMarkerSet(*markerSet);
         }
     }

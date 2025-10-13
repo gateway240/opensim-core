@@ -2798,14 +2798,17 @@ protected:
 
     /** Construct a subcomponent as a data member of this Component. All Component
         interface calls are automatically invoked on its subcomponents. */
-    template<class C=Component>
+    template<class C = Component>
     MemberSubcomponentIndex constructSubcomponent(const std::string& name) {
-        C* component = new C();
+        SimTK::ClonePtr<Component> component{new C()};
         component->setName(name);
         component->setOwner(*this);
-        _memberSubcomponents.push_back(SimTK::ClonePtr<Component>(component));
-        return MemberSubcomponentIndex(_memberSubcomponents.size()-1);
+
+        _memberSubcomponents.push_back(std::move(component));
+        return MemberSubcomponentIndex(_memberSubcomponents.size() - 1);
     }
+
+
     template<class C = Component>
     const C& getMemberSubcomponent(MemberSubcomponentIndex ix) const {
         const C* comp = dynamic_cast<const C*>(_memberSubcomponents[ix].get());

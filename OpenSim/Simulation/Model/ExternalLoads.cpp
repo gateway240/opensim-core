@@ -301,7 +301,7 @@ ExternalForce* ExternalLoads::transformPointExpressedInGroundToAppliedBody(
 
     // Construct a new storage to contain the re-expressed point data for the 
     // new external force.
-    Storage *newDataSource = new Storage(nt);
+    std::unique_ptr<Storage> newDataSource = std::make_unique<Storage>(nt);
     Array<string> labels;
     labels.append("time");
 
@@ -392,7 +392,7 @@ ExternalForce* ExternalLoads::transformPointExpressedInGroundToAppliedBody(
     exF_transformedPoint->setPointExpressedInBodyName(exForce.getAppliedToBodyName());
     exF_transformedPoint->setDataSource(*newDataSource);
 
-    _storages.push_back(shared_ptr<Storage>(newDataSource));
+    _storages.push_back(shared_ptr<Storage>(newDataSource.get()));
 
     newDataSource->print(exForce.getName()+"_NewDataSource_TransformedP.sto");
 
@@ -446,10 +446,10 @@ void ExternalLoads::updateFromXMLNode(SimTK::Xml::Element& aNode, int versionNum
             throw Exception(msg,__FILE__,__LINE__);
                 }
             }
-            Storage* dataSource = new Storage(_dataFileName, true);
+            std::unique_ptr<Storage> dataSource = std::make_unique<Storage>(_dataFileName, true);
             if (!dataSource->makeStorageLabelsUnique()){
                 log_info("Making labels unique in storage file {}", _dataFileName);
-                dataSource = new Storage(_dataFileName);
+                dataSource = std::make_unique<Storage>(_dataFileName);
                 dataSource->makeStorageLabelsUnique();
                 dataSource->print(_dataFileName);
             }
@@ -462,7 +462,7 @@ void ExternalLoads::updateFromXMLNode(SimTK::Xml::Element& aNode, int versionNum
             Set<PrescribedForce> oldForces(getDocument()->getFileName(), true);
             for(int i=0; i< oldForces.getSize(); i++){
                 PrescribedForce& oldPrescribedForce = oldForces.get(i);
-                ExternalForce* newExternalForce = new ExternalForce();
+                std::unique_ptr<ExternalForce> newExternalForce = std::make_unique<ExternalForce>();
                 newExternalForce->setName(oldPrescribedForce.getName());
                 // In 4.0, PrescribedForce's body_name became a relative path
                 // to the body; we need to pull off just the body name.
@@ -486,11 +486,10 @@ void ExternalLoads::updateFromXMLNode(SimTK::Xml::Element& aNode, int versionNum
                 oldPrescribedForce.getTorqueFunctionNames(aFunctionNames);
                 newExternalForce->setTorqueIdentifier(createIdentifier(aFunctionNames, labels));
                 //newExternalForce->setDataSourceName("");
-                adoptAndAppend(newExternalForce);
+                adoptAndAppend(newExternalForce.get());
             }
-            delete dataSource;
         }
-        else {
+    else {
             // Warn on removed external_loads_kinematics_specification
             SimTK::Xml::element_iterator kinFileNode =
                     aNode.element_begin("external_loads_model_kinematics_file");

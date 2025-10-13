@@ -164,7 +164,7 @@ void MarkerData::readTRCFile(const string& aFileName, MarkerData& aSMD)
       if (findFirstNonWhiteSpace(line) == -1)
          continue;
 
-        if (aSMD._frames.getSize() == aSMD._numFrames)
+        if (aSMD._frames.size() == static_cast<size_t>(aSMD._numFrames))
         {
 #if 0
             if (gUseGlobalMessages)
@@ -197,7 +197,7 @@ void MarkerData::readTRCFile(const string& aFileName, MarkerData& aSMD)
 #endif
       }
 
-        MarkerFrame *frame = new MarkerFrame(aSMD._numMarkers, frameNum, time, aSMD._units);
+      MarkerFrame frame = MarkerFrame(aSMD._numMarkers, frameNum, time, aSMD._units);
 
       /* keep reading sets of coordinates until the end of the line is
        * reached. If more coordinates were read than there are markers,
@@ -222,7 +222,7 @@ void MarkerData::readTRCFile(const string& aFileName, MarkerData& aSMD)
 #endif
          }
          if (coordsRead < aSMD._numMarkers)
-                frame->addMarker(coords);
+                frame.addMarker(coords);
          coordsRead++;
       }
 
@@ -238,10 +238,10 @@ void MarkerData::readTRCFile(const string& aFileName, MarkerData& aSMD)
          goto cleanup;
 #endif
       }
-        aSMD._frames.append(frame);
+        aSMD._frames.emplace_back(frame);
    }
 
-   if (aSMD._frames.getSize() < aSMD._numFrames)
+   if (aSMD._frames.size() < static_cast<size_t>(aSMD._numFrames))
    {
 #if 0
       if (gUseGlobalMessages)
@@ -250,19 +250,19 @@ void MarkerData::readTRCFile(const string& aFileName, MarkerData& aSMD)
       rc = smFileError;
       goto cleanup;
 #endif
-        aSMD._numFrames = aSMD._frames.getSize();
+        aSMD._numFrames = aSMD._frames.size();
    }
 
    /* If the user-defined frame numbers are not contiguous from the first frame to the
     * last, reset them to a contiguous array. This is necessary because the user-defined
     * numbers are used to index the array of frames.
     */
-    if (aSMD._frames[aSMD._numFrames-1]->getFrameNumber() - aSMD._frames[0]->getFrameNumber() !=
+    if (aSMD._frames[aSMD._numFrames-1].getFrameNumber() - aSMD._frames[0].getFrameNumber() !=
          aSMD._numFrames - 1)
    {
-        int firstIndex = aSMD._frames[0]->getFrameNumber();
+        int firstIndex = aSMD._frames[0].getFrameNumber();
       for (int i = 1; i < aSMD._numFrames; i++)
-            aSMD._frames[i]->setFrameNumber(firstIndex + i);
+            aSMD._frames[i].setFrameNumber(firstIndex + i);
    }
 
 #if 0
@@ -552,14 +552,14 @@ void MarkerData::readStoFile(const string& aFileName)
         StateVector* nextRow = store.getStateVector(i);
         time = nextRow->getTime();
         int frameNum = i+1;
-        MarkerFrame *frame = new MarkerFrame(_numMarkers, frameNum, time, _units);
+        MarkerFrame frame = MarkerFrame(_numMarkers, frameNum, time, _units);
         const Array<double>& rowData = nextRow->getData();
         // Cycle through map and add Marker coordinates to the frame. Same order as header.
         for (iter = markerIndices.begin(); iter != markerIndices.end(); iter++) {
             int startIndex = iter->first; // startIndex includes time but data doesn't!
-            frame->addMarker(SimTK::Vec3(rowData[startIndex-1], rowData[startIndex], rowData[startIndex+1]));
+            frame.addMarker(SimTK::Vec3(rowData[startIndex-1], rowData[startIndex], rowData[startIndex+1]));
         }
-        _frames.append(frame);
+        _frames.emplace_back(frame);
    }
 }
 /**
@@ -569,7 +569,7 @@ void MarkerData::readStoFile(const string& aFileName)
 void MarkerData::buildMarkerMap(const Storage& storageToReadFrom, std::map<int, std::string>& markerNames)
 {
     const Array<std::string> & labels = storageToReadFrom.getColumnLabels();
-    for (int i=1; i < labels.getSize()-2; i++){
+    for (int i=1; i < labels.size()-2; i++){
         // if label ends in .X, check that two labels that follow are .Y, .Z (case insensitive) with common prefix
         // if so, add to map
         SimTK::String nextLabel(labels.get(i));
@@ -615,7 +615,7 @@ void MarkerData::findFrameRange(double aStartTime, double aEndTime, int& rStartF
 
     for (i = _numFrames - 1; i >= 0 ; i--)
     {
-        if (_frames[i]->getFrameTime() <= aStartTime)
+        if (_frames[i].getFrameTime() <= aStartTime)
         {
             rStartFrame = i;
             break;
@@ -624,7 +624,7 @@ void MarkerData::findFrameRange(double aStartTime, double aEndTime, int& rStartF
 
     for (i = rStartFrame; i < _numFrames; i++)
     {
-        if (_frames[i]->getFrameTime() >= aEndTime - SimTK::Zero)
+        if (_frames[i].getFrameTime() >= aEndTime - SimTK::Zero)
         {
             rEndFrame = i;
             break;
@@ -643,7 +643,7 @@ double MarkerData::getStartFrameTime() const
     if (_numFrames<=0)
         return SimTK::NaN;
 
-    return(_frames[0]->getFrameTime());
+    return(_frames[0].getFrameTime());
 
 }
 /**
@@ -656,7 +656,7 @@ double MarkerData::getLastFrameTime() const
     if (_numFrames<=0)
         return SimTK::NaN;
 
-    return(_frames[_numFrames-1]->getFrameTime());
+    return(_frames[_numFrames-1].getFrameTime());
 }
 
 //_____________________________________________________________________________
@@ -680,23 +680,23 @@ void MarkerData::averageFrames(double aThreshold, double aStartTime, double aEnd
         return;
 
     int startIndex = 0, endIndex = 1;
-    double *minX = NULL, *minY = NULL, *minZ = NULL, *maxX = NULL, *maxY = NULL, *maxZ = NULL;
 
     findFrameRange(aStartTime, aEndTime, startIndex, endIndex);
-    MarkerFrame *averagedFrame = new MarkerFrame(*_frames[startIndex]);
+    MarkerFrame averagedFrame = MarkerFrame(_frames[startIndex]);
 
     /* If aThreshold is greater than zero, then calculate
      * the movement of each marker so you can check if it
      * is greater than aThreshold.
      */
+    std::vector<double> minX(_numMarkers);
+    std::vector<double> minY(_numMarkers);
+    std::vector<double> minZ(_numMarkers);
+    std::vector<double> maxX(_numMarkers);
+    std::vector<double> maxY(_numMarkers);
+    std::vector<double> maxZ(_numMarkers);
+
     if (aThreshold > 0.0)
     {
-        minX = new double [_numMarkers];
-        minY = new double [_numMarkers];
-        minZ = new double [_numMarkers];
-        maxX = new double [_numMarkers];
-        maxY = new double [_numMarkers];
-        maxZ = new double [_numMarkers];
         for (int i = 0; i < _numMarkers; i++)
         {
             minX[i] = minY[i] = minZ[i] =  SimTK::Infinity;
@@ -712,12 +712,12 @@ void MarkerData::averageFrames(double aThreshold, double aStartTime, double aEnd
     for (int i = 0; i < _numMarkers; i++)
     {
         int numFrames = 0;
-        Vec3& avePt = averagedFrame->updMarker(i);
+        Vec3& avePt = averagedFrame.updMarker(i);
         avePt = Vec3(0);
 
         for (int j = startIndex; j <= endIndex; j++)
         {
-            Vec3& pt = _frames[j]->updMarker(i);
+            Vec3& pt = _frames[j].updMarker(i);
             if (!pt.isNaN())
             {
                 Vec3& coords = pt; //.get();
@@ -751,20 +751,20 @@ void MarkerData::averageFrames(double aThreshold, double aStartTime, double aEnd
     /* Store the indices from the file of the first frame and
      * last frame that were averaged, so you can report them later.
      */
-    int startUserIndex = _frames[startIndex]->getFrameNumber();
-    int endUserIndex = _frames[endIndex]->getFrameNumber();
+    int startUserIndex = _frames[startIndex].getFrameNumber();
+    int endUserIndex = _frames[endIndex].getFrameNumber();
 
     /* Now delete all the existing frames and insert the averaged one. */
-    _frames.clearAndDestroy();
-    _frames.append(averagedFrame);
+    _frames.clear();
+    _frames.emplace_back(averagedFrame);
     _numFrames = 1;
-    _firstFrameNumber = _frames[0]->getFrameNumber();
+    _firstFrameNumber = _frames[0].getFrameNumber();
 
     if (aThreshold > 0.0)
     {
         for (int i = 0; i < _numMarkers; i++)
         {
-            Vec3& pt = _frames[0]->updMarker(i);
+            Vec3& pt = _frames[0].updMarker(i);
 
             if (pt.isNaN())
             {
@@ -787,16 +787,6 @@ void MarkerData::averageFrames(double aThreshold, double aStartTime, double aEnd
 
     log_info("Averaged frames from time {} to {} in {} (frames {} to {})",
             aStartTime, aEndTime, _fileName, startUserIndex, endUserIndex);
-
-    if (aThreshold > 0.0)
-    {
-        delete [] minX;
-        delete [] minY;
-        delete [] minZ;
-        delete [] maxX;
-        delete [] maxY;
-        delete [] maxZ;
-    }
 }
 
 //_____________________________________________________________________________
@@ -826,20 +816,19 @@ void MarkerData::makeRdStorage(Storage& rStorage)
      * and add it to the Storage.
      */
     int numColumns = _numMarkers * 3;
-    double* row = new double [numColumns];
+    std::vector<double> row(numColumns);
+
 
     for (int i = 0; i < _numFrames; i++)
     {
         for (int j = 0, index = 0; j < _numMarkers; j++)
         {
-            SimTK::Vec3& marker = _frames[i]->updMarker(j);
+            SimTK::Vec3& marker = _frames[i].updMarker(j);
             for (int k = 0; k < 3; k++)
                 row[index++] = marker[k];
         }
-        rStorage.append(_frames[i]->getFrameTime(), numColumns, row);
+        rStorage.append(_frames[i].getFrameTime(), numColumns, row.data());
     }
-
-    delete [] row;
 }
 
 //_____________________________________________________________________________
@@ -857,8 +846,8 @@ void MarkerData::convertToUnits(const Units& aUnits)
     if (!SimTK::isNaN(scaleFactor))
     {
         /* Scale all marker locations by the conversion factor. */
-        for (int i = 0; i < _frames.getSize(); i++)
-            _frames[i]->scale(scaleFactor);
+        for (size_t i = 0; i < _frames.size(); i++)
+            _frames[i].scale(scaleFactor);
 
         /* Change the units for this object to the new ones. */
         _units = aUnits;
@@ -882,7 +871,7 @@ const MarkerFrame& MarkerData::getFrame(int aIndex) const
     if (aIndex < 0 || aIndex >= _numFrames)
         throw Exception("MarkerData::getFrame() invalid frame index.");
 
-    return *_frames[aIndex];
+    return _frames[aIndex];
 }
 
 //_____________________________________________________________________________
@@ -894,7 +883,7 @@ const MarkerFrame& MarkerData::getFrame(int aIndex) const
  */
 int MarkerData::getMarkerIndex(const string& aName) const
 {
-    for (int i = 0; i < _markerNames.getSize(); i++)
+    for (int i = 0; i < _markerNames.size(); i++)
     {
         if (_markerNames[i] == aName)
             return i;

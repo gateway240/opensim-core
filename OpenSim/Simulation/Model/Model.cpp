@@ -234,7 +234,7 @@ Model::Model(const string &aFileName) :
 Model* Model::clone() const
 {
     // Invoke default copy constructor.
-    Model* clone = new Model(*this);
+    std::unique_ptr<Model> clone = std::make_unique<Model>(*this);
 
     try {
         clone->finalizeFromProperties();
@@ -247,7 +247,7 @@ Model* Model::clone() const
                 err.what());
     }
 
-    return clone;
+    return clone.release();
 }
 
 //_____________________________________________________________________________
@@ -955,11 +955,11 @@ void Model::extendConnectToModel(Model &model)
                 //Now add the constraints that weld the slave to the master at the
                 // body origin
                 std::string pathName = outb->getAbsolutePathString();
-                WeldConstraint* weld = new WeldConstraint(outb->getName()+"_weld",
+                std::unique_ptr<WeldConstraint> weld = std::make_unique<WeldConstraint>(outb->getName()+"_weld",
                                                           *outbMaster, o, *outb, o);
 
                 // include within adopted list of owned components
-                adoptSubcomponent(weld);
+                adoptSubcomponent(weld.get());
                 setNextSubcomponentInSystem(*weld);
             }
         }
@@ -974,13 +974,13 @@ void Model::extendConnectToModel(Model &model)
 
             std::string jname = "free_" + child->getName();
             SimTK::Vec3 zeroVec(0.0);
-            Joint* free = new FreeJoint(jname, *ground, *child);
+            std::unique_ptr<Joint> free = std::make_unique<FreeJoint>(jname, *ground, *child);
             free->isReversed = mob.isReversedFromJoint();
             // TODO: Joints are currently required to be in the JointSet
             // When the reordering of Joints is eliminated (see following else block)
             // this limitation can be removed and the free joint adopted as in
             // internal subcomponent (similar to the weld constraint above)
-            addJoint(free);
+            addJoint(free.get());
             setNextSubcomponentInSystem(*free);
         }
         else{
@@ -1008,10 +1008,10 @@ void Model::extendConnectToModel(Model &model)
         Body&  child = *MultibodyGraphMakerPtrCast<Body>(loop.getChildBodyRef());
 
         if (joint.getConcreteClassName() == "WeldJoint") {
-            WeldConstraint* weld = new WeldConstraint( joint.getName()+"_Loop",
+            std::unique_ptr<WeldConstraint> weld = std::make_unique<WeldConstraint>( joint.getName()+"_Loop",
                 parent, joint.getParentFrame().findTransformInBaseFrame(),
                 child, joint.getChildFrame().findTransformInBaseFrame());
-            adoptSubcomponent(weld);
+            adoptSubcomponent(weld.get());
             setNextSubcomponentInSystem(*weld);
         }
         else if (joint.getConcreteClassName() == "BallJoint") {
