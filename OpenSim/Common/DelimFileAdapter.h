@@ -609,14 +609,14 @@ DelimFileAdapter<T>::extendWrite(const InputTables& absTables,
         } catch(const InvalidTemplateArgument&) {}
     }
     // Write name of the data-type -- vec3, vec6, etc.
-    out_stream << _dataTypeString << "=" << dataTypeName() << "\n";
+    out_stream  << "DataType=" << dataTypeName() << "\n";
     // Write version number.
-    out_stream << _versionString << "=" << _versionNumber << "\n";
-    out_stream << _opensimVersionString << "=" << GetVersion() << "\n";
-    out_stream << _endHeaderString << "\n";
+    out_stream << "version=3"<< "\n";
+    out_stream << "OpenSimVersion=" << GetVersion() << "\n";
+    out_stream << "endheader" << "\n";
 
     // Line containing column labels.
-    out_stream << _timeColumnLabel;
+    out_stream << "time";
     for(unsigned col = 0; col < table->getNumColumns(); ++col)
         out_stream << _delimiterWrite
                    << table->
