@@ -282,9 +282,9 @@ C3DFileAdapter::extendRead(const std::string& fileName) const {
                     row{numPlatform * 3};
             int col{0};
             for (size_t i = 0; i < (size_t)numPlatform; ++i){
-                row[col] = SimTK::Vec3{pf_ref[i].forces()[f](0),
-                                       pf_ref[i].forces()[f](1),
-                                       pf_ref[i].forces()[f](2)};
+                row[col] = SimTK::Vec3{pf_ref[i].forcesRaw()[f](0),
+                                       pf_ref[i].forcesRaw()[f](1),
+                                       pf_ref[i].forcesRaw()[f](2)};
                 ++col;
                 if (forceLocation == ForceLocation::CenterOfPressure){
                     row[col] = SimTK::Vec3{pf_ref[i].CoP()[f](0),
@@ -300,9 +300,9 @@ C3DFileAdapter::extendRead(const std::string& fileName) const {
                                            pf_ref[i].meanCorners()(1),
                                            pf_ref[i].meanCorners()(2)};
                     ++col;
-                    row[col] = SimTK::Vec3{pf_ref[i].moments()[f](0),
-                                           pf_ref[i].moments()[f](1),
-                                           pf_ref[i].moments()[f](2)};
+                    row[col] = SimTK::Vec3{pf_ref[i].momentsRaw()[f](0),
+                                           pf_ref[i].momentsRaw()[f](1),
+                                           pf_ref[i].momentsRaw()[f](2)};
                     ++col;
                 } else {
                     OPENSIM_THROW(Exception,
