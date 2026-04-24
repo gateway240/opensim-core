@@ -179,7 +179,7 @@ SetDefaultCMakeBuildType()
 AddDependency(NAME       ezc3d
               DEFAULT    OFF
               GIT_URL    https://github.com/gateway240/ezc3d.git
-              GIT_TAG    d627803ce100a16dde319686cb31d918f0a162d7
+              GIT_TAG    b8445f1a21ee02ea89d4a6e881ff4dfb56888621
               CMAKE_ARGS -DBUILD_EXAMPLE:BOOL=OFF)
 
 AddDependency(NAME       simbody
