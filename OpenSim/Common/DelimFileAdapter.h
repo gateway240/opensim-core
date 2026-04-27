@@ -187,17 +187,17 @@ private:
     /** Delimiter used for writing. Separates components of an element.       */
     const std::string _compDelimWrite;
     /** String representing the end of header in the file.                    */
-    static const std::string _endHeaderString;
+    inline static const std::string _endHeaderString = "endheader";
     /** Column label of the time column.                                      */
-    static const std::string _timeColumnLabel;
+    inline static const std::string _timeColumnLabel = "time";
     /** Key used to read/write data-type name.                                */
-    static const std::string _dataTypeString;
+    inline static const std::string _dataTypeString = "DataType";
     /** Key used to read/write file version number.                           */
-    static const std::string _versionString;
+    inline static const std::string _versionString = "version";
     /** Key used to read/write OpenSim version number.                        */
-    static const std::string _opensimVersionString;
+    inline static const std::string _opensimVersionString  = "3";
     /** File version number.                                                  */
-    static const std::string _versionNumber;
+    inline static const std::string _versionNumber  = "OpenSimVersion";
 };
 
 
@@ -206,10 +206,6 @@ const std::string
 DelimFileAdapter<T>::tableString() {
     return "table";
 }
-
-template<typename T>
-const std::string 
-DelimFileAdapter<T>::_endHeaderString = "endheader";
 
 template<typename T>
 std::string
@@ -247,26 +243,6 @@ std::string
 DelimFileAdapter<T>::dataTypeName_impl(SimTK::Vec<M>) {
   return std::string{"Vec"} + std::to_string(M);
 }
-
-template<typename T>
-const std::string 
-DelimFileAdapter<T>::_timeColumnLabel = "time";
-
-template<typename T>
-const std::string
-DelimFileAdapter<T>::_dataTypeString = "DataType";
-
-template<typename T>
-const std::string
-DelimFileAdapter<T>::_versionString = "version";
-
-template<typename T>
-const std::string
-DelimFileAdapter<T>::_versionNumber = "3";
-
-template<typename T>
-const std::string
-DelimFileAdapter<T>::_opensimVersionString = "OpenSimVersion";
 
 template<typename T>
 std::string
@@ -609,14 +585,14 @@ DelimFileAdapter<T>::extendWrite(const InputTables& absTables,
         } catch(const InvalidTemplateArgument&) {}
     }
     // Write name of the data-type -- vec3, vec6, etc.
-    out_stream << _dataTypeString << "=" << dataTypeName() << "\n";
+    out_stream << "DataType" << "=" << dataTypeName() << "\n";
     // Write version number.
-    out_stream << _versionString << "=" << _versionNumber << "\n";
-    out_stream << _opensimVersionString << "=" << GetVersion() << "\n";
-    out_stream << _endHeaderString << "\n";
+    out_stream << "version" << "=" << _versionNumber << "\n";
+    out_stream << "OpenSimVersion" << "=" << GetVersion() << "\n";
+    out_stream << "endheader" << "\n";
 
     // Line containing column labels.
-    out_stream << _timeColumnLabel;
+    out_stream << "time";
     for(unsigned col = 0; col < table->getNumColumns(); ++col)
         out_stream << _delimiterWrite
                    << table->
