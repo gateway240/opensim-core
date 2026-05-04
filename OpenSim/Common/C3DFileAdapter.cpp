@@ -361,9 +361,23 @@ C3DFileAdapter::extendRead(const std::string& fileName) const {
 
     // Try to extract analog data and place in a new TimeSeriesTable_<double> 
     std::vector<std::string> analog_labels{};
+    // c3d.parameters().group("ANALOG").print();
+    // // c3d.parameters().group("ANALOG").parameters().data()->print();
+    // auto dims = c3d.parameters()
+    //             .group("ANALOG")
+    //             .parameter("LABELS")
+    //             .dimension();
+
+    // std::cout << "Dimensions: ";
+    // for (auto d : dims) {
+    //     std::cout << d << " ";
+    // }
+    // std::cout << "c3d stuff!" << std::endl;
+
     for (auto label : c3d.parameters().group("ANALOG")
         .parameter("LABELS").valuesAsString()) {
         analog_labels.push_back(SimTK::Value<std::string>(label));
+        // std::cout << "Label: " << label << std::endl;
     }
 
     int numAnalogSignals = (int)analog_labels.size();
