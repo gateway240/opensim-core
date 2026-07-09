@@ -44,8 +44,6 @@ OpenSim::ModelComponentSet<OpenSim::Body>;
 %include <OpenSim/Simulation/Model/BodySet.h>
 
 %include <OpenSim/Simulation/Model/BodyScale.h>
-%template(SetBodyScales) OpenSim::Set<OpenSim::BodyScale, OpenSim::Object>;
-%include <OpenSim/Simulation/Model/BodyScaleSet.h>
 
 %include <OpenSim/Simulation/SimbodyEngine/SimbodyEngine.h>
 %warnfilter(509) OpenSim::TransformAxis;

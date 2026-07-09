@@ -39,11 +39,9 @@ using namespace OpenSim;
 /**
  * Default constructor.
  */
-BodyScale::BodyScale() :
-    _axisNames(_axisNamesProp.getValueStrArray())
+BodyScale::BodyScale()
 {
-    setNull();
-    setupProperties();
+    constructProperties();
 }
 
 //_____________________________________________________________________________
@@ -54,70 +52,14 @@ BodyScale::~BodyScale()
 {
 }
 
-//_____________________________________________________________________________
-/**
- * Copy constructor.
- *
- * @param aBodyScale BodyScale to be copied.
- */
-BodyScale::BodyScale(const BodyScale &aBodyScale) :
-   Object(aBodyScale),
-    _axisNames(_axisNamesProp.getValueStrArray())
-{
-    setNull();
-    setupProperties();
-    copyData(aBodyScale);
-}
-
 //=============================================================================
 // CONSTRUCTION
 //=============================================================================
 //_____________________________________________________________________________
 /**
- * Copy data members from one BodyScale to another.
- *
- * @param aBodyScale BodyScale to be copied.
- */
-void BodyScale::copyData(const BodyScale &aBodyScale)
-{
-    _axisNames = aBodyScale._axisNames;
-}
-
-//_____________________________________________________________________________
-/**
- * Set the data members of this BodyScale to their null values.
- */
-void BodyScale::setNull()
-{
-}
-//_____________________________________________________________________________
-/**
  * Connect properties to local pointers.
  */
-void BodyScale::setupProperties()
+void BodyScale::constructProperties()
 {
-    _axisNamesProp.setComment("Axes (X Y Z) along which to scale a body. "
-        "For example, 'X Y Z' scales along all three axes, and 'Y' scales "
-        "just along the Y axis.");
-    _axisNamesProp.setName("axes");
-    _propertySet.append(&_axisNamesProp);
-}
-
-//=============================================================================
-// OPERATORS
-//=============================================================================
-//_____________________________________________________________________________
-/**
- * Assignment operator.
- *
- * @return Reference to this object.
- */
-BodyScale& BodyScale::operator=(const BodyScale &aBodyScale)
-{
-    // BASE CLASS
-    Object::operator=(aBodyScale);
-
-    copyData(aBodyScale);
-
-    return(*this);
+    constructProperty_axis_names();
 }

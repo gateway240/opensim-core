@@ -25,8 +25,9 @@
 // INCLUDES
 //=============================================================================
 #include "Measurement.h"
-#include <OpenSim/Common/ScaleSet.h>
-#include <OpenSim/Simulation/Model/BodyScaleSet.h>
+#include "OpenSim/Common/Scale.h"
+#include "OpenSim/Simulation/Model/BodyScale.h"
+#include "OpenSim/Tools/MarkerPair.h"
 
 //=============================================================================
 // STATICS
@@ -42,16 +43,7 @@ using SimTK::Vec3;
 /**
  * Default constructor.
  */
-Measurement::Measurement() :
-    _markerPairSetProp(PropertyObj("", MarkerPairSet())),
-    _markerPairSet((MarkerPairSet&)_markerPairSetProp.getValueObj()),
-    _bodyScaleSetProp(PropertyObj("", BodyScaleSet())),
-    _bodyScaleSet((BodyScaleSet&)_bodyScaleSetProp.getValueObj()),
-    _apply(_applyProp.getValueBool())
-{
-    setNull();
-    setupProperties();
-}
+Measurement::Measurement() { constructProperties(); }
 
 //_____________________________________________________________________________
 /**
@@ -61,67 +53,20 @@ Measurement::~Measurement()
 {
 }
 
-//_____________________________________________________________________________
-/**
- * Copy constructor.
- *
- * @param aMeasurement Measurement to be copied.
- */
-Measurement::Measurement(const Measurement &aMeasurement) :
-   Object(aMeasurement),
-    _markerPairSetProp(PropertyObj("", MarkerPairSet())),
-    _markerPairSet((MarkerPairSet&)_markerPairSetProp.getValueObj()),
-    _bodyScaleSetProp(PropertyObj("", BodyScaleSet())),
-    _bodyScaleSet((BodyScaleSet&)_bodyScaleSetProp.getValueObj()),
-    _apply(_applyProp.getValueBool())
-{
-    setNull();
-    setupProperties();
-    copyData(aMeasurement);
-}
-
 //=============================================================================
 // CONSTRUCTION METHODS
 //=============================================================================
 //_____________________________________________________________________________
-/**
- * Copy data members from one Measurement to another.
- *
- * @param aMeasurement Measurement to be copied.
- */
-void Measurement::copyData(const Measurement &aMeasurement)
-{
-    _markerPairSet = aMeasurement._markerPairSet;
-    _bodyScaleSet = aMeasurement._bodyScaleSet;
-    _apply = aMeasurement._apply;
-}
-
-//_____________________________________________________________________________
-/**
- * Set the data members of this Measurement to their null values.
- */
-void Measurement::setNull()
-{
-}
 
 //_____________________________________________________________________________
 /**
  * Connect properties to local pointers.
  */
-void Measurement::setupProperties()
-{
-    _applyProp.setComment("Flag to turn on and off scaling for this measurement.");
-    _applyProp.setName("apply");
-    _applyProp.setValue(true);
-    _propertySet.append(&_applyProp);
+void Measurement::constructProperties() {
+    constructProperty_apply(true);
 
-    _markerPairSetProp.setComment("Set of marker pairs used to determine the scale factors.");
-    _markerPairSetProp.setName("MarkerPairSet");
-    _propertySet.append(&_markerPairSetProp);
-
-    _bodyScaleSetProp.setComment("Set of bodies to be scaled by this measurement.");
-    _bodyScaleSetProp.setName("BodyScaleSet");
-    _propertySet.append(&_bodyScaleSetProp);
+    constructProperty_marker_pair_set();
+    constructProperty_body_scale_set();
 }
 
 //_____________________________________________________________________________
@@ -138,21 +83,12 @@ void Measurement::registerTypes()
 // OPERATORS
 //=============================================================================
 //_____________________________________________________________________________
-/**
- * Assignment operator.
- *
- * @return Reference to this object.
- */
-Measurement& Measurement::operator=(const Measurement &aMeasurement)
-{
-    // BASE CLASS
-    Object::operator=(aMeasurement);
-
-    copyData(aMeasurement);
-
-    return(*this);
+int Measurement::getNumMarkerPairs() const {
+    return getProperty_marker_pair_set().size();
 }
-
+const MarkerPair& Measurement::getMarkerPair(int aIndex) const {
+    return get_marker_pair_set(aIndex);
+}
 /* Apply a scale factor to a scale set, according to the elements of
  * the Measurement's BodyScaleSet.
  */
@@ -164,29 +100,29 @@ Measurement& Measurement::operator=(const Measurement &aMeasurement)
  * @param aFactor the scale factor to apply
  * @param aScaleSet the set of scale factors to modify
  */
-void Measurement::applyScaleFactor(double aFactor, ScaleSet& aScaleSet)
+    void Measurement::applyScaleFactor(double aFactor, ObjectProperty<Scale>& aScaleSet)
 {
-    for (int i = 0; i < _bodyScaleSet.getSize(); i++)
-    {
-        const string& bodyName = _bodyScaleSet[i].getName();
-        for (int j = 0; j < aScaleSet.getSize(); j++)
+    for (int i = 0; i < getProperty_body_scale_set().size(); i++) {
+        const string& bodyName = get_body_scale_set(i).getName();
+        for (int j = 0; j < aScaleSet.size(); j++)
         {
             if (aScaleSet[j].getSegmentName() == bodyName)
             {
-                const Array<std::string>& axisNames = _bodyScaleSet[i].getAxisNames();
-                Vec3 factors(1.0);
-                aScaleSet[j].getScaleFactors(factors);
+                // const auto& axisNames =
+                //         get_body_scale_set(i).getAxisNames();
+                // Vec3 factors(1.0);
+                // aScaleSet[j].getScaleFactors(factors);
 
-                for (int k = 0; k < axisNames.getSize(); k++)
-                {
-                    if (axisNames[k] == "x" || axisNames[k] == "X")
-                        factors[0] = aFactor;
-                    else if (axisNames[k] == "y" || axisNames[k] == "Y")
-                        factors[1] = aFactor;
-                    else if (axisNames[k] == "z" || axisNames[k] == "Z")
-                        factors[2] = aFactor;
-                }
-                aScaleSet[j].setScaleFactors(factors);
+                // for (int k = 0; k < axisNames.getSize(); k++)
+                // {
+                //     if (axisNames[k] == "x" || axisNames[k] == "X")
+                //         factors[0] = aFactor;
+                //     else if (axisNames[k] == "y" || axisNames[k] == "Y")
+                //         factors[1] = aFactor;
+                //     else if (axisNames[k] == "z" || axisNames[k] == "Z")
+                //         factors[2] = aFactor;
+                // }
+                // aScaleSet[j].setScaleFactors(factors);
             }
         }
     }

@@ -7,11 +7,7 @@
 %include <OpenSim/Tools/IKCoordinateTask.h>
 %include <OpenSim/Tools/IKTaskSet.h>
 %include <OpenSim/Tools/MarkerPair.h>
-%template(SetMarkerPairs) OpenSim::Set<OpenSim::MarkerPair, OpenSim::Object>;
-%include <OpenSim/Tools/MarkerPairSet.h>
 %include <OpenSim/Tools/Measurement.h>
-%template(SetMeasurements) OpenSim::Set<OpenSim::Measurement, OpenSim::Object>;
-%include <OpenSim/Tools/MeasurementSet.h>
 %include <OpenSim/Tools/GenericModelMaker.h>
 %include <OpenSim/Tools/ModelScaler.h>
 %include <OpenSim/Tools/MarkerPlacer.h>

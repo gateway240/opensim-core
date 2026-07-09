@@ -82,7 +82,6 @@
 #include <OpenSim/Simulation/Model/BodySet.h>
 
 #include <OpenSim/Simulation/Model/BodyScale.h>
-#include <OpenSim/Simulation/Model/BodyScaleSet.h>
 
 #include <OpenSim/Simulation/SimbodyEngine/Coordinate.h>
 #include <OpenSim/Simulation/Model/CoordinateSet.h>

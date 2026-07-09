@@ -12,9 +12,7 @@
 #include <OpenSim/Tools/IKTaskSet.h>
 
 #include <OpenSim/Tools/MarkerPair.h>
-#include <OpenSim/Tools/MarkerPairSet.h>
 #include <OpenSim/Tools/Measurement.h>
-#include <OpenSim/Tools/MeasurementSet.h>
 
 #include <OpenSim/Tools/GenericModelMaker.h>
 #include <OpenSim/Tools/ModelScaler.h>

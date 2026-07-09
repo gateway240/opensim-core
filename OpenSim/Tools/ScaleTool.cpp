@@ -144,7 +144,7 @@ bool ScaleTool::run() {
     }
 
     if (!isDefaultModelScaler() && getModelScaler().getApply()) {
-        const ModelScaler& scaler = getModelScaler();
+        auto& scaler = upd_model_scaler();
         if (!scaler.processModel(
                     model.get(), getPathToSubject(), getSubjectMass())) {
             return false;

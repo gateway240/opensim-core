@@ -27,7 +27,7 @@
 // INCLUDE
 #include <OpenSim/Simulation/osimSimulationDLL.h>
 #include <OpenSim/Common/Object.h>
-#include <OpenSim/Common/PropertyStrArray.h>
+#include <OpenSim/Common/Property.h>
 
 namespace OpenSim {
 
@@ -46,9 +46,10 @@ OpenSim_DECLARE_CONCRETE_OBJECT(BodyScale, Object);
 //=============================================================================
 // DATA
 //=============================================================================
-protected:
-    PropertyStrArray _axisNamesProp;
-    Array<std::string>& _axisNames;
+public:
+    OpenSim_DECLARE_LIST_PROPERTY(axis_names, std::string, "Axes (X Y Z) along which to scale a body. "
+        "For example, 'X Y Z' scales along all three axes, and 'Y' scales "
+        "just along the Y axis.")
 
 //=============================================================================
 // METHODS
@@ -58,27 +59,20 @@ protected:
     //--------------------------------------------------------------------------
 public:
     BodyScale();
-    BodyScale(const BodyScale &aBodyScale);
     virtual ~BodyScale();
 
-    void copyData(const BodyScale &aBodyScale);
-
-#ifndef SWIG
-    BodyScale& operator=(const BodyScale &aBodyScale);
-    const Array<std::string>& getAxisNames() const { return _axisNames; }
-#endif
-    Array<std::string>& getAxisNames() { return _axisNames; }
+    const auto& getAxisNames() { return getProperty_axis_names(); }
 
     void setAxisNames(const Array<std::string> &aAxisNames) { 
-        _axisNames = aAxisNames;
-        _axisNamesProp.setValueIsDefault(false);
+        
+        // _axisNames = aAxisNames;
+        // _axisNamesProp.setValueIsDefault(false);
     }
 
 protected:
 
 private:
-    void setNull();
-    void setupProperties();
+    void constructProperties();
 //=============================================================================
 };  // END of class BodyScale
 //=============================================================================

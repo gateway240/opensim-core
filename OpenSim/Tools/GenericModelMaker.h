@@ -28,7 +28,7 @@
 #include "osimToolsDLL.h"
 
 #include <OpenSim/Common/Object.h>
-#include <OpenSim/Common/PropertyStr.h>
+#include <OpenSim/Common/Property.h>
 
 #ifdef SWIG
     #ifdef OSIMTOOLS_API
@@ -56,14 +56,13 @@ OpenSim_DECLARE_CONCRETE_OBJECT(GenericModelMaker, Object);
 //=============================================================================
 // DATA
 //=============================================================================
-private:
-
-protected:
-    PropertyStr _fileNameProp;
-    std::string &_fileName;
-
-    PropertyStr _markerSetFileNameProp;
-    std::string &_markerSetFileName;
+public:
+OpenSim_DECLARE_PROPERTY(
+        file_name, std::string, "Model file (.osim) for the unscaled model.");
+OpenSim_DECLARE_PROPERTY(marker_set_file_name, std::string,
+        "Set of model markers used to scale the model. "
+        "Scaling is done based on distances between model markers compared to "
+        "the same distances between the corresponding experimental markers.");
 
 //=============================================================================
 // METHODS
@@ -73,13 +72,7 @@ protected:
     //--------------------------------------------------------------------------
 public:
     GenericModelMaker();
-    GenericModelMaker(const GenericModelMaker &aGenericModelMaker);
     virtual ~GenericModelMaker();
-
-#ifndef SWIG
-    GenericModelMaker& operator=(const GenericModelMaker &aGenericModelMaker);
-#endif
-    void copyData(const GenericModelMaker &aGenericModelMaker);
 
     std::unique_ptr<Model> processModel(const std::string& aPathToSubject = "");
 
@@ -89,33 +82,27 @@ public:
     /**
      * Get file name for generic model
      */
-    const std::string& getModelFileName() const
-    {
-        return _fileName;
-    }
+    const std::string& getModelFileName() const { return get_file_name(); }
 
     // Set model file name
     void setModelFileName(const std::string& aFileName)
     {
-        _fileName = aFileName;
-        _fileNameProp.setValueIsDefault(false);
+        set_file_name(aFileName);
     }
 
     const std::string& getMarkerSetFileName() const
     {
-        return _markerSetFileName;
+        return get_marker_set_file_name();
     }
 
     void setMarkerSetFileName(const std::string& aFileName)
     {
-        _markerSetFileName = aFileName;
-        _markerSetFileNameProp.setValueIsDefault(false);
+        set_marker_set_file_name(aFileName);
     }
 
 private:
-    void setNull();
-    void setupProperties();
-//=============================================================================
+    void constructProperties();
+    //=============================================================================
 };  // END of class GenericModelMaker
 //=============================================================================
 //=============================================================================

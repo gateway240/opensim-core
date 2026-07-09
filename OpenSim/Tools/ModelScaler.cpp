@@ -25,9 +25,14 @@
 // INCLUDES
 //=============================================================================
 #include "ModelScaler.h"
-#include <OpenSim/Simulation/Model/Model.h>
-#include <OpenSim/Common/MarkerData.h>
+
+#include "OpenSim/Common/ScaleSet.h"
+#include "OpenSim/Tools/MarkerPair.h"
+#include "OpenSim/Tools/Measurement.h"
+
 #include <OpenSim/Common/IO.h>
+#include <OpenSim/Common/MarkerData.h>
+#include <OpenSim/Simulation/Model/Model.h>
 
 //=============================================================================
 // STATICS
@@ -42,22 +47,7 @@ using SimTK::Vec3;
 /**
  * Default constructor.
  */
-ModelScaler::ModelScaler() :
-    _apply(_applyProp.getValueBool()),
-    _scalingOrder(_scalingOrderProp.getValueStrArray()),
-    _measurementSetProp(PropertyObj("", MeasurementSet())),
-    _measurementSet((MeasurementSet&)_measurementSetProp.getValueObj()),
-    _scaleSetProp(PropertyObj("", ScaleSet())),
-    _scaleSet((ScaleSet&)_scaleSetProp.getValueObj()),
-    _markerFileName(_markerFileNameProp.getValueStr()),
-    _timeRange(_timeRangeProp.getValueDblArray()),
-    _preserveMassDist(_preserveMassDistProp.getValueBool()),
-    _outputModelFileName(_outputModelFileNameProp.getValueStr()),
-    _outputScaleFileName(_outputScaleFileNameProp.getValueStr())
-{
-    setNull();
-    setupProperties();
-}
+ModelScaler::ModelScaler() { constructProperties(); }
 
 //_____________________________________________________________________________
 /**
@@ -67,115 +57,26 @@ ModelScaler::~ModelScaler()
 {
 }
 
-//_____________________________________________________________________________
-/**
- * Copy constructor.
- *
- * @param aModelScaler ModelScaler to be copied.
- */
-ModelScaler::ModelScaler(const ModelScaler &aModelScaler) :
-   Object(aModelScaler),
-    _apply(_applyProp.getValueBool()),
-    _scalingOrder(_scalingOrderProp.getValueStrArray()),
-    _measurementSetProp(PropertyObj("", MeasurementSet())),
-    _measurementSet((MeasurementSet&)_measurementSetProp.getValueObj()),
-    _scaleSetProp(PropertyObj("", ScaleSet())),
-    _scaleSet((ScaleSet&)_scaleSetProp.getValueObj()),
-   _markerFileName(_markerFileNameProp.getValueStr()),
-    _timeRange(_timeRangeProp.getValueDblArray()),
-    _preserveMassDist(_preserveMassDistProp.getValueBool()),
-    _outputModelFileName(_outputModelFileNameProp.getValueStr()),
-    _outputScaleFileName(_outputScaleFileNameProp.getValueStr())
-{
-    setNull();
-    setupProperties();
-    copyData(aModelScaler);
-}
-
 //=============================================================================
 // CONSTRUCTION
 //=============================================================================
 //_____________________________________________________________________________
-/**
- * Copy data members from one ModelScaler to another.
- *
- * @param aModelScaler ModelScaler to be copied.
- */
-void ModelScaler::copyData(const ModelScaler &aModelScaler)
-{
-    _apply = aModelScaler._apply;
-    _scalingOrder = aModelScaler._scalingOrder;
-    _measurementSet = aModelScaler._measurementSet;
-    _scaleSet = aModelScaler._scaleSet;
-    _markerFileName = aModelScaler._markerFileName;
-    _timeRange = aModelScaler._timeRange;
-    _preserveMassDist = aModelScaler._preserveMassDist;
-    _outputModelFileName = aModelScaler._outputModelFileName;
-    _outputScaleFileName = aModelScaler._outputScaleFileName;
-    _printResultFiles = aModelScaler._printResultFiles;
-}
-
-//_____________________________________________________________________________
-/**
- * Set the data members of this ModelScaler to their null values.
- */
-void ModelScaler::setNull()
-{
-    _apply = true;
-
-    _printResultFiles = true;
-}
-
 //_____________________________________________________________________________
 /**
  * Connect properties to local pointers.
  */
-void ModelScaler::setupProperties()
-{
-    _applyProp.setComment("Whether or not to use the model scaler during scale");
-    _applyProp.setName("apply");
-    _propertySet.append(&_applyProp);
-
-    _scalingOrderProp.setComment("Specifies the scaling method and order. "
-        "Valid options are 'measurements', 'manualScale', singly or both in any sequence.");
-    _scalingOrderProp.setName("scaling_order");
+void ModelScaler::constructProperties() {
+    constructProperty_apply(true);
     Array<string> sorder("");
-    _scalingOrderProp.setValue(sorder);
-    _propertySet.append(&_scalingOrderProp);
-
-    _measurementSetProp.setComment("Specifies the measurements by which body segments are to be scaled.");
-    _measurementSetProp.setName("MeasurementSet");
-    _propertySet.append(&_measurementSetProp);
-
-    _scaleSetProp.setComment("Scale factors to be used for manual scaling.");
-    _scaleSetProp.setName("ScaleSet");
-    _propertySet.append(&_scaleSetProp);
-
-    _markerFileNameProp.setComment("TRC file (.trc) containing the marker positions used for measurement-based scaling. "
-        "This is usually a static trial, but doesn't need to be.  The marker-pair distances are computed for each "
-        "time step in the TRC file and averaged across the time range.");
-    _markerFileNameProp.setName("marker_file");
-    _propertySet.append(&_markerFileNameProp);
-
-    _timeRangeProp.setComment("Time range over which to average marker-pair distances in the marker file (.trc) for "
-        "measurement-based scaling.");
-    const double defaultTimeRange[] = {-1.0, -1.0};
-    _timeRangeProp.setName("time_range");
-    _timeRangeProp.setValue(2, defaultTimeRange);
-    _timeRangeProp.setAllowableListSize(2);
-    _propertySet.append(&_timeRangeProp);
-
-    _preserveMassDistProp.setComment("Flag (true or false) indicating whether or not to preserve relative mass between segments.");
-    _preserveMassDistProp.setName("preserve_mass_distribution");
-    _propertySet.append(&_preserveMassDistProp);
-
-    _outputModelFileNameProp.setComment("Name of OpenSim model file (.osim) to write when done scaling.");
-    _outputModelFileNameProp.setName("output_model_file");
-    _propertySet.append(&_outputModelFileNameProp);
-
-    _outputScaleFileNameProp.setComment("Name of file to write containing the scale factors that were applied to the unscaled model (optional).");
-    _outputScaleFileNameProp.setName("output_scale_file");
-    _propertySet.append(&_outputScaleFileNameProp);
+    constructProperty_scaling_order(sorder);
+    constructProperty_measurement_set();
+    constructProperty_scale_set();
+    constructProperty_marker_file_name("");
+    const Array<double> defaultTimeRange = {-1.0, -1.0};
+    constructProperty_time_range(defaultTimeRange);
+    constructProperty_preserve_mass_dist(true);
+    constructProperty_output_model_file_name("");
+    constructProperty_output_scale_file_name("");
 }
 
 //_____________________________________________________________________________
@@ -189,23 +90,24 @@ void ModelScaler::registerTypes()
     Measurement::registerTypes();
 }
 
-//=============================================================================
-// OPERATORS
-//=============================================================================
-//_____________________________________________________________________________
-/**
- * Assignment operator.
- *
- * @return Reference to this object.
- */
-ModelScaler& ModelScaler::operator=(const ModelScaler &aModelScaler)
-{
-    // BASE CLASS
-    Object::operator=(aModelScaler);
+void ModelScaler::addMeasurement(Measurement* aMeasurement) {
+    updProperty_measurement_set().adoptAndAppendValue(aMeasurement);
+}
+void ModelScaler::addScale(Scale* aScale) {
+    updProperty_scale_set().adoptAndAppendValue(aScale);
+}
 
-    copyData(aModelScaler);
+void ModelScaler::setScaleSetFile(const std::string& aScaleSetFilename) {
+    // set_scale_set(ScaleSet(aScaleSetFilename));
+}
+void ModelScaler::setMeasurementSet(
+        const std::set<Measurement>& measurementSet) {
+    auto& list = updProperty_measurement_set();
+    list.clear();
 
-    return(*this);
+    for (const auto& measurement : measurementSet) {
+        list.adoptAndAppendValue(measurement.clone());
+    }
 }
 
 //=============================================================================
@@ -220,13 +122,13 @@ ModelScaler& ModelScaler::operator=(const ModelScaler &aModelScaler)
  * @param aSubjectMass the final mass of the model after scaling.
  * @return Whether the scaling process was successful or not.
  */
-bool ModelScaler::processModel(Model* aModel, const string& aPathToSubject,
-        double aSubjectMass) const
-{
+bool ModelScaler::processModel(
+        Model* aModel, const string& aPathToSubject, double aSubjectMass) {
     if (!getApply()) return false;
 
     int i;
-    ScaleSet theScaleSet;
+
+    const auto& theScaleSet =  Property<Scale>::TypeHelper::create("the_scale_set", false);
     Vec3 unity(1.0);
 
     log_info("Step 2: Scaling generic model");
@@ -235,11 +137,11 @@ bool ModelScaler::processModel(Model* aModel, const string& aPathToSubject,
      * Initialize all factors to 1.0.
      */
     for (const auto& segment : aModel->getComponentList<PhysicalFrame>()) {
-        Scale* segmentScale = new Scale();
-        segmentScale->setSegmentName(segment.getName());
-        segmentScale->setScaleFactors(unity);
-        segmentScale->setApply(true);
-        theScaleSet.adoptAndAppend(segmentScale);
+        Scale segmentScale = Scale();
+        segmentScale.setSegmentName(segment.getName());
+        segmentScale.setScaleFactors(unity);
+        segmentScale.setApply(true);
+        theScaleSet->appendValue(&segmentScale);
     }
 
     SimTK::State& s = aModel->initSystem();
@@ -248,84 +150,96 @@ bool ModelScaler::processModel(Model* aModel, const string& aPathToSubject,
     try
     {
         /* Make adjustments to theScaleSet, in the user-specified order. */
-        for (i = 0; i < _scalingOrder.getSize(); i++)
-        {
+        for (i = 0; i < getProperty_scaling_order().size(); i++) {
             /* For measurements, measure the distance between a pair of markers
              * in the model, and in the static pose. The latter divided by the
              * former is the scale factor. Put that scale factor in theScaleSet,
              * using the body/axis names specified in the measurement to
              * determine in what place[s] to put the factor.
              */
-            if (_scalingOrder[i] == "measurements")
-            {
+            if (get_scaling_order(i) == "measurements") {
                 /* Load the static pose marker file, and convert units.
                 */
                 std::unique_ptr<MarkerData> markerData{};
-                if(!_markerFileName.empty() && _markerFileName!=PropertyStr::getDefaultStr()) {
-                    markerData.reset(new MarkerData(aPathToSubject + _markerFileName));
+                if (!get_marker_file_name().empty() &&
+                        get_marker_file_name() !=
+                                PropertyStr::getDefaultStr()) {
+                    markerData.reset(new MarkerData(
+                            aPathToSubject + get_marker_file_name()));
                     markerData->convertToUnits(aModel->getLengthUnits());
                 }
 
                 /* Now take and apply the measurements. */
-                for (int j = 0; j < _measurementSet.getSize(); j++)
-                {
-                    if (_measurementSet.get(j).getApply())
-                    {
+                for (int j = 0; j < getProperty_measurement_set().size(); j++) {
+                    if (get_measurement_set(j).getApply()) {
                         if(!markerData)
-                            throw Exception("ModelScaler.processModel: ERROR- "+_markerFileNameProp.getName()+
-                                                " not set but measurements are used",__FILE__,__LINE__);
-                        double scaleFactor = computeMeasurementScaleFactor(s,*aModel, *markerData, _measurementSet.get(j));
+                            throw Exception(
+                                    "ModelScaler.processModel: ERROR- " +
+                                            getProperty_marker_file_name()
+                                                    .getName() +
+                                            " not set but measurements are "
+                                            "used",
+                                    __FILE__, __LINE__);
+                        double scaleFactor = computeMeasurementScaleFactor(s,
+                                *aModel, *markerData, get_measurement_set(j));
                         if (!SimTK::isNaN(scaleFactor))
-                            _measurementSet.get(j).applyScaleFactor(scaleFactor, theScaleSet);
+                            upd_measurement_set(j).applyScaleFactor(
+                                    scaleFactor, *theScaleSet);
                         else
-                            log_warn("'{}' measurement not used to scale {}", 
-                                _measurementSet.get(j).getName(),
-                                aModel->getName());
+                            log_warn("'{}' measurement not used to scale {}",
+                                    get_measurement_set(j).getName(),
+                                    aModel->getName());
                     }
                 }
             }
             /* For manual scales, just copy the XYZ scale factors from
              * the manual scale into theScaleSet.
              */
-            else if (_scalingOrder[i] == "manualScale")
-            {
-                for (int j = 0; j < _scaleSet.getSize(); j++)
-                {
-                    if (_scaleSet[j].getApply())
-                    {
-                        const string& bodyName = _scaleSet[j].getSegmentName();
+            else if (get_scaling_order(i) == "manualScale") {
+                for (int j = 0; j < getProperty_scale_set().size(); j++) {
+                    if (get_scale_set(j).getApply()) {
+                        const string& bodyName =
+                                get_scale_set(j).getSegmentName();
                         Vec3 factors(1.0);
-                        _scaleSet[j].getScaleFactors(factors);
-                        for (int k = 0; k < theScaleSet.getSize(); k++)
+                        get_scale_set(j).getScaleFactors(factors);
+                        for (int k = 0; k < theScaleSet->size(); k++)
                         {
-                            if (theScaleSet[k].getSegmentName() == bodyName)
-                                theScaleSet[k].setScaleFactors(factors);
+                            if (theScaleSet->getValue(k).getSegmentName() == bodyName)
+                                theScaleSet->updValue(k).setScaleFactors(factors);
                         }
                     }
                 }
-            }
-            else
-            {
-                throw Exception("ModelScaler: ERR- Unrecognized string '"+_scalingOrder[i]+"' in "+_scalingOrderProp.getName()+" property (expecting 'measurements' or 'manualScale').",__FILE__,__LINE__);
+            } else {
+                throw Exception("ModelScaler: ERR- Unrecognized string '" +
+                                        get_scaling_order(i) + "' in " +
+                                        getProperty_scaling_order().getName() +
+                                        " property (expecting 'measurements' "
+                                        "or 'manualScale').",
+                        __FILE__, __LINE__);
             }
         }
 
         /* Now scale the model. */
-        aModel->scale(s, theScaleSet, _preserveMassDist, aSubjectMass);
+        ScaleSet scaleSet;
+        for (int i = 0; i < theScaleSet->size(); i++)
+        {
+            scaleSet.cloneAndAppend(theScaleSet->getValue(i));
+        }
+        aModel->scale(s, scaleSet, get_preserve_mass_dist(), aSubjectMass);
 
-        if(_printResultFiles) {
+        if (get_print_result_files()) {
             auto cwd = IO::CwdChanger::changeTo(aPathToSubject);
 
-            if (_outputModelFileNameProp.isValidFileName()) {
-                if (aModel->print(_outputModelFileName))
+            if (getProperty_output_model_file_name().isValidFileName()) {
+                if (aModel->print(get_output_model_file_name()))
                     log_info("Wrote model file '{}' from model.",
-                        _outputModelFileName, aModel->getName());
+                            get_output_model_file_name(), aModel->getName());
             }
 
-            if (_outputScaleFileNameProp.isValidFileName()) {
-                if (theScaleSet.print(_outputScaleFileName))
+            if (getProperty_output_scale_file_name().isValidFileName()) {
+                if (scaleSet.print(get_output_scale_file_name()))
                     log_info("Wrote scale file '{}' for model {}.",
-                        _outputScaleFileName, aModel->getName());
+                            get_output_scale_file_name(), aModel->getName());
             }
         }
     }
@@ -396,10 +310,11 @@ double ModelScaler::takeExperimentalMarkerMeasurement(const MarkerData& aMarkerD
     int marker2 = experimentalMarkerNames.findIndex(aName2);
     if (marker1 >= 0 && marker2 >= 0) {
         int startIndex, endIndex;
-        if (_timeRange.getSize()<2) 
+        if (getProperty_time_range().size() < 2)
             throw Exception("ModelScaler::takeExperimentalMarkerMeasurement, time_range is unspecified.");
 
-        aMarkerData.findFrameRange(_timeRange[0], _timeRange[1], startIndex, endIndex);
+        aMarkerData.findFrameRange(
+                get_time_range(0), get_time_range(1), startIndex, endIndex);
         double length = 0;
         for(int i=startIndex; i<=endIndex; i++) {
             Vec3 p1 = aMarkerData.getFrame(i).getMarker(marker1);

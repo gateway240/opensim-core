@@ -42,10 +42,8 @@
 #include "IKMarkerTask.h"
 #include "IKTaskSet.h"
 #include "MarkerPair.h"
-#include "MarkerPairSet.h"
 #include "MarkerPlacer.h"
 #include "Measurement.h"
-#include "MeasurementSet.h"
 #include "ModelScaler.h"
 #include "CMC.h"
 #include "CMC_Point.h"
@@ -87,10 +85,8 @@ OSIMTOOLS_API void RegisterTypes_osimTools()
     Object::registerType( IKMarkerTask() );
     Object::registerType( IKTaskSet() );
     Object::registerType( MarkerPair() );
-    Object::registerType( MarkerPairSet() );
     Object::registerType( MarkerPlacer() );
     Object::registerType( Measurement() );
-    Object::registerType( MeasurementSet() );
     Object::registerType( ModelScaler() );
 
     Object::registerType( CorrectionController() );

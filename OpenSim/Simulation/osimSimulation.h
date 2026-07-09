@@ -35,7 +35,6 @@
 #include "Model/ForceProducer.h"
 #include "Model/ForceSet.h"
 #include "Model/BodyScale.h"
-#include "Model/BodyScaleSet.h"
 #include "Model/BodySet.h"
 #include "Model/ConstraintSet.h"
 #include "Model/ContactGeometry.h"
