@@ -39,10 +39,7 @@ using namespace OpenSim;
 /**
  * Default constructor.
  */
-BodyScale::BodyScale()
-{
-    constructProperties();
-}
+BodyScale::BodyScale() { constructProperties(); }
 
 //_____________________________________________________________________________
 /**
@@ -59,7 +56,4 @@ BodyScale::~BodyScale()
 /**
  * Connect properties to local pointers.
  */
-void BodyScale::constructProperties()
-{
-    constructProperty_axis_names();
-}
+void BodyScale::constructProperties() { constructProperty_axis_names(); }

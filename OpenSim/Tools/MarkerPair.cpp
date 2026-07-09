@@ -26,6 +26,7 @@
 // INCLUDES
 //=============================================================================
 #include "MarkerPair.h"
+
 #include "OpenSim/Common/Array.h"
 
 //=============================================================================
@@ -43,10 +44,7 @@ using namespace std;
 /**
  * Default constructor.
  */
-MarkerPair::MarkerPair()
-{
-    constructProperties();
-}
+MarkerPair::MarkerPair() { constructProperties(); }
 
 //_____________________________________________________________________________
 /**
@@ -56,17 +54,13 @@ MarkerPair::~MarkerPair()
 {
 }
 
-
 //_____________________________________________________________________________
 /**
  */
-MarkerPair::MarkerPair(const std::string &aName1, const std::string &aName2)
-{
+MarkerPair::MarkerPair(const std::string& aName1, const std::string& aName2) {
     updProperty_marker_names().appendValue(aName1);
     updProperty_marker_names().appendValue(aName2);
 }
-
-
 
 //=============================================================================
 // CONSTRUCTION
@@ -77,8 +71,7 @@ MarkerPair::MarkerPair(const std::string &aName1, const std::string &aName2)
 /**
  * Connect properties to local pointers.
  */
-void MarkerPair::constructProperties()
-{
+void MarkerPair::constructProperties() {
     Array<std::string> markerNames{"", ""};
     constructProperty_marker_names(markerNames);
 }

@@ -128,7 +128,8 @@ bool ModelScaler::processModel(
 
     int i;
 
-    const auto& theScaleSet =  Property<Scale>::TypeHelper::create("the_scale_set", false);
+    const auto& theScaleSet =
+            Property<Scale>::TypeHelper::create("the_scale_set", false);
     Vec3 unity(1.0);
 
     log_info("Step 2: Scaling generic model");
@@ -162,8 +163,7 @@ bool ModelScaler::processModel(
                 */
                 std::unique_ptr<MarkerData> markerData{};
                 if (!get_marker_file_name().empty() &&
-                        get_marker_file_name() !=
-                                PropertyStr::getDefaultStr()) {
+                        !getProperty_marker_file_name().getValueIsDefault()) {
                     markerData.reset(new MarkerData(
                             aPathToSubject + get_marker_file_name()));
                     markerData->convertToUnits(aModel->getLengthUnits());
@@ -200,12 +200,12 @@ bool ModelScaler::processModel(
                     if (get_scale_set(j).getApply()) {
                         const string& bodyName =
                                 get_scale_set(j).getSegmentName();
-                        Vec3 factors(1.0);
-                        get_scale_set(j).getScaleFactors(factors);
-                        for (int k = 0; k < theScaleSet->size(); k++)
-                        {
-                            if (theScaleSet->getValue(k).getSegmentName() == bodyName)
-                                theScaleSet->updValue(k).setScaleFactors(factors);
+                        const auto& factors = get_scale_set(j).get_scale_factors();
+                        for (int k = 0; k < theScaleSet->size(); k++) {
+                            if (theScaleSet->getValue(k).getSegmentName() ==
+                                    bodyName)
+                                theScaleSet->updValue(k).setScaleFactors(
+                                        factors);
                         }
                     }
                 }
@@ -221,8 +221,7 @@ bool ModelScaler::processModel(
 
         /* Now scale the model. */
         ScaleSet scaleSet;
-        for (int i = 0; i < theScaleSet->size(); i++)
-        {
+        for (int i = 0; i < theScaleSet->size(); i++) {
             scaleSet.cloneAndAppend(theScaleSet->getValue(i));
         }
         aModel->scale(s, scaleSet, get_preserve_mass_dist(), aSubjectMass);

@@ -26,6 +26,7 @@
 
 // INCLUDE
 #include "osimToolsDLL.h"
+
 #include <OpenSim/Common/Object.h>
 #include <OpenSim/Common/Property.h>
 //=============================================================================
@@ -48,11 +49,13 @@ OpenSim_DECLARE_CONCRETE_OBJECT(MarkerPair, Object);
 private:
 
 protected:
-    OpenSim_DECLARE_LIST_PROPERTY_SIZE(marker_names, std::string, 2, "Names of two markers, the distance between which is used to compute a body scale factor.");
+    OpenSim_DECLARE_LIST_PROPERTY_SIZE(marker_names, std::string, 2,
+            "Names of two markers, the distance between which is used to "
+            "compute a body scale factor.");
 
-//=============================================================================
-// METHODS
-//=============================================================================
+    //=============================================================================
+    // METHODS
+    //=============================================================================
     //--------------------------------------------------------------------------
     // CONSTRUCTION
     //--------------------------------------------------------------------------
@@ -61,23 +64,22 @@ public:
     MarkerPair(const std::string &aName1, const std::string &aName2);
     virtual ~MarkerPair();
 
-
     void getMarkerNames(std::string& aName1, std::string& aName2) const;
-    const std::string &getMarkerName(int i) const { 
-        if (getProperty_marker_names().size() < i+1)
+    const std::string &getMarkerName(int i) const {
+        if (getProperty_marker_names().size() < i + 1)
             throw Exception("MarkerPair: ERROR- Pair has incorrect number of Marker names, 2 required.",
                              __FILE__,__LINE__);
-        return get_marker_names(i); 
+        return get_marker_names(i);
     }
-    void setMarkerName(int i, const std::string &aName) { 
-        // _markerNames.set(i,aName); 
+    void setMarkerName(int i, const std::string& aName) {
+        // _markerNames.set(i,aName);
     }
 
 protected:
 
 private:
     void constructProperties();
-//=============================================================================
+    //=============================================================================
 };  // END of class MarkerPair
 
 }; //namespace

@@ -25,6 +25,7 @@
 // INCLUDES
 //=============================================================================
 #include "Measurement.h"
+
 #include "OpenSim/Common/Scale.h"
 #include "OpenSim/Simulation/Model/BodyScale.h"
 #include "OpenSim/Tools/MarkerPair.h"
@@ -100,29 +101,25 @@ const MarkerPair& Measurement::getMarkerPair(int aIndex) const {
  * @param aFactor the scale factor to apply
  * @param aScaleSet the set of scale factors to modify
  */
-    void Measurement::applyScaleFactor(double aFactor, ObjectProperty<Scale>& aScaleSet)
-{
+void Measurement::applyScaleFactor(
+        double aFactor, ObjectProperty<Scale>& aScaleSet) {
     for (int i = 0; i < getProperty_body_scale_set().size(); i++) {
         const string& bodyName = get_body_scale_set(i).getName();
-        for (int j = 0; j < aScaleSet.size(); j++)
-        {
+        const auto& axisNames =
+                        get_body_scale_set(i).getProperty_axis_names();
+        for (int j = 0; j < aScaleSet.size(); j++) {
             if (aScaleSet[j].getSegmentName() == bodyName)
             {
-                // const auto& axisNames =
-                //         get_body_scale_set(i).getAxisNames();
-                // Vec3 factors(1.0);
-                // aScaleSet[j].getScaleFactors(factors);
-
-                // for (int k = 0; k < axisNames.getSize(); k++)
-                // {
-                //     if (axisNames[k] == "x" || axisNames[k] == "X")
-                //         factors[0] = aFactor;
-                //     else if (axisNames[k] == "y" || axisNames[k] == "Y")
-                //         factors[1] = aFactor;
-                //     else if (axisNames[k] == "z" || axisNames[k] == "Z")
-                //         factors[2] = aFactor;
-                // }
-                // aScaleSet[j].setScaleFactors(factors);
+                auto& factors = aScaleSet[j].upd_scale_factors();
+                for (int k = 0; k < axisNames.size(); k++)
+                {
+                    if (axisNames[k] == "x" || axisNames[k] == "X")
+                        factors[0] = aFactor;
+                    else if (axisNames[k] == "y" || axisNames[k] == "Y")
+                        factors[1] = aFactor;
+                    else if (axisNames[k] == "z" || axisNames[k] == "Z")
+                        factors[2] = aFactor;
+                }
             }
         }
     }

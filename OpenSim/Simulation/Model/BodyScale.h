@@ -25,9 +25,9 @@
 
 
 // INCLUDE
-#include <OpenSim/Simulation/osimSimulationDLL.h>
 #include <OpenSim/Common/Object.h>
 #include <OpenSim/Common/Property.h>
+#include <OpenSim/Simulation/osimSimulationDLL.h>
 
 namespace OpenSim {
 
@@ -47,33 +47,33 @@ OpenSim_DECLARE_CONCRETE_OBJECT(BodyScale, Object);
 // DATA
 //=============================================================================
 public:
-    OpenSim_DECLARE_LIST_PROPERTY(axis_names, std::string, "Axes (X Y Z) along which to scale a body. "
+OpenSim_DECLARE_LIST_PROPERTY(axis_names, std::string,
+        "Axes (X Y Z) along which to scale a body. "
         "For example, 'X Y Z' scales along all three axes, and 'Y' scales "
         "just along the Y axis.")
 
-//=============================================================================
-// METHODS
-//=============================================================================
-    //--------------------------------------------------------------------------
-    // CONSTRUCTION
-    //--------------------------------------------------------------------------
-public:
-    BodyScale();
-    virtual ~BodyScale();
+        //=============================================================================
+        // METHODS
+        //=============================================================================
+        //--------------------------------------------------------------------------
+        // CONSTRUCTION
+        //--------------------------------------------------------------------------
+        public : BodyScale();
+virtual ~BodyScale();
 
-    const auto& getAxisNames() { return getProperty_axis_names(); }
+const auto& getAxisNames() { return getProperty_axis_names(); }
 
-    void setAxisNames(const Array<std::string> &aAxisNames) { 
-        
-        // _axisNames = aAxisNames;
-        // _axisNamesProp.setValueIsDefault(false);
-    }
+void setAxisNames(const Array<std::string>& aAxisNames) {
+
+    // _axisNames = aAxisNames;
+    // _axisNamesProp.setValueIsDefault(false);
+}
 
 protected:
 
 private:
     void constructProperties();
-//=============================================================================
+    //=============================================================================
 };  // END of class BodyScale
 //=============================================================================
 //=============================================================================

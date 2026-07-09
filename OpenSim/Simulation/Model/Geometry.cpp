@@ -28,12 +28,13 @@
 
 #include "Frame.h"
 #include "Model.h"
-
 #include <filesystem>
 #include <fstream>
 #include <memory>
 #include <optional>
 #include <utility>
+
+#include <OpenSim/Common/PropertyStr.h>
 
 //=============================================================================
 // STATICS
