@@ -110,35 +110,34 @@ void ScaleTool::setPrintResultFiles(bool aToWrite) {
  *
  * @return Pointer to the Model that is created.
  */
-SimTK::ReferencePtr<Model> ScaleTool::createModel() {
+std::unique_ptr<Model> ScaleTool::createModel() {
     log_info("Processing subject {}...", getName());
 
-    /* Make the generic model. */
-    if (!isDefaultGenericModelMaker()) {
-        _model = upd_generic_model_maker().processModel(get_path_to_subject());
-        if (_model.empty()) {
-            // processModel() attempts to load both the model and market set
-            // file. _pathToSubject might be misleading of model path was
-            // given as an aboslute path in the setup file, so it was
-            // removed from this error message.
-            log_error("Unable to load the generic model or marker set file.");
-            return _model;
-        } else {
-            _model->setName(getName());
-            return _model;
-        }
-    } else {
+    if (isDefaultGenericModelMaker()) {
         log_warn("ScaleTool::createModel: Unscaled model not specified ({} "
                  "section missing from setup file).",
                 get_generic_model_maker().getName());
+        return nullptr;
     }
-    return _model;
+    auto model = upd_generic_model_maker().processModel(get_path_to_subject());
+
+    if (!model) {
+        // processModel() attempts to load both the model and market set
+        // file. _pathToSubject might be misleading if model path was
+        // given as an aboslute path in the setup file, so it was
+        // removed from this error message.
+        log_error("Unable to load the generic model or marker set file.");
+    } else {
+        model->setName(getName());
+    }
+
+    return model;
 }
 
 bool ScaleTool::run() {
-    std::unique_ptr<Model> model(createModel().get());
+    std::unique_ptr<Model> model = createModel();
 
-    if (_model == nullptr) {
+    if (!model) {
         string msg = "ScaleTool: No model specified.";
         log_error(msg);
         throw Exception(msg, __FILE__, __LINE__);
@@ -147,7 +146,7 @@ bool ScaleTool::run() {
     if (!isDefaultModelScaler() && getModelScaler().getApply()) {
         const ModelScaler& scaler = getModelScaler();
         if (!scaler.processModel(
-                    _model.get(), getPathToSubject(), getSubjectMass())) {
+                    model.get(), getPathToSubject(), getSubjectMass())) {
             return false;
         }
     } else {
@@ -157,7 +156,7 @@ bool ScaleTool::run() {
 
     if (!isDefaultMarkerPlacer()) {
         const MarkerPlacer& placer = getMarkerPlacer();
-        if (!placer.processModel(_model.get(), getPathToSubject())) {
+        if (!placer.processModel(model.get(), getPathToSubject())) {
             return false;
         }
     } else {

@@ -25,6 +25,9 @@
 // INCLUDES
 //=============================================================================
 #include "GenericModelMaker.h"
+
+#include <memory>
+
 #include <OpenSim/Simulation/Model/Model.h>
 
 //=============================================================================
@@ -151,29 +154,28 @@ GenericModelMaker& GenericModelMaker::operator=(const GenericModelMaker &aGeneri
  *
  * @return Pointer to the Model that is constructed.
  */
-SimTK::ReferencePtr<Model> GenericModelMaker::processModel(
+std::unique_ptr<Model> GenericModelMaker::processModel(
         const string& aPathToSubject) {
     log_info("Step 1: Loading generic model");
     try
     {
         std::string modelPath = 
             SimTK::Pathname::getAbsolutePathnameUsingSpecifiedWorkingDirectory(aPathToSubject, _fileName);
-        _model.reset(new Model(modelPath));
-        _model->initSystem();
+        auto model = std::make_unique<Model>(modelPath);
+        model->initSystem();
 
         if (!_markerSetFileNameProp.getValueIsDefault() && _markerSetFileName !="Unassigned") {
             std::string markerSetPath = 
                 SimTK::Pathname::getAbsolutePathnameUsingSpecifiedWorkingDirectory(aPathToSubject, _markerSetFileName);
             log_info("Loading marker set from '{}'.", markerSetPath);
             MarkerSet *markerSet = new MarkerSet(markerSetPath);
-            _model->updateMarkerSet(*markerSet);
+            model->updateMarkerSet(*markerSet);
         }
+        return model;
     }
     catch (const Exception& x)
     {
         log_error(x.what());
         return nullptr;
     }
-
-    return _model;
 }

@@ -26,19 +26,17 @@
 
 // INCLUDE
 #include "osimToolsDLL.h"
+#include <memory>
 #include <string>
 
 #include <OpenSim/Common/Object.h>
 #include <OpenSim/Common/Property.h>
-
-#include <SimTKcommon/internal/ReferencePtr.h>
 namespace OpenSim {
 
 class GenericModelMaker;
 class ModelScaler;
 class MarkerPlacer;
 class Model;
-
 
 //=============================================================================
 //=============================================================================
@@ -81,8 +79,6 @@ OpenSim_DECLARE_PROPERTY(path_to_subject, std::string,
         "absolute "
         "path is needed later.");
 
-private:
-SimTK::ReferencePtr<Model> _model;
 //=============================================================================
 // METHODS
 //=============================================================================
@@ -94,7 +90,7 @@ public:
     ScaleTool(const std::string& aFileName) SWIG_DECLARE_EXCEPTION;
     virtual ~ScaleTool();
 
-    SimTK::ReferencePtr<Model> createModel();
+    std::unique_ptr<Model> createModel();
     /* Query the subject for different parameters */
     const GenericModelMaker& getGenericModelMaker() const {
         return get_generic_model_maker();
