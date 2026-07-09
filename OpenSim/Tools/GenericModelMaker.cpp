@@ -151,32 +151,29 @@ GenericModelMaker& GenericModelMaker::operator=(const GenericModelMaker &aGeneri
  *
  * @return Pointer to the Model that is constructed.
  */
-Model* GenericModelMaker::processModel(const string& aPathToSubject) const
-{
-    Model* model = NULL;
-
+SimTK::ReferencePtr<Model> GenericModelMaker::processModel(
+        const string& aPathToSubject) {
     log_info("Step 1: Loading generic model");
-
     try
     {
         std::string modelPath = 
             SimTK::Pathname::getAbsolutePathnameUsingSpecifiedWorkingDirectory(aPathToSubject, _fileName);
-        model = new Model(modelPath);
-        model->initSystem();
+        _model.reset(new Model(modelPath));
+        _model->initSystem();
 
         if (!_markerSetFileNameProp.getValueIsDefault() && _markerSetFileName !="Unassigned") {
             std::string markerSetPath = 
                 SimTK::Pathname::getAbsolutePathnameUsingSpecifiedWorkingDirectory(aPathToSubject, _markerSetFileName);
             log_info("Loading marker set from '{}'.", markerSetPath);
             MarkerSet *markerSet = new MarkerSet(markerSetPath);
-            model->updateMarkerSet(*markerSet);
+            _model->updateMarkerSet(*markerSet);
         }
     }
     catch (const Exception& x)
     {
         log_error(x.what());
-        return NULL;
+        return nullptr;
     }
 
-    return model;
+    return _model;
 }

@@ -26,8 +26,11 @@
 
 // INCLUDE
 #include "osimToolsDLL.h"
+
 #include <OpenSim/Common/Object.h>
 #include <OpenSim/Common/PropertyStr.h>
+
+#include <SimTKcommon/internal/ReferencePtr.h>
 
 #ifdef SWIG
     #ifdef OSIMTOOLS_API
@@ -58,6 +61,7 @@ OpenSim_DECLARE_CONCRETE_OBJECT(GenericModelMaker, Object);
 private:
 
 protected:
+    SimTK::ReferencePtr<Model> _model;
     PropertyStr _fileNameProp;
     std::string &_fileName;
 
@@ -80,7 +84,8 @@ public:
 #endif
     void copyData(const GenericModelMaker &aGenericModelMaker);
 
-    Model* processModel(const std::string& aPathToSubject="") const;
+    SimTK::ReferencePtr<Model> processModel(
+            const std::string& aPathToSubject = "");
 
     /* Register types to be used when reading a GenericModelMaker object from xml file. */
     static void registerTypes();
