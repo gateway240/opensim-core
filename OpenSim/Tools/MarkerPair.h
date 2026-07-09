@@ -65,7 +65,7 @@ public:
     virtual ~MarkerPair();
 
     void getMarkerNames(std::string& aName1, std::string& aName2) const;
-    const std::string &getMarkerName(int i) const {
+    const std::string& getMarkerName(int i) const {
         if (getProperty_marker_names().size() < i + 1)
             throw Exception("MarkerPair: ERROR- Pair has incorrect number of Marker names, 2 required.",
                              __FILE__,__LINE__);

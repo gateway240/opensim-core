@@ -40,7 +40,6 @@
 #include "GenericModelMaker.h"
 #include "IKCoordinateTask.h"
 #include "IKMarkerTask.h"
-#include "IKTaskSet.h"
 #include "MarkerPair.h"
 #include "MarkerPlacer.h"
 #include "Measurement.h"
@@ -83,7 +82,6 @@ OSIMTOOLS_API void RegisterTypes_osimTools()
     Object::registerType( GenericModelMaker() );
     Object::registerType( IKCoordinateTask() );
     Object::registerType( IKMarkerTask() );
-    Object::registerType( IKTaskSet() );
     Object::registerType( MarkerPair() );
     Object::registerType( MarkerPlacer() );
     Object::registerType( Measurement() );

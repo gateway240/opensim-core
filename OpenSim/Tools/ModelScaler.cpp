@@ -200,7 +200,8 @@ bool ModelScaler::processModel(
                     if (get_scale_set(j).getApply()) {
                         const string& bodyName =
                                 get_scale_set(j).getSegmentName();
-                        const auto& factors = get_scale_set(j).get_scale_factors();
+                        const auto& factors =
+                                get_scale_set(j).get_scale_factors();
                         for (int k = 0; k < theScaleSet->size(); k++) {
                             if (theScaleSet->getValue(k).getSegmentName() ==
                                     bodyName)

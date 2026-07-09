@@ -21,11 +21,13 @@
 #include "MocoStudy.h"
 #include "MocoTool.h"
 #include "MocoWeightSet.h"
+#include "OpenSim/Simulation/MarkersReference.h"
+#include "OpenSim/Tools/IKMarkerTask.h"
+#include "OpenSim/Tools/IKTask.h"
 #include "osimMocoDLL.h"
 
-#include <OpenSim/Simulation/TableProcessor.h>
 #include <OpenSim/Simulation/Model/Model.h>
-#include <OpenSim/Tools/IKTaskSet.h>
+#include <OpenSim/Simulation/TableProcessor.h>
 
 namespace OpenSim {
 
@@ -274,10 +276,19 @@ public:
         set_markers_weight_set(mocoMarkerWeightSet);
     }
 
-    /// Set the marker weights based on the IKMarkerTask objects of an IKTaskSet. 
-    void setMarkerWeightsFromIKTaskSet(const IKTaskSet& ikTaskSet) {
+    /// Set the marker weights based on the IKMarkerTask objects of an IKTaskSet.
+    void setMarkerWeightsFromIKTaskSet(const Property<IKTask>& ikTaskSet) {
         Set<MarkerWeight> markerWeightSet;
-        ikTaskSet.createMarkerWeightSet(markerWeightSet);
+        for (int i = 0; i < ikTaskSet.size(); i++) {
+            if (const IKMarkerTask* nextTask =
+                            dynamic_cast<const IKMarkerTask*>(
+                                    &ikTaskSet.getValue(i))) {
+                if (nextTask->getApply()) {
+                    markerWeightSet.cloneAndAppend(MarkerWeight(
+                            nextTask->getName(), nextTask->getWeight()));
+                }
+            }
+        }
         setMarkerWeightsFromMarkerWeightSet(markerWeightSet);
     }
 

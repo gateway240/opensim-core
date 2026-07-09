@@ -24,12 +24,14 @@
  * -------------------------------------------------------------------------- */
 
 #include "osimToolsDLL.h"
+
 #include <OpenSim/Common/Object.h>
-#include <OpenSim/Tools/IKTaskSet.h>
+#include <OpenSim/Common/Property.h>
 #include <OpenSim/Tools/InverseKinematicsToolBase.h>
 
 namespace OpenSim {
 
+class IKTask;
 class Model;
 class MarkersReference;
 class CoordinateReference;
@@ -50,11 +52,11 @@ class OSIMTOOLS_API InverseKinematicsTool : public InverseKinematicsToolBase {
     OpenSim_DECLARE_CONCRETE_OBJECT(InverseKinematicsTool, InverseKinematicsToolBase);
 
 public:
-
-    OpenSim_DECLARE_UNNAMED_PROPERTY(
-            IKTaskSet, 
-            "Markers and coordinates to be considered (tasks) and their weightings. "
-            "The sum of weighted-squared task errors composes the cost function.");
+    OpenSim_DECLARE_LIST_PROPERTY(ik_task_set, IKTask,
+            "Markers and coordinates to be considered (tasks) and their "
+            "weightings. "
+            "The sum of weighted-squared task errors composes the cost "
+            "function.");
 
     OpenSim_DECLARE_PROPERTY(marker_file, std::string,
             "TRC file (.trc) containing the time history of observations of marker "
@@ -100,7 +102,7 @@ public:
         return get_coordinate_file();
     };
 
-    IKTaskSet& getIKTaskSet() { return upd_IKTaskSet(); }
+    const auto& getIKTaskSet() { return getProperty_ik_task_set(); }
 
     //--------------------------------------------------------------------------
     // INTERFACE

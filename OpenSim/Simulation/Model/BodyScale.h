@@ -23,7 +23,6 @@
  * limitations under the License.                                             *
  * -------------------------------------------------------------------------- */
 
-
 // INCLUDE
 #include <OpenSim/Common/Object.h>
 #include <OpenSim/Common/Property.h>
@@ -59,15 +58,13 @@ OpenSim_DECLARE_LIST_PROPERTY(axis_names, std::string,
         // CONSTRUCTION
         //--------------------------------------------------------------------------
         public : BodyScale();
-virtual ~BodyScale();
+    virtual ~BodyScale();
 
-const auto& getAxisNames() { return getProperty_axis_names(); }
+    const auto& getAxisNames() { return getProperty_axis_names(); }
 
-void setAxisNames(const Array<std::string>& aAxisNames) {
-
-    // _axisNames = aAxisNames;
-    // _axisNamesProp.setValueIsDefault(false);
-}
+    void setAxisNames(const Array<std::string>& aAxisNames) {
+        set_axis_names(aAxisNames);
+    }
 
 protected:
 

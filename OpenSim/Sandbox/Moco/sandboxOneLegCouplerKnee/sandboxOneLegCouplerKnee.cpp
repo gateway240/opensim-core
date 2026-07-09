@@ -19,15 +19,14 @@
 //#define CATCH_CONFIG_MAIN
 //#include <../catch/catch.hpp>
 
-#include <Moco/osimMoco.h>
 #include <Moco/InverseMuscleSolver/GlobalStaticOptimization.h>
-#include <OpenSim/Tools/InverseKinematicsTool.h>
-#include <OpenSim/Tools/IKTaskSet.h>
+#include <Moco/osimMoco.h>
+#include <typeinfo>
+
+#include <OpenSim/Actuators/osimActuators.h>
 #include <OpenSim/Common/osimCommon.h>
 #include <OpenSim/Simulation/osimSimulation.h>
-#include <OpenSim/Actuators/osimActuators.h>
-
-#include <typeinfo>
+#include <OpenSim/Tools/InverseKinematicsTool.h>
 
 using namespace OpenSim;
 using SimTK::Vec3;

@@ -27,7 +27,6 @@
 
 #include "IKCoordinateTask.h"
 #include "IKMarkerTask.h"
-#include "IKTaskSet.h"
 
 #include <OpenSim/Analyses/Kinematics.h>
 #include <OpenSim/Common/Constant.h>
@@ -81,7 +80,7 @@ InverseKinematicsTool::InverseKinematicsTool(const string &aFileName, bool aLoad
  */
 void InverseKinematicsTool::constructProperties()
 {
-    constructProperty_IKTaskSet(IKTaskSet());
+    constructProperty_ik_task_set();
     constructProperty_marker_file("");
     constructProperty_coordinate_file("");
     constructProperty_report_marker_locations(false);
@@ -431,9 +430,10 @@ void InverseKinematicsTool::populateReferences(MarkersReference& markersReferenc
     // Loop through old "IKTaskSet" and assign weights to the coordinate and marker references
     // For coordinates, create the functions for coordinate reference values
     int index = 0;
-    for (int i = 0; i < get_IKTaskSet().getSize(); i++) {
-        if (!get_IKTaskSet()[i].getApply()) continue;
-        if (IKCoordinateTask *coordTask = dynamic_cast<IKCoordinateTask *>(&get_IKTaskSet()[i])) {
+    for (int i = 0; i < getProperty_ik_task_set().size(); i++) {
+        if (!get_ik_task_set(i).getApply()) continue;
+        if (auto* coordTask = dynamic_cast<const IKCoordinateTask*>(
+                    &get_ik_task_set(i))) {
             CoordinateReference *coordRef = NULL;
             if (coordTask->getValueType() == IKCoordinateTask::FromFile) {
                 if (!coordFunctions)
@@ -460,8 +460,8 @@ void InverseKinematicsTool::populateReferences(MarkersReference& markersReferenc
                 coordRef->setWeight(coordTask->getWeight());
 
             coordinateReferences.push_back(*coordRef);
-        }
-        else if (IKMarkerTask *markerTask = dynamic_cast<IKMarkerTask *>(&get_IKTaskSet()[i])) {
+        } else if (auto* markerTask = dynamic_cast<const IKMarkerTask*>(
+                           &get_ik_task_set(i))) {
             if (markerTask->getApply()) {
                 // Only track markers that have a task and it is "applied"
                 markerWeights.adoptAndAppend(

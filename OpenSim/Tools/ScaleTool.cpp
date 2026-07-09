@@ -155,7 +155,7 @@ bool ScaleTool::run() {
     }
 
     if (!isDefaultMarkerPlacer()) {
-        const MarkerPlacer& placer = getMarkerPlacer();
+        auto& placer = upd_marker_placer();
         if (!placer.processModel(model.get(), getPathToSubject())) {
             return false;
         }

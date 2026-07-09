@@ -25,13 +25,13 @@
 
 
 // INCLUDE
-#include <OpenSim/Common/PropertyBool.h>
-#include <OpenSim/Common/PropertyDbl.h>
-#include <OpenSim/Common/PropertyDblArray.h>
-#include <OpenSim/Common/PropertyObj.h>
-#include <OpenSim/Common/PropertyStr.h>
+#include "OpenSim/Tools/IKTask.h"
 #include "osimToolsDLL.h"
+
 #include <SimTKcommon/internal/ResetOnCopy.h>
+
+#include <OpenSim/Common/Object.h>
+#include <OpenSim/Common/Property.h>
 
 namespace SimTK {
 class State;
@@ -41,7 +41,6 @@ namespace OpenSim {
 
 class Model;
 class MarkerData;
-class IKTaskSet;
 class IKTrial;
 class Storage;
 
@@ -63,52 +62,61 @@ OpenSim_DECLARE_CONCRETE_OBJECT(MarkerPlacer, Object);
 //=============================================================================
 // DATA
 //=============================================================================
-private:
+public:
+OpenSim_DECLARE_PROPERTY(
+        apply, bool, "Whether or not to use the marker placer during scale");
+OpenSim_DECLARE_PROPERTY(marker_file_name, std::string,
+        "TRC file (.trc) containing the time history of experimental marker "
+        "positions ");
+OpenSim_DECLARE_LIST_PROPERTY_SIZE(time_range, double, 2,
+        "Time range over which the marker positions are averaged.");
+OpenSim_DECLARE_LIST_PROPERTY(ik_task_set, IKTask,
+        "Task set used to specify weights used in the IK computation of the "
+        "static pose.");
+OpenSim_DECLARE_PROPERTY(coordinate_file_name, std::string,
+        "Name of file containing the joint angles "
+        "used to set the initial configuration of the model for the purpose of "
+        "placing the markers. "
+        "These coordinate values can also be included in the optimization "
+        "problem used to place the markers. "
+        "Before the model markers are placed, a single frame of an inverse "
+        "kinematics (IK) problem is solved. "
+        "The IK problem can be solved simply by matching marker positions, but "
+        "if the model markers are not "
+        "in the correct locations, the IK solution will not be very good and "
+        "neither will marker placement. "
+        "Alternatively, coordinate values (specified in this file) can be "
+        "specified and used to influence the IK solution. "
+        "This is valuable particularly if you have high confidence in the "
+        "coordinate values. "
+        "For example, you know for the static trial the subject was standing "
+        "will all joint angles close to zero. "
+        "If the coordinate set (see the CoordinateSet property) contains "
+        "non-zero weights for coordinates, "
+        "the IK solution will try to match not only the marker positions, but "
+        "also the coordinates in this file. "
+        "Least-squared error is used to solve the IK problem. ");
+OpenSim_DECLARE_PROPERTY(output_model_file_name, std::string,
+        "Output OpenSim model file (.osim) after scaling and maker placement.");
+OpenSim_DECLARE_PROPERTY(output_marker_file_name, std::string,
+        "Output marker set containing the new marker locations after markers "
+        "have been placed.");
+OpenSim_DECLARE_PROPERTY(output_motion_file_name, std::string,
+        "Name of the motion file (.mot) written after marker relocation "
+        "(optional).");
+OpenSim_DECLARE_PROPERTY(max_marker_movement, double,
+        "Maximum amount of movement allowed in marker data when averaging "
+        "frames of the static trial. ");
+OpenSim_DECLARE_PROPERTY(print_result_files, bool,
+        "Whether or not to write to the designated output files (GUI will set "
+        "this to false)");
+OpenSim_DECLARE_PROPERTY(move_model_markers, bool,
+        "Whether to move the model markers (set to false if you just want to "
+        "preview the static pose)");
 
 protected:
-    // whether or not to apply marker placer
-    PropertyBool _applyProp;
-    bool &_apply;
-
-    // name of marker file that contains marker locations in the static pose
-    PropertyStr _markerFileNameProp;
-    std::string &_markerFileName;
-
-    // range of frames to average in static pose marker file, specified by time
-    PropertyDblArray _timeRangeProp;
-    Array<double> &_timeRange;
-
-    // tasks used to specify IK weights
-    PropertyObj _ikTaskSetProp;
-    IKTaskSet &_ikTaskSet;
-
-    // name of SIMM motion file that contains [optional] coordinates for the static pose
-    PropertyStr _coordinateFileNameProp;
-    std::string &_coordinateFileName;
-
-    // name of XML model file to write when done placing markers
-    PropertyStr _outputModelFileNameProp;
-    std::string &_outputModelFileName;
-
-    // name of marker file to write when done placing markers
-    PropertyStr _outputMarkerFileNameProp;
-    std::string &_outputMarkerFileName;
-
-    // name of motion file (containing solved static pose) when done placing markers
-    PropertyStr _outputMotionFileNameProp;
-    std::string &_outputMotionFileName;
-
-    // amount of allowable motion for each marker when averaging frames of the static trial
-    PropertyDbl _maxMarkerMovementProp;
-    double &_maxMarkerMovement;
-
-    // Whether or not to write to the designated output files (GUI will set this to false)
-    bool _printResultFiles;
-    // Whether to move the model markers (set to false if you just want to preview the static pose)
-    bool _moveModelMarkers;
-
-    // This is cached during processModel() so the GUI can access it.
-    mutable SimTK::ResetOnCopy<std::unique_ptr<Storage>> _outputStorage;
+// This is cached during processModel() so the GUI can access it.
+mutable SimTK::ResetOnCopy<std::unique_ptr<Storage>> _outputStorage;
 //=============================================================================
 // METHODS
 //=============================================================================
@@ -117,97 +125,90 @@ protected:
     //--------------------------------------------------------------------------
 public:
     MarkerPlacer();
-    MarkerPlacer(const MarkerPlacer &aMarkerPlacementParams);
     virtual ~MarkerPlacer();
 
-    void copyData(const MarkerPlacer &aMarkerPlacementParams);
-
-#ifndef SWIG
-    MarkerPlacer& operator=(const MarkerPlacer &aMarkerPlacementParams);
-#endif
-    bool processModel(Model* aModel,
-            const std::string& aPathToSubject="") const;
+    bool processModel(Model* aModel, const std::string& aPathToSubject = "");
 
     //--------------------------------------------------------------------------
     // GET AND SET
     //--------------------------------------------------------------------------
 
-    bool getApply() const { return _apply; }
-    void setApply(bool aApply) 
-    { 
-        _apply = aApply; 
-        _applyProp.setValueIsDefault(false); 
-    }
+    bool getApply() const { return get_apply(); }
+    void setApply(bool aApply) { set_apply(aApply); }
 
-    const std::string &getStaticPoseFileName() const { return _markerFileName; }
+    const std::string& getStaticPoseFileName() const {
+        return get_marker_file_name();
+    }
     void setStaticPoseFileName(const std::string &aFileName) 
     {
-        _markerFileName = aFileName;
-        _markerFileNameProp.setValueIsDefault(false);
+        set_marker_file_name(aFileName);
     }
 
-   const Array<double> &getTimeRange() const { return _timeRange; }
-   void setTimeRange(const Array<double> &timeRange) 
-    {
-        _timeRange = timeRange; 
-        _timeRangeProp.setValueIsDefault(false); 
+    const auto& getTimeRange() const { return getProperty_time_range(); }
+    void setTimeRange(const Array<double>& timeRange) {
+        set_time_range(timeRange);
     }
 
-    IKTaskSet &getIKTaskSet() { return _ikTaskSet; }
+    const Property<IKTask>& getIKTaskSet() { return getProperty_ik_task_set(); }
 
-    const std::string &getCoordinateFileName() const { return _coordinateFileName; }
+    const std::string& getCoordinateFileName() const {
+        return get_coordinate_file_name();
+    }
     void setCoordinateFileName(const std::string& aCoordinateFileName)
     {
-        _coordinateFileName = aCoordinateFileName;
-        _coordinateFileNameProp.setValueIsDefault(false);
+        set_coordinate_file_name(aCoordinateFileName);
     }
 
-    const std::string& getMarkerFileName() const {return _markerFileName; }
+    const std::string& getMarkerFileName() const {
+        return get_marker_file_name();
+    }
     void setMarkerFileName( const std::string& aMarkerFileName)
     {
-        _markerFileName=aMarkerFileName;
-        _markerFileNameProp.setValueIsDefault(false);
+        set_marker_file_name(aMarkerFileName);
     }
 
-    double getMaxMarkerMovement() const { return _maxMarkerMovement; }
+    double getMaxMarkerMovement() const { return get_max_marker_movement(); }
     void setMaxMarkerMovement(double aMaxMarkerMovement)
     {
-        _maxMarkerMovement=aMaxMarkerMovement;
-        _maxMarkerMovementProp.setValueIsDefault(false);
+        set_max_marker_movement(aMaxMarkerMovement);
     }
 
-    const std::string& getOutputModelFileName() const { return _outputModelFileName; }
+    const std::string& getOutputModelFileName() const {
+        return get_output_model_file_name();
+    }
     void setOutputModelFileName(const std::string& aOutputModelFileName)
     {
-        _outputModelFileName = aOutputModelFileName;
-        _outputModelFileNameProp.setValueIsDefault(false);
+        set_output_model_file_name(aOutputModelFileName);
     }
 
-    const std::string& getOutputMarkerFileName() const { return _outputMarkerFileName; }
+    const std::string& getOutputMarkerFileName() const {
+        return get_output_marker_file_name();
+    }
     void setOutputMarkerFileName(const std::string& outputMarkerFileName)
     {
-        _outputMarkerFileName = outputMarkerFileName;
-        _outputMarkerFileNameProp.setValueIsDefault(false);
+        set_output_marker_file_name(outputMarkerFileName);
     }
 
-    const std::string& getOutputMotionFileName() const { return _outputMotionFileName; }
+    const std::string& getOutputMotionFileName() const {
+        return get_output_motion_file_name();
+    }
     void setOutputMotionFileName(const std::string& outputMotionFileName)
     {
-        _outputMotionFileName = outputMotionFileName;
-        _outputMotionFileNameProp.setValueIsDefault(false);
+        set_output_motion_file_name(outputMotionFileName);
     }
 
-    void setPrintResultFiles(bool aToWrite) { _printResultFiles = aToWrite; }
+    void setPrintResultFiles(bool aToWrite) {
+        set_print_result_files(aToWrite);
+    }
 
-    bool getMoveModelMarkers() { return _moveModelMarkers; }
-    void setMoveModelMarkers(bool aMove) { _moveModelMarkers = aMove; }
+    bool getMoveModelMarkers() { return get_move_model_markers(); }
+    void setMoveModelMarkers(bool aMove) { set_move_model_markers(aMove); }
 
     Storage *getOutputStorage();
 
 
 private:
-    void setNull();
-    void setupProperties();
+    void constructProperties();
     void moveModelMarkersToPose(SimTK::State& s, Model& aModel,
             MarkerData& aPose) const;
 //=============================================================================

@@ -5,7 +5,6 @@
 %template(SetIKTasks) OpenSim::Set<OpenSim::IKTask, OpenSim::Object>;
 %include <OpenSim/Tools/IKMarkerTask.h>
 %include <OpenSim/Tools/IKCoordinateTask.h>
-%include <OpenSim/Tools/IKTaskSet.h>
 %include <OpenSim/Tools/MarkerPair.h>
 %include <OpenSim/Tools/Measurement.h>
 %include <OpenSim/Tools/GenericModelMaker.h>

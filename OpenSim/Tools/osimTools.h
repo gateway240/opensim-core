@@ -36,7 +36,6 @@
 #include "MuscleStateTrackingTask.h"
 #include "IKCoordinateTask.h"
 #include "IKMarkerTask.h"
-#include "IKTaskSet.h"
 #include "MarkerPair.h"
 #include "MarkerPlacer.h"
 #include "Measurement.h"

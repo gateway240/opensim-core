@@ -23,18 +23,18 @@
 
 
 // INCLUDES
-#include <OpenSim/Common/Storage.h>
 #include "OpenSim/Common/STOFileAdapter.h"
 #include "OpenSim/Common/TRCFileAdapter.h"
-#include <OpenSim/Common/TableUtilities.h>
+#include <thread>
+
+#include <OpenSim/Auxiliary/auxiliaryTestFunctions.h>
 #include <OpenSim/Common/Reporter.h>
+#include <OpenSim/Common/Storage.h>
+#include <OpenSim/Common/TableUtilities.h>
+#include <OpenSim/Simulation/InverseKinematicsSolver.h>
 #include <OpenSim/Simulation/Model/Model.h>
 #include <OpenSim/Simulation/OrientationsReference.h>
-#include <OpenSim/Simulation/InverseKinematicsSolver.h>
 #include <OpenSim/Tools/InverseKinematicsTool.h>
-#include <OpenSim/Tools/IKTaskSet.h>
-#include <OpenSim/Auxiliary/auxiliaryTestFunctions.h>
-#include <thread>
 
 using namespace OpenSim;
 using namespace std;

@@ -25,19 +25,21 @@
 // INCLUDES
 //=============================================================================
 #include "MarkerPlacer.h"
-#include <OpenSim/Common/Storage.h>
+
+#include "IKCoordinateTask.h"
+#include "OpenSim/Tools/IKMarkerTask.h"
+
+#include <OpenSim/Analyses/StatesReporter.h>
+#include <OpenSim/Common/Constant.h>
 #include <OpenSim/Common/FunctionSet.h>
 #include <OpenSim/Common/GCVSplineSet.h>
-#include <OpenSim/Common/Constant.h>
-#include <OpenSim/Common/MarkerData.h>
-#include <OpenSim/Simulation/InverseKinematicsSolver.h>
-#include <OpenSim/Simulation/Model/Model.h>
-#include <OpenSim/Simulation/MarkersReference.h>
-#include <OpenSim/Simulation/CoordinateReference.h>
-#include "IKCoordinateTask.h"
-#include "IKTaskSet.h"
-#include <OpenSim/Analyses/StatesReporter.h>
 #include <OpenSim/Common/IO.h>
+#include <OpenSim/Common/MarkerData.h>
+#include <OpenSim/Common/Storage.h>
+#include <OpenSim/Simulation/CoordinateReference.h>
+#include <OpenSim/Simulation/InverseKinematicsSolver.h>
+#include <OpenSim/Simulation/MarkersReference.h>
+#include <OpenSim/Simulation/Model/Model.h>
 //=============================================================================
 // STATICS
 //=============================================================================
@@ -51,21 +53,7 @@ using SimTK::Vec3;
 /**
  * Default constructor.
  */
-MarkerPlacer::MarkerPlacer() :
-    _apply(_applyProp.getValueBool()),
-    _markerFileName(_markerFileNameProp.getValueStr()),
-    _timeRange(_timeRangeProp.getValueDblArray()),
-    _ikTaskSetProp(PropertyObj("", IKTaskSet())),
-    _ikTaskSet((IKTaskSet&)_ikTaskSetProp.getValueObj()),
-    _coordinateFileName(_coordinateFileNameProp.getValueStr()),
-    _outputModelFileName(_outputModelFileNameProp.getValueStr()),
-    _outputMarkerFileName(_outputMarkerFileNameProp.getValueStr()),
-    _outputMotionFileName(_outputMotionFileNameProp.getValueStr()),
-    _maxMarkerMovement(_maxMarkerMovementProp.getValueDbl())
-{
-    setNull();
-    setupProperties();
-}
+MarkerPlacer::MarkerPlacer() { constructProperties(); }
 
 //_____________________________________________________________________________
 /**
@@ -76,143 +64,26 @@ MarkerPlacer::~MarkerPlacer()
     //delete _ikTrial;
 }
 
-//_____________________________________________________________________________
-/**
- * Copy constructor.
- *
- * @param aMarkerPlacer MarkerPlacer to be copied.
- */
-MarkerPlacer::MarkerPlacer(const MarkerPlacer &aMarkerPlacer) :
-   Object(aMarkerPlacer),
-    _apply(_applyProp.getValueBool()),
-   _markerFileName(_markerFileNameProp.getValueStr()),
-    _timeRange(_timeRangeProp.getValueDblArray()),
-    _ikTaskSetProp(PropertyObj("", IKTaskSet())),
-    _ikTaskSet((IKTaskSet&)_ikTaskSetProp.getValueObj()),
-    _coordinateFileName(_coordinateFileNameProp.getValueStr()),
-    _outputModelFileName(_outputModelFileNameProp.getValueStr()),
-    _outputMarkerFileName(_outputMarkerFileNameProp.getValueStr()),
-    _outputMotionFileName(_outputMotionFileNameProp.getValueStr()),
-    _maxMarkerMovement(_maxMarkerMovementProp.getValueDbl())
-{
-    setNull();
-    setupProperties();
-    copyData(aMarkerPlacer);
-}
-
 //=============================================================================
 // CONSTRUCTION METHODS
 //=============================================================================
 //_____________________________________________________________________________
 /**
- * Copy data members from one MarkerPlacer to another.
- *
- * @param aMarkerPlacer MarkerPlacer to be copied.
- */
-void MarkerPlacer::copyData(const MarkerPlacer &aMarkerPlacer)
-{
-    _apply = aMarkerPlacer._apply;
-    _markerFileName = aMarkerPlacer._markerFileName;
-    _timeRange = aMarkerPlacer._timeRange;
-    _ikTaskSet = aMarkerPlacer._ikTaskSet;
-    _coordinateFileName = aMarkerPlacer._coordinateFileName;
-    _outputModelFileName = aMarkerPlacer._outputModelFileName;
-    _outputMarkerFileName = aMarkerPlacer._outputMarkerFileName;
-    _outputMotionFileName = aMarkerPlacer._outputMotionFileName;
-    _maxMarkerMovement = aMarkerPlacer._maxMarkerMovement;
-    _printResultFiles = aMarkerPlacer._printResultFiles;
-}
-
-//_____________________________________________________________________________
-/**
- * Set the data members of this MarkerPlacer to their null values.
- */
-void MarkerPlacer::setNull()
-{
-    _apply = true;
-    _coordinateFileName = "";
-
-    _printResultFiles = true;
-    _moveModelMarkers = true;
-}
-
-//_____________________________________________________________________________
-/**
  * Connect properties to local pointers.
  */
-void MarkerPlacer::setupProperties()
-{
-    _applyProp.setComment("Whether or not to use the marker placer during scale");
-    _applyProp.setName("apply");
-    _propertySet.append(&_applyProp);
-
-    _ikTaskSetProp.setComment("Task set used to specify weights used in the IK computation of the static pose.");
-    _ikTaskSetProp.setName("IKTaskSet");
-    _propertySet.append(&_ikTaskSetProp);
-
-    _markerFileNameProp.setComment("TRC file (.trc) containing the time history of experimental marker positions "
-        "(usually a static trial).");
-    _markerFileNameProp.setName("marker_file");
-    _propertySet.append(&_markerFileNameProp);
-
-    _coordinateFileNameProp.setComment("Name of file containing the joint angles "
-        "used to set the initial configuration of the model for the purpose of placing the markers. "
-        "These coordinate values can also be included in the optimization problem used to place the markers. "
-        "Before the model markers are placed, a single frame of an inverse kinematics (IK) problem is solved. "
-        "The IK problem can be solved simply by matching marker positions, but if the model markers are not "
-        "in the correct locations, the IK solution will not be very good and neither will marker placement. "
-        "Alternatively, coordinate values (specified in this file) can be specified and used to influence the IK solution. "
-        "This is valuable particularly if you have high confidence in the coordinate values. "
-        "For example, you know for the static trial the subject was standing will all joint angles close to zero. "
-        "If the coordinate set (see the CoordinateSet property) contains non-zero weights for coordinates, "
-        "the IK solution will try to match not only the marker positions, but also the coordinates in this file. "
-        "Least-squared error is used to solve the IK problem. ");
-    _coordinateFileNameProp.setName("coordinate_file");
-    _propertySet.append(&_coordinateFileNameProp);
-
-    _timeRangeProp.setComment("Time range over which the marker positions are averaged.");
-    const double defaultTimeRange[] = {-1.0, -1.0};
-    _timeRangeProp.setName("time_range");
-    _timeRangeProp.setValue(2, defaultTimeRange);
-    _timeRangeProp.setAllowableListSize(2);
-    _propertySet.append(&_timeRangeProp);
-
-    _outputMotionFileNameProp.setComment("Name of the motion file (.mot) written after marker relocation (optional).");
-    _outputMotionFileNameProp.setName("output_motion_file");
-    _propertySet.append(&_outputMotionFileNameProp);
-
-    _outputModelFileNameProp.setComment("Output OpenSim model file (.osim) after scaling and maker placement.");
-    _outputModelFileNameProp.setName("output_model_file");
-    _propertySet.append(&_outputModelFileNameProp);
-
-    _outputMarkerFileNameProp.setComment("Output marker set containing the new marker locations after markers have been placed.");
-    _outputMarkerFileNameProp.setName("output_marker_file");
-    _propertySet.append(&_outputMarkerFileNameProp);
-
-    _maxMarkerMovementProp.setComment("Maximum amount of movement allowed in marker data when averaging frames of the static trial. "
-        "A negative value means there is not limit.");
-    _maxMarkerMovementProp.setName("max_marker_movement");
-    _maxMarkerMovementProp.setValue(-1.0); // units of this value are the units of the marker data in the static pose (usually mm)
-    _propertySet.append(&_maxMarkerMovementProp);
-}
-
-//=============================================================================
-// OPERATORS
-//=============================================================================
-//_____________________________________________________________________________
-/**
- * Assignment operator.
- *
- * @return Reference to this object.
- */
-MarkerPlacer& MarkerPlacer::operator=(const MarkerPlacer &aMarkerPlacer)
-{
-    // BASE CLASS
-    Object::operator=(aMarkerPlacer);
-
-    copyData(aMarkerPlacer);
-
-    return(*this);
+void MarkerPlacer::constructProperties() {
+    constructProperty_apply(true);
+    constructProperty_ik_task_set();
+    constructProperty_marker_file_name("");
+    constructProperty_coordinate_file_name("");
+    const Array<double> defaultTimeRange = {-1.0, -1.0};
+    constructProperty_time_range(defaultTimeRange);
+    constructProperty_output_motion_file_name("");
+    constructProperty_output_model_file_name("");
+    constructProperty_output_marker_file_name("");
+    constructProperty_max_marker_movement(-1.0);
+    constructProperty_print_result_files(false);
+    constructProperty_move_model_markers(true);
 }
 
 //=============================================================================
@@ -231,20 +102,20 @@ MarkerPlacer& MarkerPlacer::operator=(const MarkerPlacer &aMarkerPlacer)
  * @param aModel the model to use for the marker placing process.
  * @return Whether the marker placing process was successful or not.
  */
-bool MarkerPlacer::processModel(Model* aModel,
-        const string& aPathToSubject) const {
+bool MarkerPlacer::processModel(Model* aModel, const string& aPathToSubject) {
 
     if(!getApply()) return false;
 
     log_info("Step 3: Placing markers on model");
 
-    if (_timeRange.getSize()<2) 
+    if (getProperty_time_range().size() < 2)
         throw Exception("MarkerPlacer::processModel, time_range is unspecified.");
 
     /* Load the static pose marker file, and average all the
     * frames in the user-specified time range.
     */
-    TimeSeriesTableVec3 staticPoseTable{aPathToSubject + _markerFileName};
+    TimeSeriesTableVec3 staticPoseTable{
+            aPathToSubject + get_marker_file_name()};
     const auto& timeCol = staticPoseTable.getIndependentColumn();
 
     // Users often set a time range that purposely exceeds the range of
@@ -252,17 +123,16 @@ bool MarkerPlacer::processModel(Model* aModel,
     // To allow for that, we have to narrow the provided range to data
     // range, since the TimeSeriesTable will correctly throw that the 
     // desired time exceeds the data range.
-    if (_timeRange[0] < timeCol.front())
-        _timeRange[0] = timeCol.front();
-    if (_timeRange[1] > timeCol.back())
-        _timeRange[1] = timeCol.back();
+    if (get_time_range(0) < timeCol.front())
+        upd_time_range(0) = timeCol.front();
+    if (get_time_range(1) > timeCol.back()) upd_time_range(1) = timeCol.back();
 
-    const auto avgRow = staticPoseTable.averageRow(_timeRange[0],
-                                                   _timeRange[1]);
+    const auto avgRow =
+            staticPoseTable.averageRow(get_time_range(0), get_time_range(1));
     for(size_t r = staticPoseTable.getNumRows(); r-- > 0; )
         staticPoseTable.removeRowAtIndex(r);
-    staticPoseTable.appendRow(_timeRange[0], avgRow);
-    
+    staticPoseTable.appendRow(get_time_range(0), avgRow);
+
     OPENSIM_THROW_IF(!staticPoseTable.hasTableMetaDataKey("Units"),
                      Exception,
                      "MarkerPlacer::processModel -- Marker file does not have "
@@ -282,9 +152,11 @@ bool MarkerPlacer::processModel(Model* aModel,
         staticPoseTable.addTableMetaData("Units",
                                          staticPoseUnits.getAbbreviation());
     }
-    
-    MarkerData* staticPose = new MarkerData(aPathToSubject + _markerFileName);
-    staticPose->averageFrames(_maxMarkerMovement, _timeRange[0], _timeRange[1]);
+
+    MarkerData* staticPose =
+            new MarkerData(aPathToSubject + get_marker_file_name());
+    staticPose->averageFrames(
+            get_max_marker_movement(), get_time_range(0), get_time_range(1));
     staticPose->convertToUnits(aModel->getLengthUnits());
 
     /* Delete any markers from the model that are not in the static
@@ -294,11 +166,18 @@ bool MarkerPlacer::processModel(Model* aModel,
 
     // Construct the system and get the working state when done changing the model
     SimTK::State& s = aModel->initSystem();
-    s.updTime() = _timeRange[0];
-    
+    s.updTime() = get_time_range(0);
+
     // Create references and WeightSets needed to initialize InverseKinemaicsSolver
     Set<MarkerWeight> markerWeightSet;
-    _ikTaskSet.createMarkerWeightSet(markerWeightSet); // order in tasks file
+
+    for (int i = 0; i < getProperty_ik_task_set().size(); i++) {
+        auto& nextTask = upd_ik_task_set(i);
+        if (nextTask.getApply()) {
+            markerWeightSet.cloneAndAppend(
+                    MarkerWeight(nextTask.getName(), nextTask.getWeight()));
+        }
+    }
     // MarkersReference takes ownership of marker data (staticPose)
     std::shared_ptr<MarkersReference> markersReference(new MarkersReference(staticPoseTable, markerWeightSet));
     SimTK::Array_<CoordinateReference> coordinateReferences;
@@ -307,16 +186,20 @@ bool MarkerPlacer::processModel(Model* aModel,
     // create CoordinateReferences for Coordinate Tasks
     FunctionSet *coordFunctions = NULL;
     // bool haveCoordinateFile = false;
-    if(_coordinateFileName != "" && _coordinateFileName != "Unassigned"){
-        Storage coordinateValues(aPathToSubject + _coordinateFileName);
+    if (get_coordinate_file_name() != "" &&
+            get_coordinate_file_name() != "Unassigned") {
+        Storage coordinateValues(aPathToSubject + get_coordinate_file_name());
         aModel->getSimbodyEngine().convertDegreesToRadians(coordinateValues);
         // haveCoordinateFile = true;
         coordFunctions = new GCVSplineSet(5,&coordinateValues);
     }
-    
+
     int index = 0;
-    for(int i=0; i< _ikTaskSet.getSize(); i++){
-        IKCoordinateTask *coordTask = dynamic_cast<IKCoordinateTask *>(&_ikTaskSet[i]);
+    for (int i = 0; i < getProperty_ik_task_set().size(); i++) {
+        const IKCoordinateTask* coordTask =
+                dynamic_cast<const IKCoordinateTask*>(&get_ik_task_set(i));
+        // auto& coordTask = get_ik_task_set(i);
+        // auto& coordTaskProperty = getProperty_ik_task_set();
         if (coordTask && coordTask->getApply()){
             std::unique_ptr<CoordinateReference> coordRef{};
             if(coordTask->getValueType() == IKCoordinateTask::FromFile){
@@ -341,7 +224,7 @@ bool MarkerPlacer::processModel(Model* aModel,
             // We have a valid coordinate reference so now set its weight according to the task
             coordRef->setWeight(coordTask->getWeight());
             coordinateReferences.push_back(*coordRef);      
-        }           
+        }
     }
     double constraintWeight = std::numeric_limits<SimTK::Real>::infinity();
 
@@ -377,7 +260,8 @@ bool MarkerPlacer::processModel(Model* aModel,
      * with the measured markers in the static pose. The model is already in
      * the proper configuration so the coordinates do not need to be changed.
      */
-    if(_moveModelMarkers) moveModelMarkersToPose(s, *aModel, *staticPose);
+    if (get_move_model_markers())
+        moveModelMarkersToPose(s, *aModel, *staticPose);
 
     _outputStorage.reset();
     // Make a storage file containing the solved states and markers for display in GUI.
@@ -389,25 +273,27 @@ bool MarkerPlacer::processModel(Model* aModel,
     _outputStorage->setName("static pose");
     _outputStorage->getStateVector(0)->setTime(s.getTime());
 
-    if(_printResultFiles) {
+    if (get_print_result_files()) {
         auto cwd = IO::CwdChanger::changeTo(aPathToSubject);
 
-        if (_outputModelFileNameProp.isValidFileName()) {
-            aModel->print(aPathToSubject + _outputModelFileName);
+        if (getProperty_output_model_file_name().isValidFileName()) {
+            aModel->print(aPathToSubject + get_output_model_file_name());
             log_info("Wrote model file '{}' from model {}.",
-                _outputModelFileName, aModel->getName());
+                    get_output_model_file_name(), aModel->getName());
         }
 
-        if (_outputMarkerFileNameProp.isValidFileName()) {
-            aModel->writeMarkerFile(aPathToSubject + _outputMarkerFileName);
+        if (getProperty_output_marker_file_name().isValidFileName()) {
+            aModel->writeMarkerFile(
+                    aPathToSubject + get_output_marker_file_name());
             log_info("Wrote marker file '{}' from model {}.",
-                _outputMarkerFileName, aModel->getName());
+                    get_output_marker_file_name(), aModel->getName());
         }
 
-        if (_outputMotionFileNameProp.isValidFileName()) {
-            _outputStorage->print(aPathToSubject + _outputMotionFileName,
-                "w", "File generated from solving marker data for model "
-                + aModel->getName());
+        if (getProperty_output_motion_file_name().isValidFileName()) {
+            _outputStorage->print(
+                    aPathToSubject + get_output_motion_file_name(), "w",
+                    "File generated from solving marker data for model " +
+                            aModel->getName());
         }
     }
 
