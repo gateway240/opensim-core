@@ -75,6 +75,7 @@ void ScaleTool::constructProperties() {
     constructProperty_height(-1.0);
     constructProperty_age(-1.0);
     constructProperty_notes("");
+    constructProperty_path_to_subject("");
 
     GenericModelMaker genericModelMaker;
     constructProperty_generic_model_maker(genericModelMaker);

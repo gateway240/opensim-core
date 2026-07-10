@@ -120,7 +120,7 @@ public:
     void setApply(bool aApply) { set_apply(aApply); }
 
     const auto& getMeasurementSet() {
-        return getProperty_measurement_set().getValue();
+        return getProperty_measurement_set();
     }
     void setMeasurementSet(const std::set<Measurement>& measurementSet);
 

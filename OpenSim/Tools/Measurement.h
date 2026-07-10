@@ -28,6 +28,7 @@
 #include "OpenSim/Simulation/Model/BodyScale.h"
 #include "OpenSim/Tools/MarkerPair.h"
 #include "osimToolsDLL.h"
+#include <vector>
 
 #include <OpenSim/Common/Object.h>
 #include <OpenSim/Common/Property.h>
@@ -86,7 +87,7 @@ public:
     bool getApply() const { return get_apply(); }
     void setApply(bool aApply) { set_apply(aApply); }
 
-    void applyScaleFactor(double aFactor, ObjectProperty<Scale>& aScaleSet);
+    void applyScaleFactor(double aFactor, std::vector<Scale>& aScaleSet);
 
     /* Register types to be used when reading a Measurement object from xml file. */
     static void registerTypes();

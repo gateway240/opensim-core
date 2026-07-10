@@ -89,7 +89,8 @@ std::unique_ptr<Model> GenericModelMaker::processModel(
         std::string modelPath = SimTK::Pathname::
                 getAbsolutePathnameUsingSpecifiedWorkingDirectory(
                         aPathToSubject, get_file_name());
-        auto model = std::make_unique<Model>(modelPath);
+        std::cout << modelPath << std::endl;
+        auto model = std::make_unique<Model>(get_file_name());
         model->initSystem();
 
         if (!getProperty_marker_set_file_name().getValueIsDefault() &&

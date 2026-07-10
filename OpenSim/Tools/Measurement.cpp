@@ -102,11 +102,11 @@ const MarkerPair& Measurement::getMarkerPair(int aIndex) const {
  * @param aScaleSet the set of scale factors to modify
  */
 void Measurement::applyScaleFactor(
-        double aFactor, ObjectProperty<Scale>& aScaleSet) {
+        double aFactor, std::vector<Scale>& aScaleSet) {
     for (int i = 0; i < getProperty_body_scale_set().size(); i++) {
         const string& bodyName = get_body_scale_set(i).getName();
         const auto& axisNames = get_body_scale_set(i).getProperty_axis_names();
-        for (int j = 0; j < aScaleSet.size(); j++) {
+        for (size_t j = 0; j < aScaleSet.size(); j++) {
             if (aScaleSet[j].getSegmentName() == bodyName)
             {
                 auto& factors = aScaleSet[j].upd_scale_factors();

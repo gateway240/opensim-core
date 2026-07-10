@@ -254,7 +254,7 @@ bool MarkerPlacer::processModel(Model* aModel, const string& aPathToSubject) {
             s.getTime(), totalSquaredMarkerError,
             sqrt(totalSquaredMarkerError/nm),
             sqrt(maxSquaredMarkerError),
-            ikSol.getMarkerNameForIndex(worst));
+            worst);
     /* Now move the non-fixed markers on the model so that they are coincident
      * with the measured markers in the static pose. The model is already in
      * the proper configuration so the coordinates do not need to be changed.

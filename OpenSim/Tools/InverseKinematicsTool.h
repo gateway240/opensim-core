@@ -23,15 +23,17 @@
  * limitations under the License.                                             *
  * -------------------------------------------------------------------------- */
 
+
 #include "osimToolsDLL.h"
 
 #include <OpenSim/Common/Object.h>
 #include <OpenSim/Common/Property.h>
+#include <OpenSim/Tools/IKTask.h>
 #include <OpenSim/Tools/InverseKinematicsToolBase.h>
 
 namespace OpenSim {
 
-class IKTask;
+// class IKTask;
 class Model;
 class MarkersReference;
 class CoordinateReference;

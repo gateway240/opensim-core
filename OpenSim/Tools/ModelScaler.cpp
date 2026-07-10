@@ -26,9 +26,11 @@
 //=============================================================================
 #include "ModelScaler.h"
 
+#include "OpenSim/Common/Scale.h"
 #include "OpenSim/Common/ScaleSet.h"
 #include "OpenSim/Tools/MarkerPair.h"
 #include "OpenSim/Tools/Measurement.h"
+#include <vector>
 
 #include <OpenSim/Common/IO.h>
 #include <OpenSim/Common/MarkerData.h>
@@ -77,6 +79,7 @@ void ModelScaler::constructProperties() {
     constructProperty_preserve_mass_dist(true);
     constructProperty_output_model_file_name("");
     constructProperty_output_scale_file_name("");
+    constructProperty_print_result_files(false);
 }
 
 //_____________________________________________________________________________
@@ -128,8 +131,7 @@ bool ModelScaler::processModel(
 
     int i;
 
-    const auto& theScaleSet =
-            Property<Scale>::TypeHelper::create("the_scale_set", false);
+    std::vector<Scale> theScaleSet;
     Vec3 unity(1.0);
 
     log_info("Step 2: Scaling generic model");
@@ -138,11 +140,10 @@ bool ModelScaler::processModel(
      * Initialize all factors to 1.0.
      */
     for (const auto& segment : aModel->getComponentList<PhysicalFrame>()) {
-        Scale segmentScale = Scale();
+        auto& segmentScale = theScaleSet.emplace_back();
         segmentScale.setSegmentName(segment.getName());
         segmentScale.setScaleFactors(unity);
         segmentScale.setApply(true);
-        theScaleSet->appendValue(&segmentScale);
     }
 
     SimTK::State& s = aModel->initSystem();
@@ -184,7 +185,7 @@ bool ModelScaler::processModel(
                                 *aModel, *markerData, get_measurement_set(j));
                         if (!SimTK::isNaN(scaleFactor))
                             upd_measurement_set(j).applyScaleFactor(
-                                    scaleFactor, *theScaleSet);
+                                    scaleFactor, theScaleSet);
                         else
                             log_warn("'{}' measurement not used to scale {}",
                                     get_measurement_set(j).getName(),
@@ -202,10 +203,10 @@ bool ModelScaler::processModel(
                                 get_scale_set(j).getSegmentName();
                         const auto& factors =
                                 get_scale_set(j).get_scale_factors();
-                        for (int k = 0; k < theScaleSet->size(); k++) {
-                            if (theScaleSet->getValue(k).getSegmentName() ==
+                        for (size_t k = 0; k < theScaleSet.size(); k++) {
+                            if (theScaleSet[k].getSegmentName() ==
                                     bodyName)
-                                theScaleSet->updValue(k).setScaleFactors(
+                                theScaleSet[k].setScaleFactors(
                                         factors);
                         }
                     }
@@ -222,8 +223,8 @@ bool ModelScaler::processModel(
 
         /* Now scale the model. */
         ScaleSet scaleSet;
-        for (int i = 0; i < theScaleSet->size(); i++) {
-            scaleSet.cloneAndAppend(theScaleSet->getValue(i));
+        for (size_t i = 0; i < theScaleSet.size(); i++) {
+            scaleSet.cloneAndAppend(theScaleSet[i]);
         }
         aModel->scale(s, scaleSet, get_preserve_mass_dist(), aSubjectMass);
 
