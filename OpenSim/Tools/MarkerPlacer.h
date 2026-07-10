@@ -41,7 +41,6 @@ namespace OpenSim {
 
 class Model;
 class MarkerData;
-class IKTrial;
 class Storage;
 
 //=============================================================================

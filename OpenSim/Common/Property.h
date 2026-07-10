@@ -37,7 +37,6 @@
 
 #include <memory>
 #include <iomanip>
-#include <set>
 
 namespace OpenSim {
 

@@ -27,7 +27,6 @@
 #include "MarkerPlacer.h"
 
 #include "IKCoordinateTask.h"
-#include "OpenSim/Tools/IKMarkerTask.h"
 
 #include <OpenSim/Analyses/StatesReporter.h>
 #include <OpenSim/Common/Constant.h>
