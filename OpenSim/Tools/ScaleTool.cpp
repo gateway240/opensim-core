@@ -77,12 +77,9 @@ void ScaleTool::constructProperties() {
     constructProperty_notes("");
     constructProperty_path_to_subject("");
 
-    GenericModelMaker genericModelMaker;
-    constructProperty_generic_model_maker(genericModelMaker);
-    ModelScaler modelScaler;
-    constructProperty_model_scaler(modelScaler);
-    MarkerPlacer markerPlacer;
-    constructProperty_marker_placer(markerPlacer);
+    constructProperty_generic_model_maker(GenericModelMaker());
+    constructProperty_model_scaler(ModelScaler());
+    constructProperty_marker_placer(MarkerPlacer());
 }
 
 //_____________________________________________________________________________
@@ -95,6 +92,7 @@ void ScaleTool::registerTypes() {
     Object::registerType(MarkerPlacer());
     GenericModelMaker::registerTypes();
     ModelScaler::registerTypes();
+    MarkerPlacer::registerTypes();
 }
 
 void ScaleTool::setPrintResultFiles(bool aToWrite) {

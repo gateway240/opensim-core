@@ -25,13 +25,13 @@
 
 
 // INCLUDE
-#include "OpenSim/Tools/IKTask.h"
 #include "osimToolsDLL.h"
 
 #include <SimTKcommon/internal/ResetOnCopy.h>
 
 #include <OpenSim/Common/Object.h>
 #include <OpenSim/Common/Property.h>
+#include <OpenSim/Tools/IKTask.h>
 
 namespace SimTK {
 class State;
@@ -127,7 +127,9 @@ public:
     virtual ~MarkerPlacer();
 
     bool processModel(Model* aModel, const std::string& aPathToSubject = "");
-
+    
+    /* Register types to be used when reading object from xml file. */
+    static void registerTypes();
     //--------------------------------------------------------------------------
     // GET AND SET
     //--------------------------------------------------------------------------
@@ -148,7 +150,7 @@ public:
         set_time_range(timeRange);
     }
 
-    const Property<IKTask>& getIKTaskSet() { return getProperty_ik_task_set(); }
+    const auto& getIKTaskSet() { return getProperty_ik_task_set(); }
 
     const std::string& getCoordinateFileName() const {
         return get_coordinate_file_name();
@@ -204,7 +206,11 @@ public:
     void setMoveModelMarkers(bool aMove) { set_move_model_markers(aMove); }
 
     Storage *getOutputStorage();
-
+    //--------------------------------------------------------------------------
+    // Implement Object interface.
+    //--------------------------------------------------------------------------
+    void updateFromXMLNode(SimTK::Xml::Element& node, int versionNumber=-1)
+        override;
 
 private:
     void constructProperties();
