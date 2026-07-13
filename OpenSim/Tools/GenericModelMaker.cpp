@@ -82,7 +82,7 @@ void GenericModelMaker::registerTypes()
  * @return Pointer to the Model that is constructed.
  */
 std::unique_ptr<Model> GenericModelMaker::processModel(
-        const string& aPathToSubject) {
+        const string& aPathToSubject) const {
     log_info("Step 1: Loading generic model");
     try
     {

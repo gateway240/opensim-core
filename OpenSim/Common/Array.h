@@ -79,12 +79,19 @@ public:
     _defaultValue{}, _storage(initList.begin(), initList.end())
     {}
 
+    template<std::input_iterator InputIterator>
+    Array(InputIterator first, InputIterator last) :
+        _defaultValue{}, _storage(first, last)
+    {}
+
     explicit Array(T aDefaultValue = T(), int aSize = 0, int aCapacity = 1) :
         _defaultValue{std::move(aDefaultValue)}
     {
         _storage.reserve(aCapacity);
         _storage.resize(aSize, _defaultValue);
     }
+
+
 
     // A non-operator version of operator== which we can use in Java
     // NOTE: I tried to name it "equals" since that's the standard way to compare objects in

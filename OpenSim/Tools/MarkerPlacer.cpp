@@ -117,7 +117,7 @@ void MarkerPlacer::updateFromXMLNode(
  * @param aModel the model to use for the marker placing process.
  * @return Whether the marker placing process was successful or not.
  */
-bool MarkerPlacer::processModel(Model* aModel, const string& aPathToSubject) {
+bool MarkerPlacer::processModel(Model* aModel, const string& aPathToSubject) const {
 
     if (!getApply()) return false;
 
@@ -138,15 +138,16 @@ bool MarkerPlacer::processModel(Model* aModel, const string& aPathToSubject) {
     // To allow for that, we have to narrow the provided range to data
     // range, since the TimeSeriesTable will correctly throw that the
     // desired time exceeds the data range.
-    if (get_time_range(0) < timeCol.front())
-        upd_time_range(0) = timeCol.front();
-    if (get_time_range(1) > timeCol.back()) upd_time_range(1) = timeCol.back();
+    auto time_range = Array<double>(getProperty_time_range().begin(),getProperty_time_range().end());
+    if (time_range[0] < timeCol.front())
+        time_range[0] = timeCol.front();
+    if (time_range[1] > timeCol.back()) time_range[1] = timeCol.back();
 
     const auto avgRow =
-            staticPoseTable.averageRow(get_time_range(0), get_time_range(1));
+            staticPoseTable.averageRow(time_range[0],time_range[1]);
     for (size_t r = staticPoseTable.getNumRows(); r-- > 0;)
         staticPoseTable.removeRowAtIndex(r);
-    staticPoseTable.appendRow(get_time_range(0), avgRow);
+    staticPoseTable.appendRow(time_range[0], avgRow);
 
     OPENSIM_THROW_IF(!staticPoseTable.hasTableMetaDataKey("Units"), Exception,
             "MarkerPlacer::processModel -- Marker file does not have "
@@ -168,7 +169,7 @@ bool MarkerPlacer::processModel(Model* aModel, const string& aPathToSubject) {
 
     MarkerData staticPose = MarkerData(aPathToSubject + get_marker_file());
     staticPose.averageFrames(
-            get_max_marker_movement(), get_time_range(0), get_time_range(1));
+            get_max_marker_movement(), time_range[0], time_range[1]);
     staticPose.convertToUnits(aModel->getLengthUnits());
 
     /* Delete any markers from the model that are not in the static
@@ -179,7 +180,7 @@ bool MarkerPlacer::processModel(Model* aModel, const string& aPathToSubject) {
     // Construct the system and get the working state when done changing the
     // model
     SimTK::State& s = aModel->initSystem();
-    s.updTime() = get_time_range(0);
+    s.updTime() = time_range[0];
 
     // Create references and WeightSets needed to initialize
     // InverseKinemaicsSolver

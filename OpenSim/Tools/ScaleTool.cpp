@@ -109,7 +109,7 @@ void ScaleTool::setPrintResultFiles(bool aToWrite) {
  *
  * @return Pointer to the Model that is created.
  */
-std::unique_ptr<Model> ScaleTool::createModel() {
+std::unique_ptr<Model> ScaleTool::createModel() const {
     log_info("Processing subject {}...", getName());
 
     if (isDefaultGenericModelMaker()) {
@@ -118,7 +118,7 @@ std::unique_ptr<Model> ScaleTool::createModel() {
                 get_generic_model_maker().getName());
         return nullptr;
     }
-    auto model = upd_generic_model_maker().processModel(get_path_to_subject());
+    auto model = get_generic_model_maker().processModel(get_path_to_subject());
 
     if (!model) {
         // processModel() attempts to load both the model and market set
@@ -133,7 +133,7 @@ std::unique_ptr<Model> ScaleTool::createModel() {
     return model;
 }
 
-bool ScaleTool::run() {
+bool ScaleTool::run() const {
     std::unique_ptr<Model> model = createModel();
 
     if (!model) {
@@ -143,7 +143,7 @@ bool ScaleTool::run() {
     }
 
     if (!isDefaultModelScaler() && getModelScaler().getApply()) {
-        auto& scaler = upd_model_scaler();
+        auto& scaler = get_model_scaler();
         if (!scaler.processModel(
                     model.get(), getPathToSubject(), getSubjectMass())) {
             return false;
@@ -154,7 +154,7 @@ bool ScaleTool::run() {
     }
 
     if (!isDefaultMarkerPlacer()) {
-        auto& placer = upd_marker_placer();
+        auto& placer = get_marker_placer();
         if (!placer.processModel(model.get(), getPathToSubject())) {
             return false;
         }

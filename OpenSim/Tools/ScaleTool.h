@@ -31,11 +31,11 @@
 
 #include <OpenSim/Common/Object.h>
 #include <OpenSim/Common/Property.h>
+#include "OpenSim/Tools/ModelScaler.h"
+#include "OpenSim/Tools/MarkerPlacer.h"
 namespace OpenSim {
 
 class GenericModelMaker;
-class ModelScaler;
-class MarkerPlacer;
 class Model;
 
 //=============================================================================
@@ -90,7 +90,7 @@ public:
     ScaleTool(const std::string& aFileName) SWIG_DECLARE_EXCEPTION;
     virtual ~ScaleTool();
 
-    std::unique_ptr<Model> createModel();
+    std::unique_ptr<Model> createModel() const;
     /* Query the subject for different parameters */
     const GenericModelMaker& getGenericModelMaker() const {
         return get_generic_model_maker();
@@ -104,7 +104,7 @@ public:
      * MarkerPlacer. This is the method called by the command line `scale`
      * executable. 
      * @returns whether or not the scale procedure was successful. */
-    bool run();
+    bool run() const;
 
     bool isDefaultGenericModelMaker() const {
         return getProperty_generic_model_maker().getValueIsDefault();

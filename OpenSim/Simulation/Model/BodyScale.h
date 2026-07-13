@@ -60,7 +60,10 @@ OpenSim_DECLARE_LIST_PROPERTY(axes, std::string,
         public : BodyScale();
     virtual ~BodyScale();
 
-    const auto& getAxisNames() { return getProperty_axes(); }
+    
+    const Array<std::string> getAxisNames() const {
+        return Array<std::string>(getProperty_axes().begin(), getProperty_axes().end());
+    }
 
     void setAxisNames(const Array<std::string>& aAxisNames) {
         set_axes(aAxisNames);

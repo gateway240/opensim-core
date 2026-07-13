@@ -326,7 +326,124 @@ out all the values of any property:
 **/
 template <class T>
 class Property : public AbstractProperty {
+
+#ifndef SWIG
+class iterator {
 public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = T*;
+    using reference = T&;
+
+    iterator(Property* property, int index)
+        : _property(property), _index(index) {}
+
+    reference operator*() const {
+        return (*_property)[_index];
+    }
+
+    pointer operator->() const {
+        return &(*_property)[_index];
+    }
+
+    iterator& operator++() {
+        ++_index;
+        return *this;
+    }
+
+    iterator operator++(int) {
+        iterator copy = *this;
+        ++(*this);
+        return copy;
+    }
+
+    bool operator==(const iterator& other) const {
+        return _property == other._property &&
+                _index == other._index;
+    }
+
+    bool operator!=(const iterator& other) const {
+        return !(*this == other);
+    }
+
+private:
+    Property* _property;
+    int _index;
+};
+
+class const_iterator {
+public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = const T*;
+    using reference = const T&;
+
+    const_iterator(const Property* property, int index)
+        : _property(property), _index(index) {}
+
+    reference operator*() const {
+        return (*_property)[_index];
+    }
+
+    pointer operator->() const {
+        return &(*_property)[_index];
+    }
+
+    const_iterator& operator++() {
+        ++_index;
+        return *this;
+    }
+
+    const_iterator operator++(int) {
+        const_iterator copy = *this;
+        ++(*this);
+        return copy;
+    }
+
+    bool operator==(const const_iterator& other) const {
+        return _property == other._property &&
+                _index == other._index;
+    }
+
+    bool operator!=(const const_iterator& other) const {
+        return !(*this == other);
+    }
+private:
+    const Property* _property;
+    int _index;
+};
+#endif
+
+public:
+
+#ifndef SWIG
+    // Iterators public interface
+    iterator begin() {
+        return iterator(this, 0);
+    }
+
+    iterator end() {
+        return iterator(this, size());
+    }
+
+    const_iterator begin() const {
+        return const_iterator(this, 0);
+    }
+
+    const_iterator end() const {
+        return const_iterator(this, size());
+    }
+
+    const_iterator cbegin() const {
+        return const_iterator(this, 0);
+    }
+
+    const_iterator cend() const {
+        return const_iterator(this, size());
+    }
+#endif
     /** Provides type-specific methods used to implement generic functionality.
     This class must be specialized for any 
     type T that is used in a Property\<T> instantiation, unless T is an 
@@ -587,7 +704,11 @@ public:
     }
 
     bool isValidFileName() const {
-        return !getValue().empty() && !getValueIsDefault();
+        if constexpr (std::is_same_v<T, std::string>) {
+            return !getValue().empty() && !getValueIsDefault();
+        } else {
+            return false;
+        }
     }
 
 protected:

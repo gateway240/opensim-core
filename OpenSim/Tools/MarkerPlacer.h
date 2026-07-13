@@ -125,7 +125,7 @@ public:
     MarkerPlacer();
     virtual ~MarkerPlacer();
 
-    bool processModel(Model* aModel, const std::string& aPathToSubject = "");
+    bool processModel(Model* aModel, const std::string& aPathToSubject = "") const;
 
     /* Register types to be used when reading object from xml file. */
     static void registerTypes();
@@ -144,12 +144,11 @@ public:
         set_marker_file(aFileName);
     }
 
-    const auto& getTimeRange() const { return getProperty_time_range(); }
+    const Array<double> getTimeRange() const { return Array<double>(getProperty_time_range().begin(), getProperty_time_range().end()); }
     void setTimeRange(const Array<double>& timeRange) {
         set_time_range(timeRange);
     }
-
-    const auto& getIKTaskSet() { return getProperty_ik_task_set(); }
+    const Property<IKTask>& getIKTaskSet() const { return getProperty_ik_task_set(); }
 
     const std::string& getCoordinateFileName() const {
         return get_coordinate_file();

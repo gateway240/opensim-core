@@ -24,6 +24,8 @@
 // INCLUDES
 #include "OpenSim/Common/STOFileAdapter.h"
 #include "OpenSim/Common/TRCFileAdapter.h"
+#include "OpenSim/Tools/IKTask.h"
+#include <memory>
 
 #include <OpenSim/Auxiliary/auxiliaryTestFunctions.h>
 #include <OpenSim/Common/Reporter.h>
@@ -143,63 +145,83 @@ int main()
     return 0;
 }
 
+void insertIKMarkerTask(Property<IKTask>& tasks,
+                        int index,
+                        const IKTask& marker)
+{
+    auto copy = tasks.clone();
+
+    tasks.clear();
+
+    for (int i = 0; i < copy->size(); ++i) {
+        if (i == index) {
+            tasks.adoptAndAppendValue(marker.clone());
+        }
+
+        tasks.adoptAndAppendValue((*copy)[i].clone());
+    }
+
+    if (index >= copy->size()) {
+        tasks.adoptAndAppendValue(marker.clone());
+    }
+}
+
 void testMarkerWeightAssignments(const std::string& ikSetupFile)
 {
     // Check the consistency for the IKTaskSet in the IKTool setup
     InverseKinematicsTool ik(ikSetupFile);
 
     // Get a copy of the IK tasks
-    IKTaskSet tasks = ik.upd_IKTaskSet();
+    auto& tasks = ik.updProperty_ik_task_set();
 
     // assign different weightings so we can verify the assignments
-    int nt = tasks.getSize();
+    int nt = tasks.size();
     for (int i=0; i < nt; ++i) {
         tasks[i].setWeight(double(i));
     }
 
-    cout << tasks.dump() << endl;
-    // update tasks used by the IK tool
-    ik.upd_IKTaskSet() = tasks;
+    cout << tasks.toString() << endl;
 
     // perform the check
     checkMarkersReferenceConsistencyFromTool(ik);
 
     // Now reverse the order and reduce the number of tasks
     // so that marker and tasks lists are no longer the same
-    IKTaskSet tasks2;
-    tasks2.setName("half_markers");
+    auto tasks2 = ik.getProperty_ik_task_set().clone();
+    tasks2->clear();
+    tasks2->setName("half_markers");
 
     for (int i = nt-1; i >= 0 ; i -= 2) {
-        tasks2.adoptAndAppend(tasks[i].clone());
+        tasks2->adoptAndAppendValue(tasks[i].clone());
     }
 
-    cout << tasks2.dump() << endl;
-    ik.upd_IKTaskSet() = tasks2;
+    cout << tasks2->toString() << endl;
+    ik.updProperty_ik_task_set().setValue(*tasks2);
 
     // perform the check
     checkMarkersReferenceConsistencyFromTool(ik);
 
     //Now use more tasks than there are actual markers
-    IKMarkerTask* newMarker = new IKMarkerTask();
-    newMarker->setName("A");
-    newMarker->setWeight(101);
+    auto newMarker = IKMarkerTask();
+    newMarker.setName("A");
+    newMarker.setWeight(101);
     //insert at the very beginning
-    tasks.insert(0, newMarker);
-    newMarker = new IKMarkerTask();
-    newMarker->setName("B");
-    newMarker->setWeight(101);
+    insertIKMarkerTask(tasks, 0, newMarker);
+    newMarker = IKMarkerTask();
+    newMarker.setName("B");
+    newMarker.setWeight(101);
     // add one in the middle
-    tasks.insert(nt / 2, newMarker);
-    newMarker = new IKMarkerTask();
-    newMarker->setName("C");
-    newMarker->setWeight(103);
+    insertIKMarkerTask(tasks, nt / 2, newMarker);
+    newMarker = IKMarkerTask();
+    newMarker.setName("C");
+    newMarker.setWeight(103);
     // and one more at the end
-    tasks.adoptAndAppend(newMarker);
+    tasks.adoptAndAppendValue(&newMarker);
     tasks.setName("Added superfluous tasks");
 
-    cout << tasks.dump() << endl;
+    cout << tasks.toString() << endl;
     // update the tasks of the IK Tool
-    ik.upd_IKTaskSet() = tasks;
+    ik.updProperty_ik_task_set().setValue(tasks);
 
     // perform the check: superfluous tasks should also be ignored
     checkMarkersReferenceConsistencyFromTool(ik);
@@ -211,7 +233,7 @@ void checkMarkersReferenceConsistencyFromTool(InverseKinematicsTool& ik)
     SimTK::Array_<CoordinateReference> coordinateReferences;
 
     ik.populateReferences(markersReference, coordinateReferences);
-    const IKTaskSet& tasks = ik.get_IKTaskSet();
+    const auto& tasks = ik.getProperty_ik_task_set();
 
     // Need a model to get a state, doesn't matter which model.
     Model model;
@@ -223,7 +245,7 @@ void checkMarkersReferenceConsistencyFromTool(InverseKinematicsTool& ik)
 
     for (unsigned int i=0; i < names.size(); ++i) {
         std::cout << names[i] << ": " << weights[i];
-        int ix = tasks.getIndex(names[i]);
+        int ix = tasks.findIndexForName(names[i]);
         if (ix > -1) {
             cout << " in TaskSet: " << tasks[ix].getWeight() << endl;
             SimTK_ASSERT_ALWAYS(weights[i] == tasks[ix].getWeight(),

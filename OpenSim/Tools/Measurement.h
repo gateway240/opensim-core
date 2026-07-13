@@ -25,13 +25,13 @@
 
 
 // INCLUDE
-#include "OpenSim/Simulation/Model/BodyScale.h"
-#include "OpenSim/Tools/MarkerPair.h"
 #include "osimToolsDLL.h"
 #include <vector>
 
 #include <OpenSim/Common/Object.h>
 #include <OpenSim/Common/Property.h>
+#include <OpenSim/Simulation/Model/BodyScale.h>
+#include <OpenSim/Tools/MarkerPair.h>
 
 #ifdef SWIG
     #ifdef OSIMTOOLS_API
@@ -78,16 +78,16 @@ public:
     Measurement();
     virtual ~Measurement();
 
-    const auto& getBodyScaleSet() { return getProperty_body_scale_set(); }
+    const Array<BodyScale> getBodyScaleSet() const { return Array<BodyScale>(getProperty_body_scale_set().begin(), getProperty_body_scale_set().end()); }
+    const Array<MarkerPair> getMarkerPairSet() const { return Array<MarkerPair>(getProperty_marker_pair_set().begin(), getProperty_marker_pair_set().end()); }
 
-    const auto& getMarkerPairSet() { return getProperty_marker_pair_set(); }
     int getNumMarkerPairs() const;
     const MarkerPair& getMarkerPair(int aIndex) const;
 
     bool getApply() const { return get_apply(); }
     void setApply(bool aApply) { set_apply(aApply); }
 
-    void applyScaleFactor(double aFactor, std::vector<Scale>& aScaleSet);
+    void applyScaleFactor(double aFactor, std::vector<Scale>& aScaleSet) const;
 
     /* Register types to be used when reading a Measurement object from xml file. */
     static void registerTypes();

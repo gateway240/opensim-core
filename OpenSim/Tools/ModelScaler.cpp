@@ -108,6 +108,9 @@ void ModelScaler::updateFromXMLNode(
     Super::updateFromXMLNode(node, versionNumber);
 }
 
+const Array<Measurement> ModelScaler::getMeasurementSet() const { return Array<Measurement>(getProperty_measurement_set().begin(), getProperty_measurement_set().end()); }
+const Array<Scale> ModelScaler::getScaleSet() const { return Array<Scale>(getProperty_scale_set().begin(), getProperty_scale_set().end());}
+
 void ModelScaler::addMeasurement(Measurement* aMeasurement) {
     updProperty_measurement_set().adoptAndAppendValue(aMeasurement);
 }
@@ -141,7 +144,7 @@ void ModelScaler::setMeasurementSet(
  * @return Whether the scaling process was successful or not.
  */
 bool ModelScaler::processModel(
-        Model* aModel, const string& aPathToSubject, double aSubjectMass) {
+        Model* aModel, const string& aPathToSubject, double aSubjectMass) const {
     if (!getApply()) return false;
 
     int i;
@@ -199,7 +202,7 @@ bool ModelScaler::processModel(
                         double scaleFactor = computeMeasurementScaleFactor(s,
                                 *aModel, *markerData, get_measurement_set(j));
                         if (!SimTK::isNaN(scaleFactor))
-                            upd_measurement_set(j).applyScaleFactor(
+                            get_measurement_set(j).applyScaleFactor(
                                     scaleFactor, theScaleSet);
                         else
                             log_warn("'{}' measurement not used to scale {}",

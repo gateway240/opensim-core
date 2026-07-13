@@ -23,7 +23,12 @@
  * limitations under the License.                                             *
  * -------------------------------------------------------------------------- */
 
+#include "OpenSim/Common/Array.h"
+#include "OpenSim/Tools/IKCoordinateTask.h"
+#include "OpenSim/Tools/IKMarkerTask.h"
 #include "osimToolsDLL.h"
+#include <variant>
+#include <vector>
 
 #include <OpenSim/Common/Object.h>
 #include <OpenSim/Common/Property.h>
@@ -102,8 +107,7 @@ public:
     const std::string& getCoordinateFileName() const {
         return get_coordinate_file();
     };
-
-    const auto& getIKTaskSet() { return getProperty_ik_task_set(); }
+    const Property<IKTask>& getIKTaskSet() const { return getProperty_ik_task_set(); }
 
     //--------------------------------------------------------------------------
     // INTERFACE

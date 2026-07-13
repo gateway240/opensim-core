@@ -100,7 +100,7 @@ public:
     virtual ~ModelScaler();
 
     bool processModel(Model* aModel, const std::string& aPathToSubject = "",
-            double aFinalMass = -1.0);
+            double aFinalMass = -1.0) const;
     /* Register types to be used when reading a ModelScaler object from xml file. */
     static void registerTypes();
 
@@ -119,14 +119,14 @@ public:
     bool getApply() const { return get_apply(); }
     void setApply(bool aApply) { set_apply(aApply); }
 
-    const auto& getMeasurementSet() { return getProperty_measurement_set(); }
+    const Array<Measurement> getMeasurementSet() const;
     void setMeasurementSet(const std::set<Measurement>& measurementSet);
 
-    const auto& getScaleSet() { return getProperty_scale_set(); }
+    const Array<Scale> getScaleSet() const;
     void setScaleSetFile(const std::string& aScaleSetFilename);
 
-    const auto& getTimeRange() const { return getProperty_time_range(); }
-    void setTimeRange(Array<double> timeRange) { set_time_range(timeRange); }
+    const Array<double> getTimeRange() const { return Array<double>(getProperty_time_range().begin(), getProperty_time_range().end()); }
+    void setTimeRange(const Array<double>& timeRange) { set_time_range(timeRange); }
 
     bool getPreserveMassDist() const {
         return get_preserve_mass_distribution();
@@ -135,7 +135,7 @@ public:
         set_preserve_mass_distribution(preserveMassDist);
     }
 
-    const auto& getScalingOrder() { return getProperty_scaling_order(); }
+    const Array<std::string> getScalingOrder() const { return Array<std::string>(getProperty_scaling_order().begin(), getProperty_scaling_order().end());}
     void setScalingOrder(Array<std::string>& scalingOrder) {
         set_scaling_order(scalingOrder);
     }

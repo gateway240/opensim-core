@@ -74,7 +74,7 @@ public:
         set_segment_name(aSegmentName);
     };
 
-    const auto& getScaleFactors() { return get_scale_factors(); }
+    const SimTK::Vec3& getScaleFactors() const { return get_scale_factors(); }
     void setScaleFactors(const SimTK::Vec3& aScaleFactors) {
         set_scale_factors(aScaleFactors);
     };
