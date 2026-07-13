@@ -568,11 +568,10 @@ SimTK::Xml::Element XMLDocument::findElementWithName(
     return searchForElement(root, name);
 }
 
-void XMLDocument::replaceObjectSet(
-    SimTK::Xml::Element& node, const std::string& old_set_name, const std::string& new_set_name) {
+void XMLDocument::replaceObjectSet(SimTK::Xml::Element& node,
+        const std::string& old_set_name, const std::string& new_set_name) {
     if (node.hasElement(old_set_name)) {
         auto setIter = node.element_begin(old_set_name);
-        auto setName = setIter->getOptionalAttribute("name");
         if (setIter->hasElement("objects")) {
 
             auto objectsIter = setIter->element_begin("objects");
@@ -580,12 +579,12 @@ void XMLDocument::replaceObjectSet(
             if (objectsIter != setIter->element_end()) {
                 SimTK::Xml::Element newListElement(new_set_name);
 
-                if (setName.isValid()) {
+                if (setIter->hasAttribute("name")) {
                     newListElement.setAttributeValue("name",
-                            setName.getValue());
+                            setIter->getRequiredAttributeValue("name"));
                 }
 
-                // Copy all task objects 
+                // Copy all task objects
                 for (auto taskIter = objectsIter->element_begin();
                         taskIter != objectsIter->element_end(); ++taskIter) {
 
@@ -595,6 +594,6 @@ void XMLDocument::replaceObjectSet(
                 node.insertNodeAfter(setIter, newListElement);
             }
         }
-        node.eraseNode(setIter);        
+        node.eraseNode(setIter);
     }
 }

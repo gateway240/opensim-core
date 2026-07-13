@@ -25,13 +25,13 @@
 
 
 // INCLUDE
-#include <iostream>
-#include <memory>
-#include <string>
 #include "Object.h"
 #include "OpenSim/Common/Array.h"
 #include "OpenSim/Common/MarkerFrame.h"
 #include "OpenSim/Common/Units.h"
+#include <iostream>
+#include <memory>
+#include <string>
 
 namespace OpenSim {
 
@@ -65,9 +65,9 @@ private:
     Array<std::string> _markerNames;
     Array<std::shared_ptr<MarkerFrame>> _frames;
 
-//=============================================================================
-// METHODS
-//=============================================================================
+    //=============================================================================
+    // METHODS
+    //=============================================================================
     //--------------------------------------------------------------------------
     // CONSTRUCTION
     //--------------------------------------------------------------------------

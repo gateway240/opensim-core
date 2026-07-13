@@ -91,9 +91,10 @@ public:
 
     /* Register types to be used when reading a Measurement object from xml file. */
     static void registerTypes();
-    
-    void updateFromXMLNode(SimTK::Xml::Element& node, int versionNumber=-1)
-        override;
+
+    void updateFromXMLNode(
+            SimTK::Xml::Element& node, int versionNumber = -1) override;
+
 private:
     void constructProperties();
     //=============================================================================

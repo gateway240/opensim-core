@@ -149,8 +149,8 @@ public:
     static SimTK::Xml::Element findElementWithName(
             SimTK::Xml::Element& element, const std::string& name);
 
-    static void replaceObjectSet(
-            SimTK::Xml::Element& node, const std::string& old_set_name, const std::string& new_set_name);
+    static void replaceObjectSet(SimTK::Xml::Element& node,
+            const std::string& old_set_name, const std::string& new_set_name);
 
 private:
     static bool isElementEqual(SimTK::Xml::Element& elt1, SimTK::Xml::Element& elt2, double toleranceForDoubles);

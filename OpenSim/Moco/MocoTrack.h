@@ -276,7 +276,8 @@ public:
         set_markers_weight_set(mocoMarkerWeightSet);
     }
 
-    /// Set the marker weights based on the IKMarkerTask objects of an IKTaskSet.
+    /// Set the marker weights based on the IKMarkerTask objects of an
+    /// IKTaskSet.
     void setMarkerWeightsFromIKTaskSet(const Property<IKTask>& ikTaskSet) {
         Set<MarkerWeight> markerWeightSet;
         for (int i = 0; i < ikTaskSet.size(); i++) {

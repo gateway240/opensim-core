@@ -96,7 +96,8 @@ void MarkerPlacer::updateFromXMLNode(
         SimTK::Xml::Element& node, int versionNumber) {
     if (versionNumber < XMLDocument::getLatestVersion() &&
             versionNumber <= 40600) {
-        XMLDocument::replaceObjectSet(node, "IKTaskSet", getProperty_ik_task_set().getName());
+        XMLDocument::replaceObjectSet(
+                node, "IKTaskSet", getProperty_ik_task_set().getName());
     }
     Super::updateFromXMLNode(node, versionNumber);
 }
@@ -129,8 +130,7 @@ bool MarkerPlacer::processModel(Model* aModel, const string& aPathToSubject) {
     /* Load the static pose marker file, and average all the
      * frames in the user-specified time range.
      */
-    TimeSeriesTableVec3 staticPoseTable{
-            aPathToSubject + get_marker_file()};
+    TimeSeriesTableVec3 staticPoseTable{aPathToSubject + get_marker_file()};
     const auto& timeCol = staticPoseTable.getIndependentColumn();
 
     // Users often set a time range that purposely exceeds the range of
@@ -201,8 +201,7 @@ bool MarkerPlacer::processModel(Model* aModel, const string& aPathToSubject) {
     // create CoordinateReferences for Coordinate Tasks
     std::unique_ptr<FunctionSet> coordFunctions;
     // bool haveCoordinateFile = false;
-    if (get_coordinate_file() != "" &&
-            get_coordinate_file() != "Unassigned") {
+    if (get_coordinate_file() != "" && get_coordinate_file() != "Unassigned") {
         Storage coordinateValues(aPathToSubject + get_coordinate_file());
         aModel->getSimbodyEngine().convertDegreesToRadians(coordinateValues);
         // haveCoordinateFile = true;
@@ -306,15 +305,14 @@ bool MarkerPlacer::processModel(Model* aModel, const string& aPathToSubject) {
         }
 
         if (getProperty_output_marker_file().isValidFileName()) {
-            aModel->writeMarkerFile(
-                    aPathToSubject + get_output_marker_file());
+            aModel->writeMarkerFile(aPathToSubject + get_output_marker_file());
             log_info("Wrote marker file '{}' from model {}.",
                     get_output_marker_file(), aModel->getName());
         }
 
         if (getProperty_output_motion_file().isValidFileName()) {
-            _outputStorage->print(
-                    aPathToSubject + get_output_motion_file(), "w",
+            _outputStorage->print(aPathToSubject + get_output_motion_file(),
+                    "w",
                     "File generated from solving marker data for model " +
                             aModel->getName());
         }

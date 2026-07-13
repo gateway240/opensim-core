@@ -85,8 +85,10 @@ void Measurement::updateFromXMLNode(
         SimTK::Xml::Element& node, int versionNumber) {
     if (versionNumber < XMLDocument::getLatestVersion() &&
             versionNumber <= 40600) {
-        XMLDocument::replaceObjectSet(node, "MarkerPairSet", getProperty_marker_pair_set().getName());
-        XMLDocument::replaceObjectSet(node, "BodyScaleSet", getProperty_body_scale_set().getName());
+        XMLDocument::replaceObjectSet(
+                node, "MarkerPairSet", getProperty_marker_pair_set().getName());
+        XMLDocument::replaceObjectSet(
+                node, "BodyScaleSet", getProperty_body_scale_set().getName());
     }
     Super::updateFromXMLNode(node, versionNumber);
 }

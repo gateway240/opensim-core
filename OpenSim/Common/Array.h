@@ -343,13 +343,9 @@ public:
         return size();
     }
 
-    void clear() {
-        _storage.clear();
-    }
+    void clear() { _storage.clear(); }
 
-    template <typename... Args>
-    T& emplace_back(Args&&... args)
-    {
+    template <typename... Args> T& emplace_back(Args&&... args) {
         _storage.emplace_back(std::forward<Args>(args)...);
         return _storage.back();
     }

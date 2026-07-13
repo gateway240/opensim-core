@@ -23,7 +23,6 @@
  * limitations under the License.                                             *
  * -------------------------------------------------------------------------- */
 
-
 // INCLUDE
 #include "osimToolsDLL.h"
 
@@ -114,11 +113,11 @@ OpenSim_DECLARE_PROPERTY(move_model_markers, bool,
         "preview the static pose)");
 
 protected:
-// This is cached during processModel() so the GUI can access it.
-mutable SimTK::ResetOnCopy<std::unique_ptr<Storage>> _outputStorage;
-//=============================================================================
-// METHODS
-//=============================================================================
+    // This is cached during processModel() so the GUI can access it.
+    mutable SimTK::ResetOnCopy<std::unique_ptr<Storage>> _outputStorage;
+    //=============================================================================
+    // METHODS
+    //=============================================================================
     //--------------------------------------------------------------------------
     // CONSTRUCTION
     //--------------------------------------------------------------------------
@@ -127,7 +126,7 @@ public:
     virtual ~MarkerPlacer();
 
     bool processModel(Model* aModel, const std::string& aPathToSubject = "");
-    
+
     /* Register types to be used when reading object from xml file. */
     static void registerTypes();
     //--------------------------------------------------------------------------
@@ -160,9 +159,7 @@ public:
         set_coordinate_file(aCoordinateFileName);
     }
 
-    const std::string& getMarkerFileName() const {
-        return get_marker_file();
-    }
+    const std::string& getMarkerFileName() const { return get_marker_file(); }
     void setMarkerFileName( const std::string& aMarkerFileName)
     {
         set_marker_file(aMarkerFileName);
@@ -207,8 +204,8 @@ public:
 
     Storage *getOutputStorage();
 
-    void updateFromXMLNode(SimTK::Xml::Element& node, int versionNumber=-1)
-        override;
+    void updateFromXMLNode(
+            SimTK::Xml::Element& node, int versionNumber = -1) override;
 
 private:
     void constructProperties();

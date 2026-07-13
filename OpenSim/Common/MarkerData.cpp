@@ -24,17 +24,18 @@
 //=============================================================================
 // INCLUDES
 //=============================================================================
-#include <iostream>
-#include <fstream>
-#include <math.h>
-#include <float.h>
 #include "MarkerData.h"
+
+#include "OpenSim/Auxiliary/auxiliaryTestFunctions.h"
+#include "OpenSim/Common/MarkerFrame.h"
+#include "OpenSim/Common/STOFileAdapter.h"
 #include "SimmIO.h"
 #include "SimmMacros.h"
 #include "Storage.h"
-#include "OpenSim/Auxiliary/auxiliaryTestFunctions.h"
-#include "OpenSim/Common/STOFileAdapter.h"
-#include "OpenSim/Common/MarkerFrame.h"
+#include <float.h>
+#include <fstream>
+#include <iostream>
+#include <math.h>
 #include <memory>
 
 //=============================================================================
@@ -199,7 +200,8 @@ void MarkerData::readTRCFile(const string& aFileName, MarkerData& aSMD)
 #endif
       }
 
-       auto& frame = aSMD._frames.emplace_back(std::make_shared<MarkerFrame>(aSMD._numMarkers, frameNum, time, aSMD._units));
+      auto& frame = aSMD._frames.emplace_back(std::make_shared<MarkerFrame>(
+              aSMD._numMarkers, frameNum, time, aSMD._units));
 
       /* keep reading sets of coordinates until the end of the line is
        * reached. If more coordinates were read than there are markers,
@@ -553,7 +555,8 @@ void MarkerData::readStoFile(const string& aFileName)
         StateVector* nextRow = store.getStateVector(i);
         time = nextRow->getTime();
         int frameNum = i+1;
-        auto& frame = _frames.emplace_back(std::make_shared<MarkerFrame>(_numMarkers, frameNum, time, _units));
+        auto& frame = _frames.emplace_back(std::make_shared<MarkerFrame>(
+                _numMarkers, frameNum, time, _units));
         const Array<double>& rowData = nextRow->getData();
         // Cycle through map and add Marker coordinates to the frame. Same order as header.
         for (iter = markerIndices.begin(); iter != markerIndices.end(); iter++) {
@@ -788,7 +791,6 @@ void MarkerData::averageFrames(double aThreshold, double aStartTime, double aEnd
 
     log_info("Averaged frames from time {} to {} in {} (frames {} to {})",
             aStartTime, aEndTime, _fileName, startUserIndex, endUserIndex);
-
 }
 
 //_____________________________________________________________________________

@@ -119,9 +119,7 @@ public:
     bool getApply() const { return get_apply(); }
     void setApply(bool aApply) { set_apply(aApply); }
 
-    const auto& getMeasurementSet() {
-        return getProperty_measurement_set();
-    }
+    const auto& getMeasurementSet() { return getProperty_measurement_set(); }
     void setMeasurementSet(const std::set<Measurement>& measurementSet);
 
     const auto& getScaleSet() { return getProperty_scale_set(); }
@@ -130,7 +128,9 @@ public:
     const auto& getTimeRange() const { return getProperty_time_range(); }
     void setTimeRange(Array<double> timeRange) { set_time_range(timeRange); }
 
-    bool getPreserveMassDist() const { return get_preserve_mass_distribution(); }
+    bool getPreserveMassDist() const {
+        return get_preserve_mass_distribution();
+    }
     void setPreserveMassDist(bool preserveMassDist) {
         set_preserve_mass_distribution(preserveMassDist);
     }
@@ -140,9 +140,7 @@ public:
         set_scaling_order(scalingOrder);
     }
 
-    const std::string& getMarkerFileName() const {
-        return get_marker_file();
-    }
+    const std::string& getMarkerFileName() const { return get_marker_file(); }
     void setMarkerFileName(const std::string& aMarkerFileName) {
         set_marker_file(aMarkerFileName);
     }
@@ -167,8 +165,9 @@ public:
 
     double computeMeasurementScaleFactor(const SimTK::State& s, const Model& aModel, const MarkerData& aMarkerData, const Measurement& aMeasurement) const;
 
-    void updateFromXMLNode(SimTK::Xml::Element& node, int versionNumber=-1)
-        override;
+    void updateFromXMLNode(
+            SimTK::Xml::Element& node, int versionNumber = -1) override;
+
 private:
     void constructProperties();
     double takeModelMeasurement(const SimTK::State& s, const Model& aModel, const std::string& aName1, const std::string& aName2, const std::string& aMeasurementName) const;

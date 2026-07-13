@@ -23,9 +23,9 @@
  * limitations under the License.                                             *
  * -------------------------------------------------------------------------- */
 #include "osimToolsDLL.h"
+
 #include <OpenSim/Common/Object.h>
 #include <OpenSim/Common/Property.h>
-
 
 namespace OpenSim { 
 
