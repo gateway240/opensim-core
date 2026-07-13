@@ -58,8 +58,8 @@ OpenSim_DECLARE_CONCRETE_OBJECT(GenericModelMaker, Object);
 //=============================================================================
 public:
 OpenSim_DECLARE_PROPERTY(
-        file_name, std::string, "Model file (.osim) for the unscaled model.");
-OpenSim_DECLARE_PROPERTY(marker_set_file_name, std::string,
+        model_file, std::string, "Model file (.osim) for the unscaled model.");
+OpenSim_DECLARE_PROPERTY(marker_set_file, std::string,
         "Set of model markers used to scale the model. "
         "Scaling is done based on distances between model markers compared to "
         "the same distances between the corresponding experimental markers.");
@@ -82,22 +82,22 @@ public:
     /**
      * Get file name for generic model
      */
-    const std::string& getModelFileName() const { return get_file_name(); }
+    const std::string& getModelFileName() const { return get_model_file(); }
 
     // Set model file name
     void setModelFileName(const std::string& aFileName)
     {
-        set_file_name(aFileName);
+        set_model_file(aFileName);
     }
 
     const std::string& getMarkerSetFileName() const
     {
-        return get_marker_set_file_name();
+        return get_marker_set_file();
     }
 
     void setMarkerSetFileName(const std::string& aFileName)
     {
-        set_marker_set_file_name(aFileName);
+        set_marker_set_file(aFileName);
     }
 
 private:

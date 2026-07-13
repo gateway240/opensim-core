@@ -58,8 +58,8 @@ MarkerPair::~MarkerPair()
 /**
  */
 MarkerPair::MarkerPair(const std::string& aName1, const std::string& aName2) {
-    updProperty_marker_names().appendValue(aName1);
-    updProperty_marker_names().appendValue(aName2);
+    updProperty_markers().appendValue(aName1);
+    updProperty_markers().appendValue(aName2);
 }
 
 //=============================================================================
@@ -73,11 +73,11 @@ MarkerPair::MarkerPair(const std::string& aName1, const std::string& aName2) {
  */
 void MarkerPair::constructProperties() {
     Array<std::string> markerNames{"", ""};
-    constructProperty_marker_names(markerNames);
+    constructProperty_markers(markerNames);
 }
 
 void MarkerPair::getMarkerNames(string& aName1, string& aName2) const
 {
-    aName1 = get_marker_names(0);
-    aName2 = get_marker_names(1);
+    aName1 = get_markers(0);
+    aName2 = get_markers(1);
 }

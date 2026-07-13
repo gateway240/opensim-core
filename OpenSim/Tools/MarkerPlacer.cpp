@@ -36,10 +36,12 @@
 #include <OpenSim/Common/IO.h>
 #include <OpenSim/Common/MarkerData.h>
 #include <OpenSim/Common/Storage.h>
+#include <OpenSim/Common/XMLDocument.h>
 #include <OpenSim/Simulation/CoordinateReference.h>
 #include <OpenSim/Simulation/InverseKinematicsSolver.h>
 #include <OpenSim/Simulation/MarkersReference.h>
 #include <OpenSim/Simulation/Model/Model.h>
+
 //=============================================================================
 // STATICS
 //=============================================================================
@@ -73,13 +75,13 @@ MarkerPlacer::~MarkerPlacer() {
 void MarkerPlacer::constructProperties() {
     constructProperty_apply(true);
     constructProperty_ik_task_set();
-    constructProperty_marker_file_name("");
-    constructProperty_coordinate_file_name("");
+    constructProperty_marker_file("");
+    constructProperty_coordinate_file("");
     const Array<double> defaultTimeRange = {-1.0, -1.0};
     constructProperty_time_range(defaultTimeRange);
-    constructProperty_output_motion_file_name("");
-    constructProperty_output_model_file_name("");
-    constructProperty_output_marker_file_name("");
+    constructProperty_output_motion_file("");
+    constructProperty_output_model_file("");
+    constructProperty_output_marker_file("");
     constructProperty_max_marker_movement(-1.0);
     constructProperty_print_result_files(false);
     constructProperty_move_model_markers(true);
@@ -92,43 +94,9 @@ void MarkerPlacer::registerTypes() {
 
 void MarkerPlacer::updateFromXMLNode(
         SimTK::Xml::Element& node, int versionNumber) {
-    std::cout << "Document version: " << versionNumber << std::endl;
-    std::cout << "Latest version: " << XMLDocument::getLatestVersion()
-              << std::endl;
     if (versionNumber < XMLDocument::getLatestVersion() &&
-            versionNumber < 40600) {
-        std::cout << "Starting modifications: " << std::endl;
-        auto taskSetElement = node.getOptionalElement("IKTaskSet");
-        // std::cout << "Found taskSet: " << taskSetElement << std::endl;
-        auto taskSetIter = node.element_begin("IKTaskSet");
-
-        if (taskSetIter->hasElement("objects")) {
-
-            auto objectsIter = taskSetIter->element_begin("objects");
-
-            if (objectsIter != taskSetIter->element_end()) {
-
-                SimTK::Xml::Element taskListElement("ik_task_set");
-
-                if (taskSetIter->hasAttribute("name")) {
-                    taskListElement.setAttributeValue("name",
-                            taskSetIter->getRequiredAttributeValue("name"));
-                }
-
-                // Copy all task objects (IKMarkerTask, IKCoordinateTask, ...)
-                for (auto taskIter = objectsIter->element_begin();
-                        taskIter != objectsIter->element_end(); ++taskIter) {
-
-                    taskListElement.appendNode(taskIter->clone());
-                }
-
-                node.insertNodeAfter(taskSetIter, taskListElement);
-            }
-        }
-
-        node.eraseNode(taskSetIter);
-        // auto taskSetAfter = node.getOptionalElement("ik_task_set");
-        // std::cout << "Found after taskSet: " << taskSetAfter << std::endl;
+            versionNumber <= 40600) {
+        XMLDocument::replaceObjectSet(node, "IKTaskSet", getProperty_ik_task_set().getName());
     }
     Super::updateFromXMLNode(node, versionNumber);
 }
@@ -162,7 +130,7 @@ bool MarkerPlacer::processModel(Model* aModel, const string& aPathToSubject) {
      * frames in the user-specified time range.
      */
     TimeSeriesTableVec3 staticPoseTable{
-            aPathToSubject + get_marker_file_name()};
+            aPathToSubject + get_marker_file()};
     const auto& timeCol = staticPoseTable.getIndependentColumn();
 
     // Users often set a time range that purposely exceeds the range of
@@ -198,7 +166,7 @@ bool MarkerPlacer::processModel(Model* aModel, const string& aPathToSubject) {
                 "Units", staticPoseUnits.getAbbreviation());
     }
 
-    MarkerData staticPose = MarkerData(aPathToSubject + get_marker_file_name());
+    MarkerData staticPose = MarkerData(aPathToSubject + get_marker_file());
     staticPose.averageFrames(
             get_max_marker_movement(), get_time_range(0), get_time_range(1));
     staticPose.convertToUnits(aModel->getLengthUnits());
@@ -219,7 +187,6 @@ bool MarkerPlacer::processModel(Model* aModel, const string& aPathToSubject) {
     // From createMarkerWeightSet
     for (int i = 0; i < getProperty_ik_task_set().size(); i++) {
         const auto& nextTask = get_ik_task_set(i);
-        std::cout << "found next task: " << nextTask << std::endl;
         if (nextTask.getApply()) {
             markerWeightSet.cloneAndAppend(
                     MarkerWeight(nextTask.getName(), nextTask.getWeight()));
@@ -234,9 +201,9 @@ bool MarkerPlacer::processModel(Model* aModel, const string& aPathToSubject) {
     // create CoordinateReferences for Coordinate Tasks
     std::unique_ptr<FunctionSet> coordFunctions;
     // bool haveCoordinateFile = false;
-    if (get_coordinate_file_name() != "" &&
-            get_coordinate_file_name() != "Unassigned") {
-        Storage coordinateValues(aPathToSubject + get_coordinate_file_name());
+    if (get_coordinate_file() != "" &&
+            get_coordinate_file() != "Unassigned") {
+        Storage coordinateValues(aPathToSubject + get_coordinate_file());
         aModel->getSimbodyEngine().convertDegreesToRadians(coordinateValues);
         // haveCoordinateFile = true;
         coordFunctions = std::make_unique<GCVSplineSet>(5, &coordinateValues);
@@ -332,22 +299,22 @@ bool MarkerPlacer::processModel(Model* aModel, const string& aPathToSubject) {
     if (get_print_result_files()) {
         auto cwd = IO::CwdChanger::changeTo(aPathToSubject);
 
-        if (getProperty_output_model_file_name().isValidFileName()) {
-            aModel->print(aPathToSubject + get_output_model_file_name());
+        if (getProperty_output_model_file().isValidFileName()) {
+            aModel->print(aPathToSubject + get_output_model_file());
             log_info("Wrote model file '{}' from model {}.",
-                    get_output_model_file_name(), aModel->getName());
+                    get_output_model_file(), aModel->getName());
         }
 
-        if (getProperty_output_marker_file_name().isValidFileName()) {
+        if (getProperty_output_marker_file().isValidFileName()) {
             aModel->writeMarkerFile(
-                    aPathToSubject + get_output_marker_file_name());
+                    aPathToSubject + get_output_marker_file());
             log_info("Wrote marker file '{}' from model {}.",
-                    get_output_marker_file_name(), aModel->getName());
+                    get_output_marker_file(), aModel->getName());
         }
 
-        if (getProperty_output_motion_file_name().isValidFileName()) {
+        if (getProperty_output_motion_file().isValidFileName()) {
             _outputStorage->print(
-                    aPathToSubject + get_output_motion_file_name(), "w",
+                    aPathToSubject + get_output_motion_file(), "w",
                     "File generated from solving marker data for model " +
                             aModel->getName());
         }

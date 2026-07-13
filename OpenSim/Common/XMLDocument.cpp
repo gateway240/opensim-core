@@ -567,3 +567,34 @@ SimTK::Xml::Element XMLDocument::findElementWithName(
     };
     return searchForElement(root, name);
 }
+
+void XMLDocument::replaceObjectSet(
+    SimTK::Xml::Element& node, const std::string& old_set_name, const std::string& new_set_name) {
+    if (node.hasElement(old_set_name)) {
+        auto setIter = node.element_begin(old_set_name);
+        auto setName = setIter->getOptionalAttribute("name");
+        if (setIter->hasElement("objects")) {
+
+            auto objectsIter = setIter->element_begin("objects");
+
+            if (objectsIter != setIter->element_end()) {
+                SimTK::Xml::Element newListElement(new_set_name);
+
+                if (setName.isValid()) {
+                    newListElement.setAttributeValue("name",
+                            setName.getValue());
+                }
+
+                // Copy all task objects 
+                for (auto taskIter = objectsIter->element_begin();
+                        taskIter != objectsIter->element_end(); ++taskIter) {
+
+                    newListElement.appendNode(taskIter->clone());
+                }
+
+                node.insertNodeAfter(setIter, newListElement);
+            }
+        }
+        node.eraseNode(setIter);        
+    }
+}

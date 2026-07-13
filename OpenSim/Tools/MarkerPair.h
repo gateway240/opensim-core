@@ -49,7 +49,7 @@ OpenSim_DECLARE_CONCRETE_OBJECT(MarkerPair, Object);
 private:
 
 protected:
-    OpenSim_DECLARE_LIST_PROPERTY_SIZE(marker_names, std::string, 2,
+    OpenSim_DECLARE_LIST_PROPERTY_SIZE(markers, std::string, 2,
             "Names of two markers, the distance between which is used to "
             "compute a body scale factor.");
 
@@ -66,10 +66,10 @@ public:
 
     void getMarkerNames(std::string& aName1, std::string& aName2) const;
     const std::string& getMarkerName(int i) const {
-        if (getProperty_marker_names().size() < i + 1)
+        if (getProperty_markers().size() < i + 1)
             throw Exception("MarkerPair: ERROR- Pair has incorrect number of Marker names, 2 required.",
                              __FILE__,__LINE__);
-        return get_marker_names(i);
+        return get_markers(i);
     }
     void setMarkerName(int i, const std::string& aName) {
         // _markerNames.set(i,aName);

@@ -26,7 +26,9 @@
 //=============================================================================
 #include "Measurement.h"
 
+#include "OpenSim/Common/Logger.h"
 #include "OpenSim/Common/Scale.h"
+#include "OpenSim/Common/XMLDocument.h"
 #include "OpenSim/Simulation/Model/BodyScale.h"
 #include "OpenSim/Tools/MarkerPair.h"
 
@@ -79,7 +81,15 @@ void Measurement::registerTypes()
     Object::registerType(MarkerPair());
     Object::registerType(BodyScale());
 }
-
+void Measurement::updateFromXMLNode(
+        SimTK::Xml::Element& node, int versionNumber) {
+    if (versionNumber < XMLDocument::getLatestVersion() &&
+            versionNumber <= 40600) {
+        XMLDocument::replaceObjectSet(node, "MarkerPairSet", getProperty_marker_pair_set().getName());
+        XMLDocument::replaceObjectSet(node, "BodyScaleSet", getProperty_body_scale_set().getName());
+    }
+    Super::updateFromXMLNode(node, versionNumber);
+}
 //=============================================================================
 // OPERATORS
 //=============================================================================
@@ -105,7 +115,7 @@ void Measurement::applyScaleFactor(
         double aFactor, std::vector<Scale>& aScaleSet) {
     for (int i = 0; i < getProperty_body_scale_set().size(); i++) {
         const string& bodyName = get_body_scale_set(i).getName();
-        const auto& axisNames = get_body_scale_set(i).getProperty_axis_names();
+        const auto& axisNames = get_body_scale_set(i).getProperty_axes();
         for (size_t j = 0; j < aScaleSet.size(); j++) {
             if (aScaleSet[j].getSegmentName() == bodyName)
             {

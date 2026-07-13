@@ -28,6 +28,7 @@
 
 #include "OpenSim/Common/Scale.h"
 #include "OpenSim/Common/ScaleSet.h"
+#include "OpenSim/Common/XMLDocument.h"
 #include "OpenSim/Tools/MarkerPair.h"
 #include "OpenSim/Tools/Measurement.h"
 #include <vector>
@@ -73,12 +74,12 @@ void ModelScaler::constructProperties() {
     constructProperty_scaling_order(sorder);
     constructProperty_measurement_set();
     constructProperty_scale_set();
-    constructProperty_marker_file_name("");
+    constructProperty_marker_file("");
     const Array<double> defaultTimeRange = {-1.0, -1.0};
     constructProperty_time_range(defaultTimeRange);
-    constructProperty_preserve_mass_dist(true);
-    constructProperty_output_model_file_name("");
-    constructProperty_output_scale_file_name("");
+    constructProperty_preserve_mass_distribution(true);
+    constructProperty_output_model_file("");
+    constructProperty_output_scale_file("");
     constructProperty_print_result_files(false);
 }
 
@@ -89,8 +90,19 @@ void ModelScaler::constructProperties() {
 void ModelScaler::registerTypes()
 {
     Object::registerType(Measurement());
-    //Object::registerType(Scale());
+    Object::registerType(Scale());
     Measurement::registerTypes();
+}
+
+void ModelScaler::updateFromXMLNode(
+        SimTK::Xml::Element& node, int versionNumber) {
+    if (versionNumber < XMLDocument::getLatestVersion() &&
+            versionNumber <= 40600) {
+        log_info("Measurement set: {}", getProperty_measurement_set().getName());
+        XMLDocument::replaceObjectSet(node, "MeasurementSet", getProperty_measurement_set().getName());
+        XMLDocument::replaceObjectSet(node, "ScaleSet", getProperty_scale_set().getName());
+    }
+    Super::updateFromXMLNode(node, versionNumber);
 }
 
 void ModelScaler::addMeasurement(Measurement* aMeasurement) {
@@ -119,7 +131,7 @@ void ModelScaler::setMeasurementSet(
 //_____________________________________________________________________________
 /**
  * This method scales a model based on user-specified XYZ body scale factors
- * and/or a set of marker-to-marker distance measurements.
+ * and/or a set of marker-to-marker distributionance measurements.
  *
  * @param aModel the model to scale.
  * @param aSubjectMass the final mass of the model after scaling.
@@ -153,7 +165,7 @@ bool ModelScaler::processModel(
     {
         /* Make adjustments to theScaleSet, in the user-specified order. */
         for (i = 0; i < getProperty_scaling_order().size(); i++) {
-            /* For measurements, measure the distance between a pair of markers
+            /* For measurements, measure the distributionance between a pair of markers
              * in the model, and in the static pose. The latter divided by the
              * former is the scale factor. Put that scale factor in theScaleSet,
              * using the body/axis names specified in the measurement to
@@ -163,10 +175,10 @@ bool ModelScaler::processModel(
                 /* Load the static pose marker file, and convert units.
                 */
                 std::unique_ptr<MarkerData> markerData{};
-                if (!get_marker_file_name().empty() &&
-                        !getProperty_marker_file_name().getValueIsDefault()) {
+                if (!get_marker_file().empty() &&
+                        !getProperty_marker_file().getValueIsDefault()) {
                     markerData.reset(new MarkerData(
-                            aPathToSubject + get_marker_file_name()));
+                            aPathToSubject + get_marker_file()));
                     markerData->convertToUnits(aModel->getLengthUnits());
                 }
 
@@ -176,7 +188,7 @@ bool ModelScaler::processModel(
                         if(!markerData)
                             throw Exception(
                                     "ModelScaler.processModel: ERROR- " +
-                                            getProperty_marker_file_name()
+                                            getProperty_marker_file()
                                                     .getName() +
                                             " not set but measurements are "
                                             "used",
@@ -226,21 +238,21 @@ bool ModelScaler::processModel(
         for (size_t i = 0; i < theScaleSet.size(); i++) {
             scaleSet.cloneAndAppend(theScaleSet[i]);
         }
-        aModel->scale(s, scaleSet, get_preserve_mass_dist(), aSubjectMass);
+        aModel->scale(s, scaleSet, get_preserve_mass_distribution(), aSubjectMass);
 
         if (get_print_result_files()) {
             auto cwd = IO::CwdChanger::changeTo(aPathToSubject);
 
-            if (getProperty_output_model_file_name().isValidFileName()) {
-                if (aModel->print(get_output_model_file_name()))
+            if (getProperty_output_model_file().isValidFileName()) {
+                if (aModel->print(get_output_model_file()))
                     log_info("Wrote model file '{}' from model.",
-                            get_output_model_file_name(), aModel->getName());
+                            get_output_model_file(), aModel->getName());
             }
 
-            if (getProperty_output_scale_file_name().isValidFileName()) {
-                if (scaleSet.print(get_output_scale_file_name()))
+            if (getProperty_output_scale_file().isValidFileName()) {
+                if (scaleSet.print(get_output_scale_file()))
                     log_info("Wrote scale file '{}' for model {}.",
-                            get_output_scale_file_name(), aModel->getName());
+                            get_output_scale_file(), aModel->getName());
             }
         }
     }
@@ -255,8 +267,8 @@ bool ModelScaler::processModel(
 //_____________________________________________________________________________
 /**
  * For measurement based scaling, we average the scale factors across the different marker pairs used.
- * For each marker pair, the scale factor is computed by dividing the average distance between the pair 
- * in the experimental marker data by the distance between the pair on the model.
+ * For each marker pair, the scale factor is computed by dividing the average distributionance between the pair 
+ * in the experimental marker data by the distributionance between the pair on the model.
  */
 double ModelScaler::computeMeasurementScaleFactor(const SimTK::State& s, const Model& aModel, const MarkerData& aMarkerData, const Measurement& aMeasurement) const
 {
@@ -281,9 +293,9 @@ double ModelScaler::computeMeasurementScaleFactor(const SimTK::State& s, const M
 
 //_____________________________________________________________________________
 /**
- * Measure the distance between two model markers.
+ * Measure the distributionance between two model markers.
  *
- * @return The measured distance.
+ * @return The measured distributionance.
  */
 double ModelScaler::takeModelMeasurement(const SimTK::State& s, const Model& aModel, const string& aName1, const string& aName2, const string& aMeasurementName) const
 {
@@ -302,7 +314,7 @@ double ModelScaler::takeModelMeasurement(const SimTK::State& s, const Model& aMo
 
 //_____________________________________________________________________________
 /**
- * Measure the average distance between a marker pair in an experimental marker data.
+ * Measure the average distributionance between a marker pair in an experimental marker data.
  */
 double ModelScaler::takeExperimentalMarkerMeasurement(const MarkerData& aMarkerData, const string& aName1, const string& aName2, const string& aMeasurementName) const
 {

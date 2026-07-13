@@ -46,7 +46,7 @@ OpenSim_DECLARE_CONCRETE_OBJECT(BodyScale, Object);
 // DATA
 //=============================================================================
 public:
-OpenSim_DECLARE_LIST_PROPERTY(axis_names, std::string,
+OpenSim_DECLARE_LIST_PROPERTY(axes, std::string,
         "Axes (X Y Z) along which to scale a body. "
         "For example, 'X Y Z' scales along all three axes, and 'Y' scales "
         "just along the Y axis.")
@@ -60,10 +60,10 @@ OpenSim_DECLARE_LIST_PROPERTY(axis_names, std::string,
         public : BodyScale();
     virtual ~BodyScale();
 
-    const auto& getAxisNames() { return getProperty_axis_names(); }
+    const auto& getAxisNames() { return getProperty_axes(); }
 
     void setAxisNames(const Array<std::string>& aAxisNames) {
-        set_axis_names(aAxisNames);
+        set_axes(aAxisNames);
     }
 
 protected:

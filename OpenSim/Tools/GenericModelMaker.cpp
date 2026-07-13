@@ -58,8 +58,8 @@ GenericModelMaker::~GenericModelMaker()
  * Connect properties to local pointers.
  */
 void GenericModelMaker::constructProperties() {
-    constructProperty_file_name("");
-    constructProperty_marker_set_file_name("");
+    constructProperty_model_file("");
+    constructProperty_marker_set_file("");
 }
 
 //_____________________________________________________________________________
@@ -88,16 +88,16 @@ std::unique_ptr<Model> GenericModelMaker::processModel(
     {
         std::string modelPath = SimTK::Pathname::
                 getAbsolutePathnameUsingSpecifiedWorkingDirectory(
-                        aPathToSubject, get_file_name());
+                        aPathToSubject, get_model_file());
         std::cout << modelPath << std::endl;
-        auto model = std::make_unique<Model>(get_file_name());
+        auto model = std::make_unique<Model>(get_model_file());
         model->initSystem();
 
-        if (!getProperty_marker_set_file_name().getValueIsDefault() &&
-                get_marker_set_file_name() != "Unassigned") {
+        if (!getProperty_marker_set_file().getValueIsDefault() &&
+                get_marker_set_file() != "Unassigned") {
             std::string markerSetPath = SimTK::Pathname::
                     getAbsolutePathnameUsingSpecifiedWorkingDirectory(
-                            aPathToSubject, get_marker_set_file_name());
+                            aPathToSubject, get_marker_set_file());
             log_info("Loading marker set from '{}'.", markerSetPath);
             MarkerSet markerSet = MarkerSet(markerSetPath);
             model->updateMarkerSet(markerSet);

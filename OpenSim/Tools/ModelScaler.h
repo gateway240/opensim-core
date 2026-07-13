@@ -68,7 +68,7 @@ OpenSim_DECLARE_LIST_PROPERTY(measurement_set, Measurement,
         "Specifies the measurements by which body segments are to be scaled.");
 OpenSim_DECLARE_LIST_PROPERTY(
         scale_set, Scale, "Scale factors to be used for manual scaling.");
-OpenSim_DECLARE_PROPERTY(marker_file_name, std::string,
+OpenSim_DECLARE_PROPERTY(marker_file, std::string,
         "TRC file (.trc) containing the marker positions used for "
         "measurement-based scaling. "
         "This is usually a static trial, but doesn't need to be.  The "
@@ -77,12 +77,12 @@ OpenSim_DECLARE_PROPERTY(marker_file_name, std::string,
 OpenSim_DECLARE_LIST_PROPERTY_SIZE(time_range, double, 2,
         "Time range over which to average marker-pair distances in the marker "
         "file (.trc) for ");
-OpenSim_DECLARE_PROPERTY(preserve_mass_dist, bool,
+OpenSim_DECLARE_PROPERTY(preserve_mass_distribution, bool,
         "Flag (true or false) indicating whether or not to preserve relative "
         "mass between segments.");
-OpenSim_DECLARE_PROPERTY(output_model_file_name, std::string,
+OpenSim_DECLARE_PROPERTY(output_model_file, std::string,
         "Name of OpenSim model file (.osim) to write when done scaling.");
-OpenSim_DECLARE_PROPERTY(output_scale_file_name, std::string,
+OpenSim_DECLARE_PROPERTY(output_scale_file, std::string,
         "Name of file to write containing the scale factors that were applied "
         "to the unscaled model (optional).");
 OpenSim_DECLARE_PROPERTY(print_result_files, bool,
@@ -130,9 +130,9 @@ public:
     const auto& getTimeRange() const { return getProperty_time_range(); }
     void setTimeRange(Array<double> timeRange) { set_time_range(timeRange); }
 
-    bool getPreserveMassDist() const { return get_preserve_mass_dist(); }
+    bool getPreserveMassDist() const { return get_preserve_mass_distribution(); }
     void setPreserveMassDist(bool preserveMassDist) {
-        set_preserve_mass_dist(preserveMassDist);
+        set_preserve_mass_distribution(preserveMassDist);
     }
 
     const auto& getScalingOrder() { return getProperty_scaling_order(); }
@@ -141,24 +141,24 @@ public:
     }
 
     const std::string& getMarkerFileName() const {
-        return get_marker_file_name();
+        return get_marker_file();
     }
     void setMarkerFileName(const std::string& aMarkerFileName) {
-        set_marker_file_name(aMarkerFileName);
+        set_marker_file(aMarkerFileName);
     }
 
     const std::string& getOutputModelFileName() const {
-        return get_output_model_file_name();
+        return get_output_model_file();
     }
     void setOutputModelFileName(const std::string& aOutputModelFileName) {
-        set_output_model_file_name(aOutputModelFileName);
+        set_output_model_file(aOutputModelFileName);
     }
 
     const std::string& getOutputScaleFileName() const {
-        return get_output_scale_file_name();
+        return get_output_scale_file();
     }
     void setOutputScaleFileName(const std::string& aOutputScaleFileName) {
-        set_output_scale_file_name(aOutputScaleFileName);
+        set_output_scale_file(aOutputScaleFileName);
     }
 
     void setPrintResultFiles(bool aToWrite) {
@@ -166,6 +166,9 @@ public:
     }
 
     double computeMeasurementScaleFactor(const SimTK::State& s, const Model& aModel, const MarkerData& aMarkerData, const Measurement& aMeasurement) const;
+
+    void updateFromXMLNode(SimTK::Xml::Element& node, int versionNumber=-1)
+        override;
 private:
     void constructProperties();
     double takeModelMeasurement(const SimTK::State& s, const Model& aModel, const std::string& aName1, const std::string& aName2, const std::string& aMeasurementName) const;
