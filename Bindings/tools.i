@@ -2,7 +2,6 @@
 //osimTools
 %include <OpenSim/Tools/osimToolsDLL.h>
 %include <OpenSim/Tools/IKTask.h>
-%template(SetIKTasks) OpenSim::Set<OpenSim::IKTask, OpenSim::Object>;
 %include <OpenSim/Tools/IKMarkerTask.h>
 %include <OpenSim/Tools/IKCoordinateTask.h>
 %include <OpenSim/Tools/MarkerPair.h>
