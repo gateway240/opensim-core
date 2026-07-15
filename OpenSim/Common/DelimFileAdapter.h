@@ -603,10 +603,12 @@ DelimFileAdapter<T>::extendWrite(const InputTables& absTables,
         try {
             if(key != "header")
                 out_stream << key << "=" 
-                           << table->
-                              template getTableMetaData<std::string>(key) 
+                           << table->getTableMetaDataAsString(key) 
                            << "\n";
-        } catch(const InvalidTemplateArgument&) {}
+        } catch(const InvalidTemplateArgument& e) {
+
+            std::cout << "Error serializing header: " << e.getMessage() << std::endl;
+        }
     }
     // Write name of the data-type -- vec3, vec6, etc.
     out_stream << _dataTypeString << "=" << dataTypeName() << "\n";
