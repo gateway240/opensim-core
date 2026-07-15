@@ -407,11 +407,6 @@ C3DFileAdapter::extendRead(const std::string& fileName) const {
     analog_table.
             updTableMetaData().
             setValueForKey("Types", std::move(fpTypes));
-
-    analog_table.
-            updTableMetaData().
-            setValueForKey("DataRate",
-                            std::to_string(analogFrequency));
     tables.emplace(_analog, std::shared_ptr<TimeSeriesTable>(&analog_table));
     return tables;
 
