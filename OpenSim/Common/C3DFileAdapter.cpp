@@ -84,14 +84,17 @@ C3DFileAdapter::extendRead(const std::string& fileName) const {
         if (eventDescription.size() > i){
             eventDescriptionStr = eventDescription[i];
         }
-        event_table.push_back(
-                {
-                        c3d.header().eventsLabel(i),
-                        static_cast<double>(c3d.header().eventsTime(i)),
-                        static_cast<int>(
-                                c3d.header().eventsTime(i) / c3d.header().frameRate()),
-                        eventDescriptionStr
-                });
+        const std::string& eventLabel = c3d.header().eventsLabel(i);
+        if (!eventLabel.empty()) {
+            event_table.push_back(
+                    {
+                            eventLabel,
+                            static_cast<double>(c3d.header().eventsTime(i)),
+                            static_cast<int>(
+                                    c3d.header().eventsTime(i) / c3d.header().frameRate()),
+                            eventDescriptionStr
+                    });
+        }
     }
     OutputTables tables{};
 
@@ -389,6 +392,26 @@ C3DFileAdapter::extendRead(const std::string& fileName) const {
     auto& analog_table =
         *(new TimeSeriesTable(analog_times, analog_data_matrix, analog_labels));
     analog_table.updTableMetaData().setValueForKey("DataRate", std::to_string(analogFrequency));
+    analog_table.
+            updTableMetaData().
+            setValueForKey("CalibrationMatrices", std::move(fpCalMatrices));
+
+    analog_table.
+            updTableMetaData().
+            setValueForKey("Corners", std::move(fpCorners));
+
+    analog_table.
+            updTableMetaData().
+            setValueForKey("Origins", std::move(fpOrigins));
+
+    analog_table.
+            updTableMetaData().
+            setValueForKey("Types", std::move(fpTypes));
+
+    analog_table.
+            updTableMetaData().
+            setValueForKey("DataRate",
+                            std::to_string(analogFrequency));
     tables.emplace(_analog, std::shared_ptr<TimeSeriesTable>(&analog_table));
     return tables;
 
