@@ -153,7 +153,7 @@ void DynamicsTool::disableModelForces(Model &model, SimTK::State &s, const Array
 bool DynamicsTool::createExternalLoads( const string& aExternalLoadsFileName,
                                         Model& aModel)
 {
-    if(aExternalLoadsFileName == "" || aExternalLoadsFileName == "Unassigned") {
+    if(aExternalLoadsFileName == "" || aExternalLoadsFileName == "Unassigned" || getProperty_ExternalLoads().empty()) {
         log_info("No external loads will be applied (external loads file not "
                  "specified).");
         return false;
@@ -170,7 +170,7 @@ bool DynamicsTool::createExternalLoads( const string& aExternalLoadsFileName,
 
     try {
         // Only load the external loads from file if they are not specified
-        if (getProperty_ExternalLoads().getValueIsDefault()) {
+        if (getProperty_ExternalLoads().empty()) {
             externalLoads = ExternalLoads(aExternalLoadsFileName, true);
             copyModel.addModelComponent(&externalLoads);
         }
