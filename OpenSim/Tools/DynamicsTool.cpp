@@ -25,6 +25,7 @@
 // INCLUDES
 //=============================================================================
 #include "DynamicsTool.h"
+#include "OpenSim/Simulation/Model/ExternalForce.h"
 #include <OpenSim/Simulation/Model/Model.h>
 #include <OpenSim/Common/IO.h>
 #include <OpenSim/Common/Storage.h>
@@ -46,13 +47,9 @@ DynamicsTool::~DynamicsTool()
 /**
  * Default constructor.
  */
-DynamicsTool::DynamicsTool() : Tool(),
-    _modelFileName(_modelFileNameProp.getValueStr()),
-    _timeRange(_timeRangeProp.getValueDblVec()),
-    _excludedForces(_excludedForcesProp.getValueStrArray()),
-    _externalLoadsFileName(_externalLoadsFileNameProp.getValueStr())
+DynamicsTool::DynamicsTool() : Tool()
 {
-    setNull();
+    constructProperties();
 }
 //_____________________________________________________________________________
 /**
@@ -64,100 +61,32 @@ DynamicsTool::DynamicsTool() : Tool(),
  * @param aFileName File name of the document.
  */
 DynamicsTool::DynamicsTool(const string &aFileName, bool aLoadModel) :
-    Tool(aFileName, false),
-    _modelFileName(_modelFileNameProp.getValueStr()),
-    _timeRange(_timeRangeProp.getValueDblVec()),
-    _excludedForces(_excludedForcesProp.getValueStrArray()),
-    _externalLoadsFileName(_externalLoadsFileNameProp.getValueStr())
+    Tool(aFileName, false)
 {
-    setNull();
     updateFromXMLDocument();
 
     if(aLoadModel) {
         //loadModel(aFileName);
     }
 }
-//_____________________________________________________________________________
-/**
- * Copy constructor.
- *
- * @param aTool Object to be copied.
 
- */
-DynamicsTool::DynamicsTool(const DynamicsTool &aTool) : Tool(aTool),
-    _modelFileName(_modelFileNameProp.getValueStr()),
-    _timeRange(_timeRangeProp.getValueDblVec()),
-    _excludedForces(_excludedForcesProp.getValueStrArray()),
-    _externalLoadsFileName(_externalLoadsFileNameProp.getValueStr())
-{
-    setNull();
-    *this = aTool;
-}
-
-//_____________________________________________________________________________
-/**
- * Set all member variables to their null or default values.
- */
-void DynamicsTool::setNull()
-{
-    setupProperties();
-    _model = NULL;
-}
-//_____________________________________________________________________________
 /**
  * Connect properties to local pointers.
  */
-void DynamicsTool::setupProperties()
+void DynamicsTool::constructProperties()
 {
-    _modelFileNameProp.setComment("Name of the .osim file used to construct a model.");
-    _modelFileNameProp.setName("model_file");
-    _propertySet.append( &_modelFileNameProp );
-
-    SimTK::Vec2  defaultTimeRange(-std::numeric_limits<SimTK::Real>::infinity(), std::numeric_limits<SimTK::Real>::infinity());
-    _timeRangeProp.setComment("Time range over which the inverse dynamics problem is solved.");
-    _timeRangeProp.setName("time_range");
-    _timeRangeProp.setValue(defaultTimeRange);
-    _propertySet.append(&_timeRangeProp);
-
-    _excludedForcesProp.setComment(
-            "List of forces by individual or grouping name "
-            "(e.g. All, actuators, muscles, ...)"
-            " to be excluded when computing model dynamics. "
-            "'All' also excludes external loads added "
-            "via 'external_loads_file'.");
-    _excludedForcesProp.setName("forces_to_exclude");
-    _propertySet.append(&_excludedForcesProp);
-
-    string comment = "XML file (.xml) containing the external loads applied to the model as a set of ExternalForce(s).";
-    _externalLoadsFileNameProp.setComment(comment);
-    _externalLoadsFileNameProp.setName("external_loads_file");
-    _propertySet.append( &_externalLoadsFileNameProp );
-
+    constructProperty_model_file("");
+    Array<double>  defaultTimeRange{-std::numeric_limits<SimTK::Real>::infinity(), std::numeric_limits<SimTK::Real>::infinity()};
+    constructProperty_time_range(defaultTimeRange);
+    constructProperty_forces_to_exclude();
+    constructProperty_external_loads_file("");
+    constructProperty_ExternalLoads(ExternalLoads());
 }
 
 //=============================================================================
 // OPERATORS
 //=============================================================================
 //_____________________________________________________________________________
-/**
- * Assignment operator.
- *
- * @return Reference to this object.
- */
-DynamicsTool& DynamicsTool::operator=(const DynamicsTool &aTool)
-{
-    // BASE CLASS
-    Tool::operator=(aTool);
-
-    // MEMBER VARIABLES
-    _modelFileName = aTool._modelFileName;
-    _timeRange = aTool._timeRange;
-    _excludedForces = aTool._excludedForces;
-    _externalLoadsFileName = aTool._externalLoadsFileName;
-
-    return(*this);
-}
-
 /** Modify model to exclude specified forces by disabling those identified by name or group */
 void DynamicsTool::disableModelForces(Model &model, SimTK::State &s, const Array<std::string> &forcesByNameOrGroup)
 {   
@@ -237,10 +166,14 @@ bool DynamicsTool::createExternalLoads( const string& aExternalLoadsFileName,
     copyModel.updControllerSet().clearAndDestroy();
 
     // Create external forces
-    ExternalLoads* externalLoads = nullptr;
+    auto& externalLoads = upd_ExternalLoads();
+
     try {
-        externalLoads = new ExternalLoads(aExternalLoadsFileName, true);
-        copyModel.addModelComponent(externalLoads);
+        // Only load the external loads from file if they are not specified
+        if (getProperty_ExternalLoads().getValueIsDefault()) {
+            externalLoads = ExternalLoads(aExternalLoadsFileName, true);
+            copyModel.addModelComponent(&externalLoads);
+        }
     }
     catch (const Exception &ex) {
         // Important to catch exceptions here so we can restore current working directory...
@@ -253,11 +186,9 @@ bool DynamicsTool::createExternalLoads( const string& aExternalLoadsFileName,
     }
 
     //Now add the ExternalLoads (transformed or not) to the Model to be analyzed
-    ExternalLoads* exLoadsClone = externalLoads->clone();
+    ExternalLoads* exLoadsClone = externalLoads.clone();
     aModel.addModelComponent(exLoadsClone);
 
-    // copy over created external loads to the external loads owned by the tool
-    _externalLoads = *externalLoads;
     // tool holds on to a reference of the external loads in the model so it can
     // be removed afterwards
     _modelExternalLoads = exLoadsClone;
