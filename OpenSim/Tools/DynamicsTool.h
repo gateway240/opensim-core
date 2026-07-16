@@ -25,7 +25,9 @@
 
 #include "osimToolsDLL.h"
 #include <OpenSim/Simulation/Model/ExternalLoads.h>
+#include <OpenSim/Common/Property.h>
 #include "Tool.h"
+#include <string>
 
 #ifdef SWIG
     #ifdef OSIMTOOLS_API
@@ -55,29 +57,21 @@ OpenSim_DECLARE_ABSTRACT_OBJECT(DynamicsTool, Tool);
 //=============================================================================
 // MEMBER VARIABLES
 //=============================================================================
+public:
+OpenSim_DECLARE_PROPERTY(model_file, std::string, "Name of the .osim file used to construct a model.");
+OpenSim_DECLARE_LIST_PROPERTY_SIZE(time_range, double, 2, "Time range over which the inverse dynamics problem is solved.");
+OpenSim_DECLARE_LIST_PROPERTY(forces_to_exclude, std::string, "List of forces by individual or grouping name "
+            "(e.g. All, actuators, muscles, ...)"
+            " to be excluded when computing model dynamics. "
+            "'All' also excludes external loads added "
+            "via 'external_loads_file'."); 
+OpenSim_DECLARE_PROPERTY(external_loads_file, std::string, "XML file (.xml) containing the external loads applied to the model as a set of ExternalForce(s).")
+OpenSim_DECLARE_PROPERTY(ExternalLoads, ExternalLoads, "ExternalLoads member for creating and editing applied external forces"
+    "(e.g. GRFs through the GUI) prior to running the Tool")
+
 protected:
-    
     /** Pointer to the model being investigated. */
     Model *_model;
-
-    /** Name of the xml file used to deserialize or construct a model. */
-    PropertyStr _modelFileNameProp;
-    std::string &_modelFileName;
-
-    /** The range of time over which to perform the dynamics analysis */
-    PropertyDblVec2 _timeRangeProp;
-    SimTK::Vec2 &_timeRange;
-
-    /** Identify the list of forces to be ignored for computing dynamics */
-    PropertyStrArray _excludedForcesProp;
-    Array<std::string> &_excludedForces;
-
-    /** Name of the file containing the external loads applied to the model. */
-    OpenSim::PropertyStr _externalLoadsFileNameProp;
-    std::string &_externalLoadsFileName;
-    /** ExternalLoads member for creating and editing applied external forces
-    (e.g. GRFs through the GUI) prior to running the Tool */
-    ExternalLoads   _externalLoads;
     // Reference to external loads added to the model but not owned by the Tool
     SimTK::ReferencePtr<ExternalLoads> _modelExternalLoads;
 
@@ -92,53 +86,42 @@ public:
     virtual ~DynamicsTool();
     DynamicsTool();
     DynamicsTool(const std::string &aFileName, bool aLoadModel=true) SWIG_DECLARE_EXCEPTION;
-    DynamicsTool(const DynamicsTool &aTool);
 
     /** Modify model to exclude specified forces by disabling those identified by name or group */
     void disableModelForces(Model &model, SimTK::State &s, const Array<std::string> &forcesByNameOrGroup);
     
-    const ExternalLoads& getExternalLoads() const { return _externalLoads; }
-    ExternalLoads& updExternalLoads() { return _externalLoads; }
+    const ExternalLoads& getExternalLoads() const { return get_ExternalLoads(); }
+    ExternalLoads& updExternalLoads() { return upd_ExternalLoads(); }
 
     // External loads get/set
-    const std::string &getExternalLoadsFileName() const { return _externalLoadsFileName; }
+    const std::string &getExternalLoadsFileName() const { return get_external_loads_file(); }
     void setExternalLoadsFileName(const std::string &aFileName) { 
-        _externalLoadsFileName = aFileName;
-        _externalLoadsFileNameProp.setValueIsDefault(false);
+        set_external_loads_file(aFileName);
     }
 
     // Model file name
     void setModelFileName(const std::string &aFileName) {
-        _modelFileName = aFileName;
-        _modelFileNameProp.setValueIsDefault(false);
+        set_model_file(aFileName);
     }
 
-    std::string getModelFileName() const { return _modelFileName; };
+    std::string getModelFileName() const { return get_model_file(); };
+
 private:
-    void setNull();
-    void setupProperties();
+    void constructProperties();
 
-    //--------------------------------------------------------------------------
-    // OPERATORS
-    //--------------------------------------------------------------------------
 public:
-#ifndef SWIG
-    DynamicsTool& operator=(const DynamicsTool &aDynamicsTool);
-#endif
-
-
     //--------------------------------------------------------------------------
     // INTERFACE
     //--------------------------------------------------------------------------
-    void setStartTime(double d) { _timeRange[0] = d; };
-    double getStartTime() const {return  _timeRange[0]; };
+    void setStartTime(double d) { upd_time_range(0) = d; };
+    double getStartTime() const {return  get_time_range(0); };
 
-    void setEndTime(double d) { _timeRange[1] = d; };
-    double getEndTime() const {return  _timeRange[1]; };
+    void setEndTime(double d) { upd_time_range(1) = d; };
+    double getEndTime() const {return  get_time_range(1); };
     void setModel(Model& aModel) { _model = &aModel; };
 
     void setExcludedForces(const Array<std::string> &aExcluded) {
-        _excludedForces = aExcluded;
+        set_forces_to_exclude(aExcluded);
     }
     bool createExternalLoads( const std::string &externalLoadsFileName,
                               Model& model);

@@ -56,14 +56,9 @@ InverseDynamicsTool::~InverseDynamicsTool()
 /**
  * Default constructor.
  */
-InverseDynamicsTool::InverseDynamicsTool() : DynamicsTool(),
-    _coordinatesFileName(_coordinatesFileNameProp.getValueStr()),
-    _lowpassCutoffFrequency(_lowpassCutoffFrequencyProp.getValueDbl()),
-    _outputGenForceFileName(_outputGenForceFileNameProp.getValueStr()),
-    _jointsForReportingBodyForces(_jointsForReportingBodyForcesProp.getValueStrArray()),
-    _outputBodyForcesAtJointsFileName(_outputBodyForcesAtJointsFileNameProp.getValueStr())
+InverseDynamicsTool::InverseDynamicsTool() : DynamicsTool()
 {
-    setNull();
+    constructProperties();
 }
 //_____________________________________________________________________________
 /**
@@ -75,85 +70,26 @@ InverseDynamicsTool::InverseDynamicsTool() : DynamicsTool(),
  * @param aFileName File name of the document.
  */
 InverseDynamicsTool::InverseDynamicsTool(const string &aFileName, bool aLoadModel) :
-    DynamicsTool(aFileName, false),
-    _coordinatesFileName(_coordinatesFileNameProp.getValueStr()),
-    _lowpassCutoffFrequency(_lowpassCutoffFrequencyProp.getValueDbl()),
-    _outputGenForceFileName(_outputGenForceFileNameProp.getValueStr()),
-    _jointsForReportingBodyForces(_jointsForReportingBodyForcesProp.getValueStrArray()),
-    _outputBodyForcesAtJointsFileName(_outputBodyForcesAtJointsFileNameProp.getValueStr())
+    DynamicsTool(aFileName, false)
 {
-    setNull();
     updateFromXMLDocument();
 
     if(aLoadModel) {
         //loadModel(aFileName);
     }
 }
-//_____________________________________________________________________________
-/**
- * Copy constructor.
- *
- * @param aTool Object to be copied.
 
- */
-InverseDynamicsTool::InverseDynamicsTool(const InverseDynamicsTool &aTool) :
-    DynamicsTool(aTool),
-    _coordinatesFileName(_coordinatesFileNameProp.getValueStr()),
-    _lowpassCutoffFrequency(_lowpassCutoffFrequencyProp.getValueDbl()),
-    _outputGenForceFileName(_outputGenForceFileNameProp.getValueStr()),
-    _jointsForReportingBodyForces(_jointsForReportingBodyForcesProp.getValueStrArray()),
-    _outputBodyForcesAtJointsFileName(_outputBodyForcesAtJointsFileNameProp.getValueStr())
-{
-    setNull();
-    *this = aTool;
-}
-
-//_____________________________________________________________________________
-/**
- * Set all member variables to their null or default values.
- */
-void InverseDynamicsTool::setNull()
-{
-    setupProperties();
-    _model = NULL;
-    _lowpassCutoffFrequency = -1.0;
-    _coordinateValues = NULL;
-}
 //_____________________________________________________________________________
 /**
  * Connect properties to local pointers.
  */
-void InverseDynamicsTool::setupProperties()
+void InverseDynamicsTool::constructProperties()
 {
-    _coordinatesFileNameProp.setComment("The name of the file containing coordinate data. Can be a motion (.mot) or a states (.sto) file.");
-    _coordinatesFileNameProp.setName("coordinates_file");
-    _propertySet.append(&_coordinatesFileNameProp);
-
-    string comment = "Low-pass cut-off frequency for filtering the coordinates_file data (currently does not apply to states_file or speeds_file). "
-                 "A negative value results in no filtering. The default value is -1.0, so no filtering.";
-    _lowpassCutoffFrequencyProp.setComment(comment);
-    _lowpassCutoffFrequencyProp.setName("lowpass_cutoff_frequency_for_coordinates");
-    _propertySet.append( &_lowpassCutoffFrequencyProp );
-
-    string genForceComment =
-            "Name of the storage file (.sto) to which the generalized forces "
-            "are written. Only a filename should be specified here (not a "
-            "full path); the file will appear in the location provided in the "
-            "results_directory property.";
-    _outputGenForceFileNameProp.setComment(genForceComment);
-    _outputGenForceFileNameProp.setName("output_gen_force_file");
-    _outputGenForceFileNameProp.setValue("inverse_dynamics.sto");
-    _propertySet.append(&_outputGenForceFileNameProp);
-
-    _jointsForReportingBodyForcesProp.setComment("List of joints (keyword All, for all joints)"
-        " to report body forces acting at the joint frame expressed in ground.");
-    _jointsForReportingBodyForcesProp.setName("joints_to_report_body_forces");
-    _propertySet.append(&_jointsForReportingBodyForcesProp);
-
-    _outputBodyForcesAtJointsFileNameProp.setComment("Name of the storage file (.sto) to which the body forces at specified joints are written.");
-    _outputBodyForcesAtJointsFileNameProp.setName("output_body_forces_file");
-    _outputBodyForcesAtJointsFileNameProp.setValue("body_forces_at_joints.sto");
-    _propertySet.append(&_outputBodyForcesAtJointsFileNameProp);
+    constructProperty_coordinates_file("");
+    constructProperty_lowpass_cutoff_frequency_for_coordinates(-1.0);
+    constructProperty_output_gen_force_file("");
+    constructProperty_joints_to_report_body_forces();
+    constructProperty_output_body_forces_file("");
 }
 
 //_____________________________________________________________________________
@@ -168,27 +104,6 @@ void InverseDynamicsTool::registerTypes()
 // OPERATORS
 //=============================================================================
 //_____________________________________________________________________________
-/**
- * Assignment operator.
- *
- * @return Reference to this object.
- */
-InverseDynamicsTool& InverseDynamicsTool::
-operator=(const InverseDynamicsTool &aTool)
-{
-    // BASE CLASS
-    DynamicsTool::operator=(aTool);
-
-    // MEMBER VARIABLES
-    _modelFileName = aTool._modelFileName;
-    _coordinatesFileName = aTool._coordinatesFileName;
-    _lowpassCutoffFrequency = aTool._lowpassCutoffFrequency;
-    _outputGenForceFileName = aTool._outputGenForceFileName;
-    _outputBodyForcesAtJointsFileName = aTool._outputBodyForcesAtJointsFileName;
-    _coordinateValues = NULL;
-
-    return(*this);
-}
 
 //=============================================================================
 // GET AND SET
@@ -198,7 +113,7 @@ void InverseDynamicsTool::setCoordinateValues(const OpenSim::Storage& aStorage)
 {
     if (_coordinateValues) delete _coordinateValues;
     _coordinateValues = new Storage(aStorage);
-    _coordinatesFileName = "";
+    set_coordinates_file("");
 }
 
 
@@ -245,10 +160,10 @@ bool InverseDynamicsTool::run()
     try{
         //Load and create the indicated model
         if (!_model) {
-            OPENSIM_THROW_IF_FRMOBJ(_modelFileName.empty(), Exception,
+            OPENSIM_THROW_IF_FRMOBJ(get_model_file().empty(), Exception,
                 "No model filename was provided.")
 
-            _model = new Model(_modelFileName);
+            _model = new Model(get_model_file());
         }
         else
             modelFromFile = false;
@@ -261,7 +176,7 @@ bool InverseDynamicsTool::run()
         // so that the parsing code behaves properly if called from a different directory.
         auto cwd = IO::CwdChanger::changeToParentOf(getDocumentFileName());
 
-        /*bool externalLoads = */createExternalLoads(_externalLoadsFileName, *_model);
+        /*bool externalLoads = */createExternalLoads(get_external_loads_file(), *_model);
         // Initialize the model's underlying computational system and get its default state.
         SimTK::State& s = _model->initSystem();
 
@@ -337,11 +252,11 @@ bool InverseDynamicsTool::run()
         std::vector<int> coordinatesToSpeedsIndexMap(nu, intUnusedSlot);
 
         if (loadCoordinateValues()){
-            if(_lowpassCutoffFrequency>=0) {
+            if(get_lowpass_cutoff_frequency_for_coordinates()>=0) {
                 log_info("Low-pass filtering coordinates data with a cutoff "
-                         "frequency of {}...", _lowpassCutoffFrequency);
+                         "frequency of {}...", get_lowpass_cutoff_frequency_for_coordinates());
                 _coordinateValues->pad(_coordinateValues->getSize()/2);
-                _coordinateValues->lowpassIIR(_lowpassCutoffFrequency);
+                _coordinateValues->lowpassIIR(get_lowpass_cutoff_frequency_for_coordinates());
             }
             // Convert degrees to radian if indicated
             if(_coordinateValues->isInDegrees()){
@@ -391,14 +306,18 @@ bool InverseDynamicsTool::run()
         }
 
         // Exclude user-specified forces from the dynamics for this analysis
-        disableModelForces(*_model, s, _excludedForces);
+        Array<std::string> forces_to_exclude = Array<std::string>();
+        for (int i = 0; i < getProperty_forces_to_exclude().size(); ++i){
+            forces_to_exclude.emplace_back(get_forces_to_exclude(i));
+        }
+        disableModelForces(*_model, s, forces_to_exclude);
 
         double first_time = _coordinateValues->getFirstTime();
         double last_time = _coordinateValues->getLastTime();
 
         // Determine the starting and final time for the Tool by comparing to what data is available
-        double start_time = ( first_time > _timeRange[0]) ? first_time : _timeRange[0];
-        double final_time = ( last_time < _timeRange[1]) ? last_time : _timeRange[1];
+        double start_time = ( first_time > get_time_range(0)) ? first_time : get_time_range(0);
+        double final_time = ( last_time < get_time_range(1)) ? last_time : get_time_range(1);
         int start_index = _coordinateValues->findIndex(start_time);
         int final_index = _coordinateValues->findIndex(final_time);
 
@@ -428,7 +347,11 @@ bool InverseDynamicsTool::run()
             watch.getElapsedTimeFormatted());
     
         JointSet jointsForEquivalentBodyForces;
-        getJointsByName(*_model, _jointsForReportingBodyForces, jointsForEquivalentBodyForces);
+        Array<std::string> joints_for_reporting_body_forces = Array<std::string>();
+        for (int i = 0; i < getProperty_joints_to_report_body_forces().size(); ++i){
+            joints_for_reporting_body_forces.emplace_back(get_joints_to_report_body_forces(i));
+        }
+        getJointsByName(*_model, joints_for_reporting_body_forces, jointsForEquivalentBodyForces);
         int nj = jointsForEquivalentBodyForces.getSize();
 
         // Generalized forces from ID Solver are in MultibodyTree order and not
@@ -499,7 +422,7 @@ bool InverseDynamicsTool::run()
         genForceResults.setName("Inverse Dynamics Generalized Forces");
 
         IO::makeDir(getResultsDir());
-        Storage::printResult(&genForceResults, _outputGenForceFileName, getResultsDir(), -1, ".sto");
+        Storage::printResult(&genForceResults, get_output_gen_force_file(), getResultsDir(), -1, ".sto");
         cwd.restore();
 
         // if body forces to be reported for specified joints
@@ -508,7 +431,7 @@ bool InverseDynamicsTool::run()
             bodyForcesResults.setName("Inverse Dynamics Body Forces at Specified Joints");
 
             IO::makeDir(getResultsDir());
-            Storage::printResult(&bodyForcesResults, _outputBodyForcesAtJointsFileName, getResultsDir(), -1, ".sto");
+            Storage::printResult(&bodyForcesResults, get_output_body_forces_file(), getResultsDir(), -1, ".sto");
         }
 
         removeExternalLoadsFromModel();
@@ -527,9 +450,9 @@ bool InverseDynamicsTool::loadCoordinateValues()
     if (_coordinateValues!= NULL) // Coordinates has been set from GUI
         return true;
     // Try constructing coordinates from specified file
-    if(_coordinatesFileName != "" && _coordinatesFileName != "Unassigned"){
-            _coordinateValues = new Storage(_coordinatesFileName);
-            _coordinateValues->setName(_coordinatesFileName);
+    if(get_coordinates_file() != "" && get_coordinates_file() != "Unassigned"){
+            _coordinateValues = new Storage(get_coordinates_file());
+            _coordinateValues->setName(get_coordinates_file());
             return true;
     }
     return false;

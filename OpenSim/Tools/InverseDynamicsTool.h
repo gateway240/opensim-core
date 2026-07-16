@@ -24,6 +24,7 @@
  * -------------------------------------------------------------------------- */
 
 #include <OpenSim/Common/Storage.h>
+#include <OpenSim/Common/Property.h>
 #include "DynamicsTool.h"
 
 #ifdef SWIG
@@ -64,29 +65,21 @@ OpenSim_DECLARE_CONCRETE_OBJECT(InverseDynamicsTool, DynamicsTool);
 //=============================================================================
 // MEMBER VARIABLES
 //=============================================================================
+public:
+OpenSim_DECLARE_PROPERTY(coordinates_file, std::string, "The name of the file containing coordinate data. Can be a motion (.mot) or a states (.sto) file.");
+OpenSim_DECLARE_PROPERTY(lowpass_cutoff_frequency_for_coordinates, double, "Low-pass cut-off frequency for filtering the coordinates_file data (currently does not apply to states_file or speeds_file). "
+                 "A negative value results in no filtering. The default value is -1.0, so no filtering.");
+OpenSim_DECLARE_PROPERTY(output_gen_force_file, std::string, "Name of the storage file (.sto) to which the generalized forces "
+            "are written. Only a filename should be specified here (not a "
+            "full path); the file will appear in the location provided in the "
+            "results_directory property.");
+OpenSim_DECLARE_LIST_PROPERTY(joints_to_report_body_forces, std::string, "List of joints (keyword All, for all joints)"
+        " to report body forces acting at the joint frame expressed in ground.");
+OpenSim_DECLARE_PROPERTY(output_body_forces_file, std::string, "Name of the storage file (.sto) to which the body forces at specified joints are written.");
+
+private:
     Storage* _coordinateValues;
-protected:
-    
-    /** name of storage file that contains coordinate values for inverse dynamics solving */
-    PropertyStr _coordinatesFileNameProp;
-    std::string &_coordinatesFileName;
 
-    /** Low-pass cut-off frequency for filtering the coordinates (does not apply to states). */
-    PropertyDbl _lowpassCutoffFrequencyProp;
-    double &_lowpassCutoffFrequency;
-
-    /** name of storage file containing generalized forces from inverse dynamics */
-    PropertyStr _outputGenForceFileNameProp;
-    std::string &_outputGenForceFileName;
-
-    /** Identify the list of joints for which equivalent body forces acting 
-        at the joint frames should be reported */
-    PropertyStrArray _jointsForReportingBodyForcesProp;
-    Array<std::string> &_jointsForReportingBodyForces;
-
-    /** name of storage file containing equivalent body forces from inverse dynamics */
-    PropertyStr _outputBodyForcesAtJointsFileNameProp;
-    std::string &_outputBodyForcesAtJointsFileName;
 
 //=============================================================================
 // METHODS
@@ -98,7 +91,6 @@ public:
     virtual ~InverseDynamicsTool();
     InverseDynamicsTool();
     InverseDynamicsTool(const std::string &aFileName, bool aLoadModel=true) SWIG_DECLARE_EXCEPTION;
-    InverseDynamicsTool(const InverseDynamicsTool &aObject);
 
     /* Register types to be used when reading an InverseDynamicsTool object from xml file. */
     static void registerTypes();
@@ -110,8 +102,7 @@ protected:
     void getJointsByName(Model &model, const Array<std::string> &jointNames, JointSet &joints) const;
 
 private:
-    void setNull();
-    void setupProperties();
+    void constructProperties();
     /* If CoordinatesFile property is populated, load data into a live _coordinateValues
     storage object. */
     bool loadCoordinateValues();
@@ -120,9 +111,6 @@ private:
     // OPERATORS
     //--------------------------------------------------------------------------
 public:
-#ifndef SWIG
-    InverseDynamicsTool& operator=(const InverseDynamicsTool &aInverseDynamicsTool);
-#endif
 
     //--------------------------------------------------------------------------    
     // GET AND SET
@@ -131,18 +119,18 @@ public:
     /**
      * get/set the name of the file to be used as output from the tool
      */
-    std::string getOutputGenForceFileName() const { return _outputGenForceFileName;}
+    std::string getOutputGenForceFileName() const { return get_output_gen_force_file();}
     void setOutputGenForceFileName(const std::string& desiredOutputFileName) {
-        _outputGenForceFileName = desiredOutputFileName;
+        set_output_gen_force_file(desiredOutputFileName);
     }
     /**
      * get/set the name of the file containing coordinates
      */
-    const std::string& getCoordinatesFileName() const { return _coordinatesFileName;};
+    const std::string& getCoordinatesFileName() const { return get_coordinates_file();};
     /** %Set the name of the coordinatesFile to be used. This call resets 
      _coordinateValues as well. */
     void setCoordinatesFileName(const std::string& aCoordinateFile)  { 
-        _coordinatesFileName=aCoordinateFile;
+        set_coordinates_file(aCoordinateFile);
         if (_coordinateValues != NULL){
             // there's an old Storage hanging around from potentially different 
             // CoordinatesFile, wipe it out.
@@ -151,10 +139,10 @@ public:
         }
     }
     double getLowpassCutoffFrequency() const {
-        return _lowpassCutoffFrequency;
+        return get_lowpass_cutoff_frequency_for_coordinates();
     };
     void setLowpassCutoffFrequency(double aFrequency) {
-        _lowpassCutoffFrequency = aFrequency;
+        set_lowpass_cutoff_frequency_for_coordinates(aFrequency);
     }
     //--------------------------------------------------------------------------
     // INTERFACE
