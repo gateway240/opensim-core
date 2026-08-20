@@ -25,13 +25,12 @@
 
 
 // INCLUDE
-#include <iostream>
-#include <string>
 #include "Array.h"
-#include "ArrayPtrs.h"
 #include "MarkerFrame.h"
 #include "Object.h"
 #include "Units.h"
+#include <iostream>
+#include <string>
 
 namespace OpenSim {
 
@@ -63,11 +62,11 @@ private:
     std::string _fileName;
     Units _units;
     Array<std::string> _markerNames;
-    ArrayPtrs<MarkerFrame> _frames;
+    std::vector<MarkerFrame> _frames;
 
-//=============================================================================
-// METHODS
-//=============================================================================
+    //=============================================================================
+    // METHODS
+    //=============================================================================
     //--------------------------------------------------------------------------
     // CONSTRUCTION
     //--------------------------------------------------------------------------
