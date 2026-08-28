@@ -26,7 +26,9 @@
 // INCLUDE
 #include "MeasurementSet.h"
 
+#include <OpenSim/Common/PropertyBool.h>
 #include <OpenSim/Common/PropertyDblArray.h>
+#include <OpenSim/Common/PropertyObj.h>
 #include <OpenSim/Common/PropertyStr.h>
 #include <OpenSim/Common/ScaleSet.h>
 
